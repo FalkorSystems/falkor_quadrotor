@@ -1,0 +1,15 @@
+<package>
+  <description brief="falkor_quadrotor_gazebo">
+
+     falkor_quadrotor_gazebo
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_quadrotor_gazebo</url>
+  <depend package="hector_quadrotor_gazebo"/>
+
+</package>
+
+
