@@ -1,0 +1,7 @@
+<launch>
+  <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch" />
+
+  <include file="$(find gazebo_worlds)/launch/wg_collada_world.launch" />
+
+  <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" />
+</launch>
