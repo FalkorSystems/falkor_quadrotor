@@ -1,0 +1,10 @@
+<stack>
+  <description brief="falkor_quadrotor">Falkor Systems, Inc. quadrotor-related code</description>
+  <author>Sameer Parekh</author>
+  <email>sameer@falkorsystems.com</email>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>https://github.com/sameerparekh/falkor_quadrotor</url>
+  <depend stack="hector_quadrotor" />
+
+</stack>

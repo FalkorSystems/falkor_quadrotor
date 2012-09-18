@@ -1,0 +1,15 @@
+<package>
+  <description brief="falkor_quadrotor_teleop">
+
+     falkor_quadrotor_teleop
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>https://github.com/sameerparekh/falkor_quadrotor</url>
+  <depend package="hector_quadrotor_teleop"/>
+
+</package>
+
+
