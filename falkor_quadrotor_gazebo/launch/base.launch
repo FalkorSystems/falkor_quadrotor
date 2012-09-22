@@ -1,7 +1,24 @@
 <launch>
-  <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch" />
+  <!-- simulation world -->
+  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" />
 
-  <include file="$(find gazebo_worlds)/launch/wg_collada_world.launch" />
+  <group ns="robot">
+    <!-- simulation -->
+    <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
+      <arg name="model_name" value="robot" />
+      <arg name="x_pos" value="0.0" />
+    </include>
 
-  <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor.launch" />
+    <!-- control bits -->
+    <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
+      <arg name="joy_dev" value="/dev/input/js1" />
+    </include>
+
+    <!-- localization -->
+    <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
+      <param name="tf_prefix" value="robot/estimate" />
+      <param name="nav_frame" value="/nav" />
+    </node>
+  </group>
+
 </launch>
