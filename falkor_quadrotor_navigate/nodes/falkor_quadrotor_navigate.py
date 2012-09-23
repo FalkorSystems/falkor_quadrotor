@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 #
-# we listen to a Vector3Stamped
+# we listen to a PointStamped
 # which gives us a desired position that the quad should have relative to
 # the beacon, this is going to be in base_position frame of the beacon
 #
-# Vector3Stamped is a vector where x = distance, y = bearing from North and z =
-# inclination from level
-# 
-# We then transform the Vector3Stamped into the robot's base_stabilized
+# We then transform the PointStamped into the robot's base_stabilized
 # frame
 #
 # Then we publish a Pose with the new desired position and orientation of the robot
@@ -25,59 +22,61 @@ from geometry_msgs.msg import *
 from std_msgs.msg import *
 
 class FalkorQuadrotorNav:
-    def convert_to_bearing( self, point ):
-        return( bearing, inclination )
+    def update_relative_pose( self, data ):
+        self.relative_pose = PoseStamped()
+        self.relative_pose.pose.position = data.point
+        self.relative_pose.header = data.header
 
-    def update_relative_position( self, data ):
-        self.relative_position = data
-        bearing = -numpy.arctan2( - data.point.y, data.point.x )
-        inclination = -numpy.arctan2( data.point.z, data.point.x )
-        self.relative_quaternion = Quaternion( *tuple( tf.transformations.quaternion_from_euler( 0.0, inclination, bearing ) ) )
+        bearing = numpy.arctan2( data.point.y, -data.point.x )
+        inclination = numpy.arctan2( data.point.z, numpy.sqrt( data.point.x*data.point.x +
+                                                               data.point.y*data.point.y ) )
+        self.relative_pose.pose.orientation = Quaternion( *tuple( tf.transformations.quaternion_from_euler( 0.0, inclination, -bearing ) ) )
 
     def __init__( self ):
+        self.seq = 0
         self.listener = tf.TransformListener()
 
-        self.subscriber = rospy.Subscriber( '/beacon/target_point', PointStamped,
-                                            self.update_relative_position )
-        self.nav_target = rospy.Publisher( '/robot/target_pose', PoseStamped )
-        self.relative_position = PointStamped( Header( 0, rospy.Time.now(), '/beacon/estimate/base_position' ),
-                                                 Vector3( 10, 10, 10 ) )
-        self.relative_quaternion = Quaternion( *tuple( tf.transformations.quaternion_from_euler( 0.0, 0.0, 0.0 ) ) )
+        self.subscriber = rospy.Subscriber( 'beacon/target_point', PointStamped,
+                                            self.update_relative_pose )
+        self.nav_target = rospy.Publisher( 'robot/target_pose', PoseStamped )
+        relative_point = PointStamped( Header( 0, rospy.Time.now(),
+                                              '/beacon/estimate/base_position' ),
+                                      Vector3( 1, 0.5, 0.25 ) )
+
+        self.update_relative_pose( relative_point )
+        self.publish_target_pose()
 
         self.rate = rospy.Rate(10.0)
-        self.seq = 0
+
+
+    def publish_target_pose( self ):
+        try:
+            print "Waiting for transform for " + str( self.relative_pose.header.stamp )
+            self.listener.waitForTransform( '/robot/estimate/base_stabilized',
+                                            '/beacon/estimate/base_position', self.relative_pose.header.stamp,
+                                            rospy.Duration( 4.0 ) )
+
+            (trans,rot) = self.listener.lookupTransform('/robot/estimate/base_stabilized',
+                                                        '/beacon/estimate/base_position',
+                                                        self.relative_pose.header.stamp )
+        except (tf.LookupException, tf.Exception,
+                tf.ConnectivityException, tf.ExtrapolationException):
+            print "waiting Failed"
+            return
+        print (trans,rot)
+
+        target_pose = self.listener.transformPose( '/robot/estimate/base_stabilized', self.relative_pose )
+        target_pose.header.stamp = rospy.Time.now()
+        target_pose.header.seq = self.seq
+
+        print target_pose
+        self.nav_target.publish( target_pose )
 
     def run( self ):
         while not rospy.is_shutdown():
             self.seq += 1
 
-            if not self.relative_position:
-                continue
-    
-            try:
-                self.listener.waitForTransform( '/robot/estimate/base_stabilized',
-                                                '/beacon/estimate/base_position', self.relative_position.header.stamp,
-                                                rospy.Duration( 4.0 ) )
-
-                (trans,rot) = self.listener.lookupTransform('/robot/estimate/base_stabilized',
-                                                            '/beacon/estimate/base_position',
-                                                            self.relative_position.header.stamp )
-            except (tf.LookupException,
-                    tf.ConnectivityException, tf.ExtrapolationException):
-                continue
-
-            target_point = self.listener.transformPoint( '/robot/estimate/base_stabilized', self.relative_position )
-        
-            # Calculate a quaternion from the relative_position
-            relative_quaternion_stamped = QuaternionStamped( self.relative_position.header, self.relative_quaternion )
-
-            target_quaternion = self.listener.transformQuaternion( '/robot/estimate/base_stabilized', relative_quaternion_stamped )
-            
-            target_pose = PoseStamped( target_point.header, Pose( target_point.point, target_quaternion.quaternion ) )
-            target_pose.header.stamp = rospy.Time.now()
-            target_pose.header.seq = self.seq
-
-            self.nav_target.publish( target_pose )
+            self.publish_target_pose()
             self.rate.sleep()
 
 def main():
