@@ -1,0 +1,15 @@
+<package>
+  <description brief="falkor_quadrotor_navigate">
+
+     falkor_quadrotor_navigate
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_quadrotor_navigate</url>
+  <depend package="tf" />
+
+</package>
+
+

@@ -21,4 +21,7 @@
     </node>
   </group>
 
+<!-- fake beacon position transform -->
+<node pkg="tf" type="static_transform_publisher" name="beacon_pos_broadcaster" args="1 0 0 0 0 0 /nav /beacon/estimate/base_position 100" />
+
 </launch>
