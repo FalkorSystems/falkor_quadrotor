@@ -14,9 +14,9 @@ class FalkorQuadrotorTargetPt:
         self.targetpt_pub = rospy.Publisher( "beacon/target_point", PointStamped )
         self.cmd_vel_sub = rospy.Subscriber( "cmd_vel", Twist, self.update_targetpt )
 
-        self.horizontal_distance = 10.0
+        self.horizontal_distance = 3.0
         self.bearing = 0.0
-        self.vertical_distance = 10.0
+        self.vertical_distance = 3.0
         self.last_update = rospy.Time.now()
         self.rate = rospy.Rate( 10.0 )
 

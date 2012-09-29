@@ -60,7 +60,6 @@ class FalkorQuadrotorNav:
 
     def publish_target_pose( self ):
         try:
-            print "Waiting for transform for " + str( self.relative_pose.header.stamp )
             self.listener.waitForTransform( '/robot/estimate/base_stabilized',
                                             '/beacon/estimate/base_position', self.relative_pose.header.stamp,
                                             rospy.Duration( 4.0 ) )
@@ -70,7 +69,6 @@ class FalkorQuadrotorNav:
                                                          self.relative_pose.header.stamp )
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException):
-            print "waiting Failed"
             return
         print (trans,rot)
 
@@ -84,7 +82,6 @@ class FalkorQuadrotorNav:
         point = Point( *trans )
         target_pose.pose.orientation = self.point_to_quaternion( point )
 
-        print target_pose
         self.nav_target.publish( target_pose )
 
     def run( self ):

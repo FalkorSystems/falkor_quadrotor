@@ -1,0 +1,16 @@
+<package>
+  <description brief="falkor_quadrotor_control">
+
+     falkor_quadrotor_control
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_quadrotor_control</url>
+  <depend package="geometry_msgs" />
+  <depend package="tf" />
+
+</package>
+
+
