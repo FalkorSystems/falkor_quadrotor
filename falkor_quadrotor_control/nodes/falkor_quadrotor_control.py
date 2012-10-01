@@ -10,9 +10,9 @@ from geometry_msgs.msg import *
 class FalkorQuadrotorControl:
     def __init__( self ):
         self.yaw_pid = pid.PidController( -0.5, 0, 0 )
-        self.x_pid = pid.PidController( -5, 0, 0 )
-        self.y_pid = pid.PidController( -5, 0, 0 )
-        self.z_pid = pid.PidController( -5, 0, 0 )
+        self.x_pid = pid.PidController( -2.5, 0, 0 )
+        self.y_pid = pid.PidController( -2.5, 0, 0 )
+        self.z_pid = pid.PidController( -1.25, 0, 0 )
 
         self.target_pose_sub = rospy.Subscriber( '/navigate/robot/target_pose', PoseStamped,
                                                  self.target_pose_update )

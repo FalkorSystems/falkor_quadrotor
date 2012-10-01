@@ -50,7 +50,7 @@ class FalkorQuadrotorNav:
 
         relative_point = PointStamped( Header( 0, rospy.Time.now(),
                                               '/beacon/estimate/base_position' ),
-                                      Vector3( 1, 0.5, 0.25 ) )
+                                      Point( 1, 0.5, 0.25 ) )
 
         self.update_relative_pose( relative_point )
         self.publish_target_pose()
@@ -59,27 +59,35 @@ class FalkorQuadrotorNav:
 
 
     def publish_target_pose( self ):
+        relpose_cached = self.relative_pose
+
         try:
+#            print "waiting for transform"
             self.listener.waitForTransform( '/robot/estimate/base_stabilized',
-                                            '/beacon/estimate/base_position', self.relative_pose.header.stamp,
+                                            '/beacon/estimate/base_position',
+                                            relpose_cached.header.stamp,
                                             rospy.Duration( 4.0 ) )
 
-            (trans,rot) = self.listener.lookupTransform( '/beacon/estimate/base_position',
-                                                         '/robot/estimate/base_stabilized',
-                                                         self.relative_pose.header.stamp )
+            (trans,rot) = self.listener.lookupTransform( '/robot/estimate/base_stabilized',
+                                                         '/beacon/estimate/base_position',
+                                                         relpose_cached.header.stamp )
+#            print "got transform"
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException):
             return
-        print (trans,rot)
+#        print (trans,rot)
 
-        target_pose = self.listener.transformPose( '/robot/estimate/base_stabilized', self.relative_pose )
+        target_pose = self.listener.transformPose( '/robot/estimate/base_stabilized', relpose_cached )
         target_pose.header.stamp = rospy.Time.now()
         target_pose.header.seq = self.seq
 
         # target_pose.pose.orientation is the orientation of the 'trans',
         # which gives me a direction from where the robot is now to the beacon
         # not from where the robot should be to the beacon
+        trans = ( -trans[0], -trans[1], -trans[2] )
         point = Point( *trans )
+
+#        print point
         target_pose.pose.orientation = self.point_to_quaternion( point )
 
         self.nav_target.publish( target_pose )
