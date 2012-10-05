@@ -4,9 +4,8 @@
 
   <group ns="robot">
     <!-- simulation -->
-    <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_quadrotor.launch">
+    <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_with_cam.launch">
       <arg name="model_name" value="robot" />
-      <arg name="x_pos" value="0.0" />
     </include>
 
     <!-- control bits -->
@@ -16,16 +15,16 @@
 
     <!-- localization -->
     <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
-      <param name="tf_prefix" value="robot/estimate" />
+      <param name="tf_prefix" value="ekf/robot" />
       <param name="nav_frame" value="/nav" />
     </node>
   </group>
 
 <!-- fake beacon position transform -->
-<node pkg="tf" type="static_transform_publisher" name="beacon_pos_broadcaster" args="1 0 0 0 0 0 /nav /beacon/estimate/base_position 100" />
+<node pkg="tf" type="static_transform_publisher" name="beacon_pos_broadcaster" args="1 0 0 0 0 0 /nav /ekf/beacon/base_position 100" />
 
 <!-- navigation -->
-<!-- <include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" />  -->
+<!-- <include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" /> -->
 
 <!-- control -->
 <!-- <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" /> -->
