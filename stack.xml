@@ -6,5 +6,6 @@
   <review status="unreviewed" notes=""/>
   <url>https://github.com/sameerparekh/falkor_quadrotor</url>
   <depend stack="hector_quadrotor" />
+  <depend stack="hector_localization" />
 
 </stack>
