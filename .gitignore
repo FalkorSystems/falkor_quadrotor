@@ -19,3 +19,7 @@ Makefile
 
 # Emacs cruft
 *~
+
+# frames cruft
+frames.gv
+frames.pdf
