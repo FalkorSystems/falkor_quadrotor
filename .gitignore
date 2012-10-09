@@ -19,3 +19,8 @@ Makefile
 
 # Emacs cruft
 *~
+
+# build dirs
+/falkor_quadrotor_gazebo/build/
+/falkor_quadrotor_navigate/build/
+/falkor_quadrotor_teleop/build/
