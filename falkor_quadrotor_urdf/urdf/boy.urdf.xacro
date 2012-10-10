@@ -6,6 +6,10 @@
     xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
     xmlns:xacro="http://ros.org/wiki/xacro"
 >
+  <property name="pi" value="3.1415926535897931" />
+
+  <include filename="$(find hector_quadrotor_controller)/urdf/quadrotor_sensors.urdf.xacro" />
+
   <xacro:macro name="boy_base" params="mass height width depth">
     <link name="base_link">
       <inertial>
@@ -22,7 +26,7 @@
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 ${pi/2}" />
         <geometry>
           <mesh filename="package://falkor_quadrotor_urdf/meshes/boy.dae"/>
         </geometry>
@@ -40,7 +44,8 @@
       <turnGravityOff>false</turnGravityOff>
     </gazebo>
 
+    <quadrotor_sensors/>
   </xacro:macro>
 
-  <boy_base height="1.70" width="0.40" depth="0.20" mass="70" />
+  <boy_base height="1.70" width="0.80" depth="0.60" mass="70" />
 </robot>
