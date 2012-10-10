@@ -2,7 +2,7 @@
   <!-- simulation world -->
 <!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" /> -->
 
-  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch" />
+  <include file="$(find falkor_quadrotor_gazebo)/launch/mountain_world_throttled.launch" />
 
   <group ns="robot">
     <!-- simulation -->
