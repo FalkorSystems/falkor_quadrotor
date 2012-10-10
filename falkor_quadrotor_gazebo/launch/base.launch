@@ -24,14 +24,14 @@
 
   </group>
 
-<!-- fake beacon position transform -->
-<node pkg="tf" type="static_transform_publisher" name="beacon_pos_broadcaster" args="1 0 0 0 0 0 /nav /ekf/beacon/base_position 100" />
-<!-- fake target -->
-<node pkg="gazebo" type="spawn_model" name="spawn_table_model"
-      args="-gazebo -model desk1
-	    -file $(find gazebo_worlds)/objects/desk1.model
-	    -x 1"
-      />
+  <group ns="beacon">
+    <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_boy.launch" />
+
+    <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
+      <param name="tf_prefix" value="ekf/beacon" />
+      <param name="nav_frame" value="/nav" />
+    </node>
+  </group>
 
 <node pkg="image_view" name="camera_view" type="image_view" >
   <remap to="/robot/front_cam/camera/image" from="image" />
@@ -43,7 +43,7 @@
 <!-- control -->
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
 
-<node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
+<node pkg="rviz" type="rviz" name="rviz" />
 
 
 </launch>
