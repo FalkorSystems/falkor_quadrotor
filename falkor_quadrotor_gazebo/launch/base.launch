@@ -2,7 +2,9 @@
   <!-- simulation world -->
 <!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" /> -->
 
-  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch" />
+  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
+    <arg name="gui" value="false" />
+  </include>
 
   <group ns="robot">
     <!-- simulation -->
@@ -43,7 +45,7 @@
 <!-- control -->
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
 
-<node pkg="rviz" type="rviz" name="rviz" />
+<node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
 
 
 </launch>

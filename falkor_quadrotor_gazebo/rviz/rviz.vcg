@@ -1,0 +1,128 @@
+Background\ ColorB=0
+Background\ ColorG=0
+Background\ ColorR=0
+Beacon.Alpha=1
+Beacon.Collision\ Enabled=0
+Beacon.Enabled=1
+Beacon.Robot\ Description=/beacon/robot_description
+Beacon.TF\ Prefix=/ground_truth/beacon
+Beacon.Update\ Interval=0
+Beacon.Visual\ Enabled=1
+Camera\ Config=0.0147965 6.20359 10 0.101469 -0.0393893 0.00100002
+Camera\ Type=rviz::XYOrbitViewController
+Fixed\ Frame=/ground_truth/beacon/base_position
+Grid.Alpha=0.5
+Grid.Cell\ Size=1
+Grid.ColorB=0.5
+Grid.ColorG=0.5
+Grid.ColorR=0.5
+Grid.Enabled=1
+Grid.Line\ Style=0
+Grid.Line\ Width=0.03
+Grid.Normal\ Cell\ Count=1
+Grid.OffsetX=0
+Grid.OffsetY=0
+Grid.OffsetZ=0
+Grid.Plane=0
+Grid.Plane\ Cell\ Count=10
+Grid.Reference\ Frame=<Fixed Frame>
+Pose.Alpha=1
+Pose.ColorB=0
+Pose.ColorG=0.1
+Pose.ColorR=1
+Pose.Enabled=1
+Pose.Head\ Length=0.3
+Pose.Head\ Radius=0.2
+Pose.Shaft\ Length=1
+Pose.Shaft\ Radius=0.1
+Pose.Shape=0
+Pose.Topic=/navigate/robot/target_pose
+Property\ Grid\ Splitter=1159,78
+Property\ Grid\ State=expanded=.Global Options,TF.Enabled,TF.Frames,TF.Frames./ekf/robot/base_footprint,TF.Frames./ekf/robot/base_link,TF.Frames./ekf/robot/base_position,TF.Frames./ekf/robot/base_stabilized,TF.Frames./ground_truth/robot/base_footprint,TF.Frames./ground_truth/robot/base_link,TF.Frames./ground_truth/robot/base_position,TF.Frames./ground_truth/robot/base_stabilized,TF.Frames./nav,TF.Frames./ekf/robot/front_cam_link,TF.Frames./ekf/robot/front_cam_optical_frame,TF.Frames./ekf/robot/sonar_link,TF.Frames./ekf/robot/front_cam_interm_link,TF.Frames./ground_truth/beacon/base_footprint,TF.Frames./ground_truth/beacon/base_link,TF.Frames./ground_truth/beacon/base_position,TF.Frames./ground_truth/beacon/base_stabilized,TF.Frames./ekf/beacon/base_footprint,TF.Frames./ekf/beacon/base_link,TF.Frames./ekf/beacon/base_position,TF.Frames./ekf/beacon/base_stabilized,Grid.Enabled,Pose.Enabled,Pose.Shape Properties,Quad.Enabled,Quad.Status,Beacon.Enabled;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000028600000527fc0200000001fb000000100044006900730070006c006100790073010000001d00000527000000ee00ffffff000000010000013100000527fc0200000003fb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000001d000001830000006700fffffffb0000000a0056006900650077007301000001a600000215000000bb00fffffffb0000001200530065006c0065006300740069006f006e01000003c1000001830000006700ffffff00000003000009bf0000003efc0100000001fb0000000800540069006d00650100000000000009bf000002bf00ffffff000005fc0000052700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+Quad.Alpha=1
+Quad.Collision\ Enabled=0
+Quad.Enabled=1
+Quad.Robot\ Description=/robot/robot_description
+Quad.TF\ Prefix=/ground_truth/robot
+Quad.Update\ Interval=0
+Quad.Visual\ Enabled=1
+Robot\:\ Beacon\ Link\ base_linkAlpha=1
+Robot\:\ Beacon\ Link\ base_linkEnabled=1
+Robot\:\ Beacon\ Link\ base_linkShow\ Axes=0
+Robot\:\ Beacon\ Link\ base_linkShow\ Trail=0
+Robot\:\ Quad\ Link\ base_linkAlpha=1
+Robot\:\ Quad\ Link\ base_linkEnabled=1
+Robot\:\ Quad\ Link\ base_linkShow\ Axes=0
+Robot\:\ Quad\ Link\ base_linkShow\ Trail=0
+Robot\:\ Quad\ Link\ front_cam_linkAlpha=1
+Robot\:\ Quad\ Link\ front_cam_linkEnabled=1
+Robot\:\ Quad\ Link\ front_cam_linkShow\ Axes=0
+Robot\:\ Quad\ Link\ front_cam_linkShow\ Trail=0
+Robot\:\ Quad\ Link\ front_cam_optical_frameAlpha=1
+Robot\:\ Quad\ Link\ front_cam_optical_frameEnabled=1
+Robot\:\ Quad\ Link\ front_cam_optical_frameShow\ Axes=0
+Robot\:\ Quad\ Link\ front_cam_optical_frameShow\ Trail=0
+Robot\:\ Quad\ Link\ sonar_linkAlpha=1
+Robot\:\ Quad\ Link\ sonar_linkEnabled=1
+Robot\:\ Quad\ Link\ sonar_linkShow\ Axes=0
+Robot\:\ Quad\ Link\ sonar_linkShow\ Trail=0
+TF.All\ Enabled=1
+TF.Enabled=1
+TF.Frame\ Timeout=15
+TF.Marker\ Scale=1
+TF.Show\ Arrows=0
+TF.Show\ Axes=1
+TF.Show\ Names=1
+TF.Update\ Interval=0
+Target\ Frame=<Fixed Frame>
+Tool\ 2D\ Nav\ GoalTopic=/move_base_simple/goal
+Tool\ 2D\ Pose\ EstimateTopic=initialpose
+[Display0]
+ClassName=rviz::TFDisplay
+Name=TF
+[Display1]
+ClassName=rviz::GridDisplay
+Name=Grid
+[Display2]
+ClassName=rviz::PoseDisplay
+Name=Pose
+[Display3]
+ClassName=rviz::RobotModelDisplay
+Name=Quad
+[Display4]
+ClassName=rviz::RobotModelDisplay
+Name=Beacon
+[TF.Frames.]
+nav.Enabled=1
+[TF.Frames./ekf]
+[TF.Frames./ekf/beacon]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./ekf/robot]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+front_cam_interm_link.Enabled=1
+front_cam_link.Enabled=1
+front_cam_optical_frame.Enabled=1
+sonar_link.Enabled=1
+[TF.Frames./ground_truth]
+[TF.Frames./ground_truth/beacon]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./ground_truth/robot]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[Window]
+Height=1416
+Width=2495
+X=64
+Y=-4

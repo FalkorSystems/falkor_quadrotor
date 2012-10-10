@@ -76,7 +76,6 @@ class FalkorQuadrotorNav:
                 tf.ConnectivityException, tf.ExtrapolationException):
             return
 #        print (trans,rot)
-
         target_pose = self.listener.transformPose( '/ekf/robot/base_stabilized',
                                                    relpose_cached )
         target_pose.header.stamp = rospy.Time.now()
