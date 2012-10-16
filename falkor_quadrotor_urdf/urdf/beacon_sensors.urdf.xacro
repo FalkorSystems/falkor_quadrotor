@@ -66,6 +66,14 @@ xmlns:xacro="http://ros.org/wiki/xacro"
         <frameName>map</frameName>
       </controller:gazebo_ros_p3d>
 
+      <controller:falkor_quadrotor_sonar name="falkor_quadrotor_sonar" plugin="libfalkor_quadrotor_sonar.so">
+	<alwaysOn>true</alwaysOn>
+	<updateRate>10.0</updateRate>
+	<bodyName>body_link</bodyName>
+	<remoteModelName>robot</remoteModelName>
+	<remoteBodyName>base_link</remoteBodyName>
+	<gaussianNoise>0.05</gaussianNoise>
+      </controller:falkor_quadrotor_sonar>
     </gazebo>
   </xacro:macro>
 </robot>
