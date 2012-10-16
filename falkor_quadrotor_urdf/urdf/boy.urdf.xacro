@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<robot name="boy"
+    xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+    xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+    xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+    xmlns:xacro="http://ros.org/wiki/xacro"
+>
+  <property name="pi" value="3.1415926535897931" />
+
+  <include filename="$(find falkor_quadrotor_urdf)/urdf/beacon_sensors.urdf.xacro" />
+
+  <xacro:macro name="boy_base" params="mass height width depth">
+    <link name="body_link">
+      <inertial>
+        <mass value="${mass}" />
+        <origin xyz="0 0 0" />
+        <inertia
+	    ixx="${mass*(height*height+width*width)/12}"
+	    iyy="${mass*(height*height+depth*depth)/12}"
+	    izz="${mass*(depth*depth+width*width)/12}"
+	    ixy="0"
+	    ixz="0"
+	    iyz="0"
+	  />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 -${pi/2}" />
+        <geometry>
+          <mesh filename="package://falkor_quadrotor_urdf/meshes/boy.dae"/>
+        </geometry>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 ${height/2}" rpy="0 0 0" />
+        <geometry>
+	  <box size="${depth} ${width} ${height}" />
+        </geometry>
+      </collision>
+    </link>
+
+    <gazebo reference="base_link">
+      <turnGravityOff>false</turnGravityOff>
+    </gazebo>
+
+    <beacon_sensors />
+  </xacro:macro>
+
+  <boy_base height="1.70" width="0.80" depth="0.60" mass="70" />
+</robot>

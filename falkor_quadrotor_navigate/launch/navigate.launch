@@ -1,7 +1,9 @@
 <launch>
+  <arg name="joy_dev" default="/dev/input/js1" />
+
   <group ns="navigate">
     <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
-      <arg name="joy_dev" value="/dev/input/js2" />
+      <arg name="joy_dev" value="$(arg joy_dev)" />
     </include>
 
     <node pkg="falkor_quadrotor_navigate" type="falkor_quadrotor_targetpt.py" name="falkor_quadrotor_targetpt" />
