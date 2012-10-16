@@ -10,6 +10,7 @@
 
 
   <!-- start empty world -->
+  <env name="GAZEBO_RESOURCE_PATH" value="$(find falkor_quadrotor_gazebo)/Media/models:$(find gazebo_worlds):$(find gazebo)/gazebo/share/gazebo" />
   <node name="gazebo" pkg="gazebo" type="gazebo" args="$(find falkor_quadrotor_gazebo)/worlds/mountain_throttled.world" respawn="false" output="screen" />
 
   <!-- start gui -->

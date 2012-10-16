@@ -15,13 +15,13 @@
       </ode>
     </physics>
 
-    <!-- Mountain House -->
+    <!-- Mountain -->
     <model name="ground_model" static="true">
       <link name="ground_link">
         <origin pose="0 0 0 0 0 0"/>
         <collision name="ground_collision">
           <geometry>
-            <mesh filename="mountain.dae"/>
+	    <mesh filename="mountain.dae" />
           </geometry>
           <surface>
             <friction>
@@ -34,15 +34,25 @@
           </surface>
         </collision>
 
+<<<<<<< Updated upstream
         <visual name="ground_visual" cast_shadows="false">
           <geometry>
             <mesh filename="mountain.dae"/>
+=======
+        <visual name="visual_1" cast_shadows="false">
+          <geometry>
+	    <mesh filename="mountain.dae" />
+>>>>>>> Stashed changes
           </geometry>
         </visual>
       </link>
     </model>
 
+<<<<<<< Updated upstream
     <light type="directional" name="sunlight" cast_shadows="false">
+=======
+    <light type="directional" name="sun" cast_shadows="false">
+>>>>>>> Stashed changes
       <origin pose="0 20 20 0.1 0.1 0" />
       <diffuse rgba="1 1 1 1"/>
       <specular rgba="1 1 1 1"/>
