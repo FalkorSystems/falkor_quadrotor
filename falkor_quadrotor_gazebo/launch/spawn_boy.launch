@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="model" default="$(find falkor_quadrotor_urdf)/urdf/boy.urdf.xacro" />
+  <arg name="model_name" default="beacon" />
+  <arg name="x_pos" default="0.0" />
+  <arg name="y_pos" default="0.0" />
+  <arg name="z_pos" default="0.0" />
+  <arg name="joy_dev" default="/dev/input/js1" />
+
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
+
+  <node name="spawn_robot" pkg="gazebo" type="spawn_model"
+	args="-param robot_description
+	      -urdf
+	      -x $(arg x_pos)
+	      -y $(arg y_pos)
+	      -z $(arg z_pos)
+	      -model $(arg model_name)"
+	respawn="false" output="screen"/>
+
+   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen" >
+     <param name="publish_frequency" type="double" value="50.0" />
+     <param name="tf_prefix" type="string" value="/ekf/$(arg model_name)" />
+   </node>
+
+   <node name="ground_truth_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
+     <param name="odometry_topic" value="ground_truth/state" />
+     <param name="frame_id" value="/nav" />
+     <param name="tf_prefix" value="ground_truth/$(arg model_name)" />
+   </node>
+
+   <include file="$(find falkor_quadrotor_teleop)/launch/boy_teleop.launch" >
+     <arg name="joy_dev" value="$(arg joy_dev)" />
+   </include>
+
+</launch>

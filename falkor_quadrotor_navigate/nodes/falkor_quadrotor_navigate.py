@@ -62,36 +62,30 @@ class FalkorQuadrotorNav:
         relpose_cached = self.relative_pose
 
         try:
-#            print "waiting for transform"
-            self.listener.waitForTransform( '/ekf/robot/base_stabilized',
-                                            '/ekf/beacon/base_position',
-                                            relpose_cached.header.stamp,
-                                            rospy.Duration( 4.0 ) )
-
             (trans,rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
                                                          '/ekf/beacon/base_position',
                                                          relpose_cached.header.stamp )
 #            print "got transform"
+
+            target_pose = self.listener.transformPose( '/ekf/robot/base_stabilized',
+                                                   relpose_cached )
+            target_pose.header.stamp = rospy.Time.now()
+            target_pose.header.seq = self.seq
+
+            # target_pose.pose.orientation is the orientation of the 'trans',
+            # which gives me a direction from where the robot is now to the beacon
+            # not from where the robot should be to the beacon
+            trans = ( -trans[0], -trans[1], -trans[2] )
+            point = Point( *trans )
+
+            # print point
+            target_pose.pose.orientation = self.point_to_quaternion( point )
+            self.nav_target.publish( target_pose )
+
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException):
+            print "navigate: transform exception"
             return
-#        print (trans,rot)
-
-        target_pose = self.listener.transformPose( '/ekf/robot/base_stabilized',
-                                                   relpose_cached )
-        target_pose.header.stamp = rospy.Time.now()
-        target_pose.header.seq = self.seq
-
-        # target_pose.pose.orientation is the orientation of the 'trans',
-        # which gives me a direction from where the robot is now to the beacon
-        # not from where the robot should be to the beacon
-        trans = ( -trans[0], -trans[1], -trans[2] )
-        point = Point( *trans )
-
-#        print point
-        target_pose.pose.orientation = self.point_to_quaternion( point )
-
-        self.nav_target.publish( target_pose )
 
     def run( self ):
         while not rospy.is_shutdown():

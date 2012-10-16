@@ -1,8 +1,11 @@
 <launch>
   <!-- simulation world -->
-<!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" /> -->
 
-  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch" />
+
+<include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
+<!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
+   <arg name="gui" value="false" />
+  </include>
 
   <group ns="robot">
     <!-- simulation -->
@@ -13,7 +16,7 @@
 
     <!-- control bits -->
     <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
-      <arg name="joy_dev" value="/dev/input/js1" />
+      <arg name="joy_dev" value="/dev/input/js3" />
     </include>
 
     <!-- localization -->
@@ -24,24 +27,30 @@
 
   </group>
 
-<!-- fake beacon position transform -->
-<node pkg="tf" type="static_transform_publisher" name="beacon_pos_broadcaster" args="1 0 0 0 0 0 /nav /ekf/beacon/base_position 100" />
-<!-- fake target -->
-<node pkg="gazebo" type="spawn_model" name="spawn_table_model"
-      args="-gazebo -model desk1
-	    -file $(find gazebo_worlds)/objects/desk1.model
-	    -x 1"
-      />
+  <group ns="beacon">
+    <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_boy.launch" >
+      <arg name="x_pos" value="2.0" />
+      <arg name="y_pos" value="1.0" />
+      <arg name="joy_dev" value="/dev/input/js1" />
+    </include>
+
+    <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
+      <param name="tf_prefix" value="ekf/beacon" />
+      <param name="nav_frame" value="/nav" />
+    </node>
+  </group>
 
 <node pkg="image_view" name="camera_view" type="image_view" >
   <remap to="/robot/front_cam/camera/image" from="image" />
 </node>
 
 <!-- navigation -->
-<include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" /> -->
+<include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" > 
+  <arg name="joy_dev" value="/dev/input/js2" />
+</include>
 
 <!-- control -->
-<node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
+<node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" /> 
 
 <node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
 

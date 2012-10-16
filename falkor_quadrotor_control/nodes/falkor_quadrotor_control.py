@@ -36,30 +36,37 @@ class FalkorQuadrotorControl:
         twist_cmd.linear.y = self.y_pid.get_output( data.pose.position.y, dt )
         twist_cmd.linear.z = self.z_pid.get_output( data.pose.position.z, dt )
 
+        self.cmd_vel_pub.publish( twist_cmd )
+
         # Get the transform from base_stabilized to base_link
         # so we know what angle to roll the gimbal at
-        self.listener.waitForTransform( '/ekf/robot/base_stabilized',
-                                        '/ekf/robot/base_link',
-                                        data.header.stamp,
-                                        rospy.Duration( 4.0 ) )
+#        self.listener.waitForTransform( '/ekf/robot/base_stabilized',
+#                                        '/ekf/robot/base_link',
+#                                        data.header.stamp,
+#                                        rospy.Duration( 4.0 ) )
 
-        (trans, rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
-                                                      '/ekf/robot/base_link',
-                                                      data.header.stamp )
+        try:
+            (trans, rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
+                                                          '/ekf/robot/base_link',
+                                                          data.header.stamp )
 
-        stabilize_euler = tf.transformations.euler_from_quaternion( rot )
+            stabilize_euler = tf.transformations.euler_from_quaternion( rot )
 
 
-        # The gimbal pitch is the pitch of the euler above plus the pitch between link
-        # and stabilized
+            # The gimbal pitch is the pitch of the euler above plus the pitch between link
+            # and stabilized
 
-        gimbal_pitch = euler[1] - stabilize_euler[1]
-        gimbal_roll = stabilize_euler[0]
+            gimbal_pitch = euler[1] - stabilize_euler[1]
+            gimbal_roll = stabilize_euler[0]
 
-        gimbal_cmd = Point( gimbal_pitch, gimbal_roll, 0 )
+            gimbal_cmd = Point( gimbal_pitch, gimbal_roll, 0 )
 
-        self.cmd_gimbal_pub.publish( gimbal_cmd )
-        self.cmd_vel_pub.publish( twist_cmd )
+            self.cmd_gimbal_pub.publish( gimbal_cmd )
+        except (tf.LookupException, tf.Exception,
+                tf.ConnectivityException, tf.ExtrapolationException):
+            print "control: transform exception"
+            return
+ 
 
     def run( self ):
         rospy.spin()
