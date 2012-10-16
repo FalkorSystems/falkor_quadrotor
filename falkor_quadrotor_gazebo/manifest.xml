@@ -9,7 +9,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/falkor_quadrotor_gazebo</url>
   <depend package="hector_quadrotor_gazebo"/>
-
+  <depend package="falkor_quadrotor_sensors"/>
 </package>
 
 

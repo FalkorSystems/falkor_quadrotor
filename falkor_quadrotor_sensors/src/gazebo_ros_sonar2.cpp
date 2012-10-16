@@ -33,11 +33,13 @@ GazeboRosSonar2::~GazeboRosSonar2()
     namespace_ = _sdf->GetElement("robotNamespace")->GetValueString() + "/";
 
   if( !_sdf->HasElement("remoteModelName"))
-    remote_model_name_ = "beacon";
+    remote_model_name_ = "robot";
   else
     remote_model_name_ = _sdf->GetElement("remoteModelName")->GetValueString();
 
+
   remote_model = boost::shared_dynamic_cast<physics::Model>(world->GetEntity(remote_model_name_));
+  ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "got remote model: %s", remote_model->GetName().c_str() );
 
   if( !_sdf->HasElement("remoteBodyName"))
   {
@@ -49,6 +51,7 @@ GazeboRosSonar2::~GazeboRosSonar2()
     remote_link_name_ = _sdf->GetElement("remoteBodyName")->GetValueString();
     remote_link = remote_model->GetLink( remote_link_name_ );
   }
+  ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "got remote link: %s", remote_link->GetName().c_str() );
 
   if (!_sdf->HasElement("bodyName"))
   {
@@ -59,6 +62,8 @@ GazeboRosSonar2::~GazeboRosSonar2()
     link_name_ = _sdf->GetElement("bodyName")->GetValueString();
     link = _model->GetLink( link_name_ );
   }
+  
+  ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "got local link: %s", link->GetName().c_str() );
 
   if (!_sdf->HasElement("frameId"))
     frame_id_ = "";
@@ -66,7 +71,7 @@ GazeboRosSonar2::~GazeboRosSonar2()
     frame_id_ = _sdf->GetElement("frameId")->GetValueString();
 
   if (!_sdf->HasElement("topicName"))
-    topic_ = "sonar2";
+    topic_ = "sonar";
   else
     topic_ = _sdf->GetElement("topicName")->GetValueString();
 
@@ -120,7 +125,9 @@ void GazeboRosSonar2::Update()
   math::Vector3 remote_pos = remote_link->GetWorldPose().pos;
 
   range_.range = pos.Distance( remote_pos );
-  
+ 
+  ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "range: %g", range_.range );
+
   // add Gaussian noise (and limit to min/max range)
   if (range_.range < range_.max_range) {
     range_.range += sensor_model_.update(dt);
