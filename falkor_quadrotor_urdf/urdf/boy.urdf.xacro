@@ -26,7 +26,7 @@
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 ${pi/2}" />
+        <origin xyz="0 0 0" rpy="0 0 -${pi/2}" />
         <geometry>
           <mesh filename="package://falkor_quadrotor_urdf/meshes/boy.dae"/>
         </geometry>

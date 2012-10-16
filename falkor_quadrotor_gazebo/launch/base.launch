@@ -16,7 +16,7 @@
 
     <!-- control bits -->
     <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
-      <arg name="joy_dev" value="/dev/input/js1" />
+      <arg name="joy_dev" value="/dev/input/js3" />
     </include>
 
     <!-- localization -->
@@ -31,7 +31,7 @@
     <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_boy.launch" >
       <arg name="x_pos" value="2.0" />
       <arg name="y_pos" value="1.0" />
-      <arg name="joy_dev" value="/dev/input/js3" />
+      <arg name="joy_dev" value="/dev/input/js1" />
     </include>
 
     <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
@@ -45,7 +45,9 @@
 </node>
 
 <!-- navigation -->
-<include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" /> 
+<include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" > 
+  <arg name="joy_dev" value="/dev/input/js2" />
+</include>
 
 <!-- control -->
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" /> 
