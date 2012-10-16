@@ -1,0 +1,15 @@
+<package>
+  <description brief="falkor_quadrotor_sensors">
+
+     falkor_quadrotor_sensors
+
+  </description>
+  <author>Sameer Parekh</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_quadrotor_sensors</url>
+  <depend package="hector_gazebo_plugins" />
+
+</package>
+
+
