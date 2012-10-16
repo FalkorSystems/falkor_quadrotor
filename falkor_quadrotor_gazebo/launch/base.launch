@@ -1,9 +1,10 @@
 <launch>
   <!-- simulation world -->
-<!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" /> -->
 
-  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
-    <arg name="gui" value="false" />
+
+<include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
+<!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
+   <arg name="gui" value="false" />
   </include>
 
   <group ns="robot">
@@ -30,6 +31,7 @@
     <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_boy.launch" >
       <arg name="x_pos" value="2.0" />
       <arg name="y_pos" value="1.0" />
+      <arg name="joy_dev" value="/dev/input/js3" />
     </include>
 
     <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">

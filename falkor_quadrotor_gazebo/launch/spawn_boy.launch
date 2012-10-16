@@ -5,7 +5,8 @@
   <arg name="model_name" default="beacon" />
   <arg name="x_pos" default="0.0" />
   <arg name="y_pos" default="0.0" />
-  <arg name="z_pos" default="1.0" />
+  <arg name="z_pos" default="0.0" />
+  <arg name="joy_dev" default="/dev/input/js1" />
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
 
@@ -28,4 +29,9 @@
      <param name="frame_id" value="/nav" />
      <param name="tf_prefix" value="ground_truth/$(arg model_name)" />
    </node>
+
+   <include file="$(find falkor_quadrotor_teleop)/launch/boy_teleop.launch" >
+     <arg name="joy_dev" value="$(arg joy_dev)" />
+   </include>
+
 </launch>
