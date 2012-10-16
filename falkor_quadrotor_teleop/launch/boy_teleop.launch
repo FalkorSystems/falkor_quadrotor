@@ -1,0 +1,17 @@
+<launch>
+  <arg name="joy_dev" default="/dev/input/js1" />
+
+  <node name="joy_node" pkg="joy" type="joy_node" output="screen" >
+    <param name="dev" value="$(arg joy_dev)" />
+  </node>
+
+   <node name="boy_teleop" pkg="falkor_quadrotor_teleop" type="boy_teleop.py" output="screen">
+     <param name="jump_button" value="10" />
+     <param name="forward_button" value="4" />
+     <param name="backward_button" value="6" />
+     <param name="twist_forward_button" value="12" />
+     <param name="twist_backward_button" value="14" />
+     <param name="twist_left_button" value="15" />
+     <param name="twist_right_button" value="13" />
+   </node>
+</launch>
