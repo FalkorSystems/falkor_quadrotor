@@ -152,13 +152,17 @@ class FalkorQuadrotorParticleFilter:
 
         self.pose_pub.publish( pose_msg )
 
-        self.tf_broadcaster.sendTransform( best_guess,
-                                           ( 0, 0, 0, 1.0 ),
+        self.tf_broadcaster.sendTransform( ( best_guess[0], best_guess[1], 0.0 ),
+                                           ( 0.0, 0.0, 0.0, 1.0 ),
+                                           rospy.Time.now(),
+                                           "/pf/beacon/base_footprint",
+                                           "/nav" )
+
+        self.tf_broadcaster.sendTransform( ( 0.0, 0.0, best_guess[2] )
+                                           ( 0.0, 0.0, 0.0, 1.0 ),
                                            rospy.Time.now(),
                                            "/pf/beacon/base_position",
-                                           "/nav" )
-                                           
-
+                                           "/pf/beacon/base_footprint" )
 
     def update_pf( self ):
         # initialize the particles with data we have
