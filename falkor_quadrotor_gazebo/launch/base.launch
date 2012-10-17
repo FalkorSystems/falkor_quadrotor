@@ -23,6 +23,7 @@
     <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
       <param name="tf_prefix" value="ekf/robot" />
       <param name="nav_frame" value="/nav" />
+      <param name="with_covariances" value="true" />
     </node>
 
   </group>
@@ -37,6 +38,7 @@
     <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
       <param name="tf_prefix" value="ekf/beacon" />
       <param name="nav_frame" value="/nav" />
+      <param name="with_covariances" value="true" />
     </node>
   </group>
 
