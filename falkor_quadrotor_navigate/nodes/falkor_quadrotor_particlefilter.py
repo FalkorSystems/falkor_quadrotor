@@ -4,6 +4,7 @@ import roslib
 roslib.load_manifest('falkor_quadrotor_navigate')
 
 import rospy
+import tf
 import numpy as np
 from geometry_msgs.msg import *
 from nav_msgs.msg import *
@@ -49,6 +50,7 @@ class FalkorQuadrotorParticleFilter:
                                                 self.sonar_dist_cb )
         self.pose_pub = rospy.Publisher( '/beacon/pf/pose', PoseWithCovarianceStamped )
         self.pointcloud_pub = rospy.Publisher( '/beacon/pf/point_cloud', PointCloud )
+        self.tf_broadcaster = tf.TransformBroadcaster()
 
         self.sonar_variance = rospy.get_param( '~sonar_variance', 0.5 )
         self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 1000 )
@@ -150,8 +152,13 @@ class FalkorQuadrotorParticleFilter:
 
         self.pose_pub.publish( pose_msg )
 
-#    def save_data( self, best_guess, covariance ):#        data = np.float64( ( self.beacon_state, self.robot_state, self.sonar_dist, best_guess, covariance ) )
-#        numpy.savetext( "output.txt", data, delimiter="," )
+        self.tf_broadcaster.sendTransform( best_guess,
+                                           ( 0, 0, 0, 1.0 ),
+                                           rospy.Time.now(),
+                                           "/pf/beacon/base_position",
+                                           "/nav" )
+                                           
+
 
     def update_pf( self ):
         # initialize the particles with data we have
