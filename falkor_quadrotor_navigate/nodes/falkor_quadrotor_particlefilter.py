@@ -55,7 +55,7 @@ class FalkorQuadrotorParticleFilter:
 
         self.sonar_variance = rospy.get_param( '~sonar_variance', 0.5 )
         self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 10000 )
-        self.num_particles = rospy.get_param( '~num_particles', 1000 )
+        self.num_particles = rospy.get_param( '~num_particles', 10000 )
         self.particles_initialized = False
         self.last_time = None
         self.robot_state = None
