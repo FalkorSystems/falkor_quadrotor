@@ -64,29 +64,37 @@ class FalkorQuadrotorParticleFilter:
         self.rate = rospy.Rate( rospy.get_param( '~update_rate', 10 ) )
         self.seq = 0
 
-    def initialize_particles( self ):
-        if self.robot_state == None or self.sonar_dist == None:
-            return
-
+    def create_particles( self, num_particles ):
         # create a bunch of particles, picking from a gaussian centered around robot_state
-        self.particles = np.random.multivariate_normal( self.robot_state[0],
-                                                        self.robot_state[1],
-                                                        self.num_particles )
+        particles = np.random.multivariate_normal( self.robot_state[0],
+                                                   self.robot_state[1],
+                                                   num_particles )
 
         # Now move the particles out in a random direction (uniformly distributed)
         # determined by the sonar distance
         distances = np.random.normal( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ),
-                                      self.num_particles )
-        directions_polar = np.random.rand( self.num_particles, 2 ) * [ np.pi, np.pi*2 ]
+                                      num_particles )
+        directions_polar = np.random.rand( num_particles, 2 ) * [ np.pi, np.pi*2 ]
 
         directions_cartesian = np.array( ( np.sin( directions_polar[:,0] ) * np.cos( directions_polar[:,1] ),
                                            np.sin( directions_polar[:,0] ) * np.sin( directions_polar[:,1] ),
                                            np.cos( directions_polar[:,0] ) ) )
 
-        self.particles += ( distances * directions_cartesian ).transpose()
+        particles += ( distances * directions_cartesian ).transpose()
+        return particles
+    
+    def initialize_particles( self ):
+        if self.robot_state == None or self.sonar_dist == None:
+            return
 
+        self.particles = self.create_particles( self.num_particles )
         self.particles_initialized = True
         self.publish_particles()
+
+    def reinitialize_particles( self ):
+        # replace 1/10th of the particles with new particles
+        new_particles = self.create_particles( int( self.num_particles / 10 ) )
+        self.particles[range(0,self.num_particles,10)] = new_particles
         
     def mv_norm_pdf( values, mean, Sigma ):
         det = np.linalg.det( Sigma )
@@ -187,8 +195,9 @@ class FalkorQuadrotorParticleFilter:
             self.move_particles( dt )
             best_guess, covariance = self.resample_particles()
 
-#            self.save_data( best_guess, covariance )
             self.publish_pose( best_guess, covariance )
+            if self.seq % 300 == 0:
+                self.reinitialize_particles()
 
     def run( self ):
         while not rospy.is_shutdown():

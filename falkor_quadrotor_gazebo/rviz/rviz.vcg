@@ -8,7 +8,7 @@ Beacon.Robot\ Description=/beacon/robot_description
 Beacon.TF\ Prefix=/ground_truth/beacon
 Beacon.Update\ Interval=0
 Beacon.Visual\ Enabled=1
-Camera\ Config=0.319796 0.885398 10 0 0 0
+Camera\ Config=0.184796 5.41359 31.7042 0 0 0
 Camera\ Type=rviz::XYOrbitViewController
 Fixed\ Frame=/ground_truth/beacon/base_position
 Grid.Alpha=0.5
@@ -45,7 +45,7 @@ PointCloud..IntensityMin\ ColorG=0
 PointCloud..IntensityMin\ ColorR=0
 PointCloud..IntensityMin\ Intensity=0
 PointCloud..IntensityUse\ full\ RGB\ spectrum=1
-PointCloud.Alpha=1
+PointCloud.Alpha=0.01
 PointCloud.Billboard\ Size=0.1
 PointCloud.Color\ Transformer=Intensity
 PointCloud.Decay\ Time=1
@@ -66,9 +66,9 @@ Pose.Shaft\ Length=1
 Pose.Shaft\ Radius=0.1
 Pose.Shape=0
 Pose.Topic=/navigate/robot/target_pose
-Property\ Grid\ Splitter=677,78
-Property\ Grid\ State=expanded=.Global Options,TF.Enabled,TF.Frames,Grid.Enabled,Pose.Enabled,Pose.Shape Properties,Quad.Enabled,Quad.Status,Beacon.Enabled,Beacon.Status,PointCloud.Enabled,PointCloud.Status;splitterratio=0.5
-QMainWindow=000000ff00000000fd00000003000000000000014300000345fc0200000001fb000000100044006900730070006c006100790073010000001d00000345000000ee00ffffff0000000100000131000003d8fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000005c2000000370000013100000120fb0000000a0056006900650077007303000005c40000007b000001390000012dfb0000001200530065006c0065006300740069006f006e02000005b600000204000001310000019c00000003000004a10000003efc0100000001fb0000000800540069006d00650100000000000004a1000002bf00ffffff000003580000034500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+Property\ Grid\ Splitter=1159,78
+Property\ Grid\ State=expanded=.Global Options,TF.Enabled,TF.Frames,TF.Frames./ekf/robot/base_footprint,TF.Frames./ekf/robot/base_link,TF.Frames./ekf/robot/base_position,TF.Frames./ekf/robot/base_stabilized,TF.Frames./ekf/robot/front_cam_link,TF.Frames./ekf/robot/front_cam_optical_frame,TF.Frames./ekf/robot/sonar_link,TF.Frames./ground_truth/robot/base_footprint,TF.Frames./ground_truth/robot/base_link,TF.Frames./ground_truth/robot/base_position,TF.Frames./ground_truth/robot/base_stabilized,TF.Frames./nav,TF.Frames./ekf/robot/front_cam_interm_link,TF.Frames./ekf/beacon/base_footprint,TF.Frames./ekf/beacon/base_link,TF.Frames./ekf/beacon/base_position,TF.Frames./ekf/beacon/base_stabilized,TF.Frames./ground_truth/beacon/base_footprint,TF.Frames./ground_truth/beacon/base_link,TF.Frames./ground_truth/beacon/base_position,TF.Frames./ground_truth/beacon/base_stabilized,TF.Frames./pf/beacon/base_footprint,TF.Frames./pf/beacon/base_position,Grid.Enabled,Pose.Enabled,Pose.Shape Properties,Quad.Enabled,Quad.Status,Beacon.Enabled,Beacon.Status,PointCloud.Enabled,PointCloud.Status;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000014300000527fc0200000001fb000000100044006900730070006c006100790073010000001d00000527000000ee00ffffff0000000100000131000003d8fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000005c2000000370000013100000120fb0000000a0056006900650077007303000005c40000007b000001390000012dfb0000001200530065006c0065006300740069006f006e02000005b600000204000001310000019c00000003000009bf0000003efc0100000001fb0000000800540069006d00650100000000000009bf000002bf00ffffff000008760000052700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
 Quad.Alpha=1
 Quad.Collision\ Enabled=0
 Quad.Enabled=1
@@ -125,6 +125,38 @@ Name=Beacon
 [Display5]
 ClassName=rviz::PointCloudDisplay
 Name=PointCloud
+[TF.Frames.]
+nav.Enabled=1
+[TF.Frames./ekf]
+[TF.Frames./ekf/beacon]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./ekf/robot]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+front_cam_interm_link.Enabled=1
+front_cam_link.Enabled=1
+front_cam_optical_frame.Enabled=1
+sonar_link.Enabled=1
+[TF.Frames./ground_truth]
+[TF.Frames./ground_truth/beacon]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./ground_truth/robot]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./pf]
+[TF.Frames./pf/beacon]
+base_footprint.Enabled=1
+base_position.Enabled=1
 [Views]
 0Name=Overview
 1Name=Top Down
@@ -137,7 +169,7 @@ Config=54.7356 0 0 0
 Target=<Fixed Frame>
 Type=rviz::FixedOrientationOrthoViewController
 [Window]
-Height=970
-Width=1201
-X=56
+Height=1416
+Width=2495
+X=63
 Y=-32
