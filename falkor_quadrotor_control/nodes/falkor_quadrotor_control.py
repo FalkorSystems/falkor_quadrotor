@@ -38,14 +38,14 @@ class FalkorQuadrotorControl:
 
         self.cmd_vel_pub.publish( twist_cmd )
 
-        # Get the transform from base_stabilized to base_link
-        # so we know what angle to roll the gimbal at
-#        self.listener.waitForTransform( '/ekf/robot/base_stabilized',
-#                                        '/ekf/robot/base_link',
-#                                        data.header.stamp,
-#                                        rospy.Duration( 4.0 ) )
-
         try:
+            # Get the transform from base_stabilized to base_link
+            # so we know what angle to roll the gimbal at
+            self.listener.waitForTransform( '/ekf/robot/base_stabilized',
+                                            '/ekf/robot/base_link',
+                                            data.header.stamp,
+                                            rospy.Duration( 4.0 ) )
+
             (trans, rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
                                                           '/ekf/robot/base_link',
                                                           data.header.stamp )
@@ -63,8 +63,8 @@ class FalkorQuadrotorControl:
 
             self.cmd_gimbal_pub.publish( gimbal_cmd )
         except (tf.LookupException, tf.Exception,
-                tf.ConnectivityException, tf.ExtrapolationException):
-            print "control: transform exception"
+                tf.ConnectivityException, tf.ExtrapolationException) as e:
+            print "control: transform exception: ", e
             return
  
 
@@ -74,6 +74,9 @@ class FalkorQuadrotorControl:
 def main():
     rospy.init_node('falkor_quadrotor_control')
     control = FalkorQuadrotorControl()
+
+    # wait a minute before starting
+    rospy.sleep( rospy.Duration( 1.0 ) )
     control.run()
 
 if __name__  == '__main__':

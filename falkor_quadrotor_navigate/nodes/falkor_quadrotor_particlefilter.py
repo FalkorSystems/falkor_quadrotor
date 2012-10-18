@@ -6,6 +6,7 @@ roslib.load_manifest('falkor_quadrotor_navigate')
 import rospy
 import tf
 import numpy as np
+import scipy.stats as stats
 from geometry_msgs.msg import *
 from nav_msgs.msg import *
 from sensor_msgs.msg import *
@@ -53,8 +54,8 @@ class FalkorQuadrotorParticleFilter:
         self.tf_broadcaster = tf.TransformBroadcaster()
 
         self.sonar_variance = rospy.get_param( '~sonar_variance', 0.5 )
-        self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 1000 )
-        self.num_particles = rospy.get_param( '~num_particles', 100 )
+        self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 10000 )
+        self.num_particles = rospy.get_param( '~num_particles', 1000 )
         self.particles_initialized = False
         self.last_time = None
         self.robot_state = None
@@ -64,59 +65,66 @@ class FalkorQuadrotorParticleFilter:
         self.seq = 0
 
     def initialize_particles( self ):
-        if self.beacon_state == None:
+        if self.robot_state == None or self.sonar_dist == None:
             return
 
-        # create a bunch of particles, picking from a gaussian centered around beacon_state
-        self.particles = np.random.multivariate_normal( self.beacon_state[0],
-                                                        self.beacon_state[1],
+        # create a bunch of particles, picking from a gaussian centered around robot_state
+        self.particles = np.random.multivariate_normal( self.robot_state[0],
+                                                        self.robot_state[1],
                                                         self.num_particles )
+
+        # Now move the particles out in a random direction (uniformly distributed)
+        # determined by the sonar distance
+        distances = np.random.normal( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ),
+                                      self.num_particles )
+        directions_polar = np.random.rand( self.num_particles, 2 ) * [ np.pi, np.pi*2 ]
+
+        directions_cartesian = np.array( ( np.sin( directions_polar[:,0] ) * np.cos( directions_polar[:,1] ),
+                                           np.sin( directions_polar[:,0] ) * np.sin( directions_polar[:,1] ),
+                                           np.cos( directions_polar[:,0] ) ) )
+
+        self.particles += ( distances * directions_cartesian ).transpose()
+
         self.particles_initialized = True
         self.publish_particles()
+        
+    def mv_norm_pdf( values, mean, Sigma ):
+        det = np.linalg.det( Sigma )
+        k = mean.size
+        n = values.shape[0]
+        if not k == values.shape[1]:
+            raise Exception( "shape of values doesn't match shape of mean" )
+    
+        values_centered = values - mean
+        Sigma_inv = np.linalg.inv( Sigma )
 
-    def gaussian_pdf( self, x, m, covariance ):
-        cov_matrix = np.matrix( covariance )
-        x_matrix = np.matrix( x ).T
-        m_matrix = np.matrix( m ).T
+        exp = np.exp( -0.5 * np.diag( values_centered.dot( Sigma ).dot( values_centered.transpose() ) ) )
 
-        det = np.linalg.det( cov_matrix )
-        exp = np.exp( -0.5 * (x_matrix-m_matrix).T * cov_matrix.I * ( x_matrix-m_matrix ) )
-        pdf = 1/np.sqrt( np.power( 2 * np.pi, x_matrix.size ) * det ) * exp
-        return pdf[0,0]
+        pdf = ( np.power( 2 * np.pi, - k / 2 ) * np.power( det, -1 / 2 ) *
+                exp )
+        return pdf
 
-    def particle_weight( self, particle ):
-        # probability given the beacon's GPS/IMU data
-        prob_beacon_data = self.gaussian_pdf( particle,
-                                              self.beacon_state[0],
-                                              self.beacon_state[1] )
+    def particle_weights( self ):
+        # probability values given the sonar data
+        vector_to_robot = self.robot_state[0] - self.particles
+        distance_to_robot = np.sqrt( np.square( vector_to_robot[:,0] ) +
+                                     np.square( vector_to_robot[:,1] ) +
+                                     np.square( vector_to_robot[:,2] ) )
+        distance_dist = stats.norm( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ) )
+        prob_robot_distance_data = distance_dist.pdf( distance_to_robot )
 
+        # probability values given the beacon data
 
-        # probability values given the robot GPS/IMU plus distance data
-        # move point by distance towards the center of the robot GPS/IMU
-        vector_to_robot = self.robot_state[0] - particle
-        distance_to_robot = np.linalg.norm( vector_to_robot )
+        # probability values given the robot data
 
-        normalized_vector_to_robot = vector_to_robot / distance_to_robot
-
-        # move the particle towards the robot by a random amount
-        particle_moved = particle + ( normalized_vector_to_robot * 
-                                      np.random.normal( self.sonar_dist[0],
-                                                        np.sqrt( self.sonar_dist[1] ) ) )
-
-        prob_robot_distance_data = self.gaussian_pdf( particle_moved,
-                                                      self.robot_state[0],
-                                                      self.robot_state[1] )
-
-        weight = prob_beacon_data * prob_robot_distance_data
-#        import pdb; pdb.set_trace()
-        return weight
+        weights = prob_robot_distance_data
+        return weights
 
     def resample_particles( self ):
-        weights = np.float64( [ self.particle_weight( particle ) for particle in self.particles ] )
+        weights = self.particle_weights()
 
         weights_normalized = weights / np.sum( weights )
         self.publish_particles()
-#        import pdb; pdb.set_trace()
 
         particles_cdf = np.cumsum( weights_normalized )
         randoms = np.random.sample( self.num_particles )
@@ -158,7 +166,7 @@ class FalkorQuadrotorParticleFilter:
                                            "/pf/beacon/base_footprint",
                                            "/nav" )
 
-        self.tf_broadcaster.sendTransform( ( 0.0, 0.0, best_guess[2] )
+        self.tf_broadcaster.sendTransform( ( 0.0, 0.0, best_guess[2] ),
                                            ( 0.0, 0.0, 0.0, 1.0 ),
                                            rospy.Time.now(),
                                            "/pf/beacon/base_position",

@@ -49,7 +49,7 @@ class FalkorQuadrotorNav:
         self.nav_target = rospy.Publisher( 'robot/target_pose', PoseStamped )
 
         relative_point = PointStamped( Header( 0, rospy.Time.now(),
-                                              '/pf/beacon/base_position' ),
+                                              '/ekf/beacon/base_position' ),
                                       Point( 1, 0.5, 0.25 ) )
 
         self.update_relative_pose( relative_point )
@@ -63,7 +63,7 @@ class FalkorQuadrotorNav:
 
         try:
             (trans,rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
-                                                         '/pf/beacon/base_position',
+                                                         '/ekf/beacon/base_position',
                                                          relpose_cached.header.stamp )
 #            print "got transform"
 
