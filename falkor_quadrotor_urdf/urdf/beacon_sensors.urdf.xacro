@@ -12,7 +12,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:hector_gazebo_ros_imu name="beacon_imu_sim" plugin="libhector_gazebo_ros_imu.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>100.0</updateRate>
-        <bodyName>body_link</bodyName>
+        <bodyName>base_link</bodyName>
         <topicName>raw_imu</topicName>
         <rpyOffsets>0 0 0</rpyOffsets> <!-- deprecated -->
         <gaussianNoise>0</gaussianNoise>  <!-- deprecated -->
@@ -27,7 +27,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:hector_gazebo_ros_baro name="beacon_baro_sim" plugin="libhector_gazebo_ros_baro.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>10.0</updateRate>
-        <bodyName>body_link</bodyName>
+        <bodyName>base_link</bodyName>
         <topicName>pressure_height</topicName>
         <altimeterTopicName>altimeter</altimeterTopicName>
         <offset>0</offset>
@@ -38,7 +38,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:hector_gazebo_ros_magnetic name="beacon_magnetic_sim" plugin="libhector_gazebo_ros_magnetic.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>10.0</updateRate>
-        <bodyName>body_link</bodyName>
+        <bodyName>base_link</bodyName>
         <topicName>magnetic</topicName>
         <offset>0 0 0</offset>
         <drift>0.0 0.0 0.0</drift>
@@ -48,7 +48,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:hector_gazebo_ros_gps name="beacon_gps_sim" plugin="libhector_gazebo_ros_gps.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>4.0</updateRate>
-        <bodyName>body_link</bodyName>
+        <bodyName>base_link</bodyName>
         <topicName>fix</topicName>
         <velocityTopicName>fix_velocity</velocityTopicName>
         <drift>5.0 5.0 5.0</drift>
@@ -60,7 +60,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:gazebo_ros_p3d name="beacon_groundtruth_sim" plugin="libgazebo_ros_p3d.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>100.0</updateRate>
-        <bodyName>body_link</bodyName>
+        <bodyName>base_link</bodyName>
         <topicName>ground_truth/state</topicName>
         <gaussianNoise>0.0</gaussianNoise>
         <frameName>map</frameName>
@@ -69,7 +69,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
       <controller:falkor_quadrotor_sonar name="falkor_quadrotor_sonar" plugin="libfalkor_quadrotor_sonar.so">
 	<alwaysOn>true</alwaysOn>
 	<updateRate>10.0</updateRate>
-	<bodyName>body_link</bodyName>
+	<bodyName>base_link</bodyName>
 	<remoteModelName>robot</remoteModelName>
 	<remoteBodyName>base_link</remoteBodyName>
 	<gaussianNoise>0.05</gaussianNoise>

@@ -11,7 +11,7 @@
   <include filename="$(find falkor_quadrotor_urdf)/urdf/beacon_sensors.urdf.xacro" />
 
   <xacro:macro name="boy_base" params="mass height width depth">
-    <link name="body_link">
+    <link name="base_link">
       <inertial>
         <mass value="${mass}" />
         <origin xyz="0 0 0" />
