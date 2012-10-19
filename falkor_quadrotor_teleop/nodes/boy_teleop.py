@@ -41,7 +41,7 @@ class BoyTeleopJoy:
 
     def set_model_state( self ):
         model_state_request = SetModelStateRequest( self.my_model_state )
-        print "Setting model state: ", model_state_request
+#        print "Setting model state: ", model_state_request
         self.state_service( model_state_request )
 
     def twist_forward( self ):

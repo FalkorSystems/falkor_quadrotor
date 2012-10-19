@@ -89,7 +89,7 @@ class FalkorQuadrotorNav:
 
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
-            print "navigate: transform exception", e
+            print "navigate: transform exception:", e
             return
 
     def run( self ):
