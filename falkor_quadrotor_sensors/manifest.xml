@@ -12,6 +12,7 @@
   <depend package="roscpp" />
   <depend package="hector_gazebo_plugins" />
 
+  <depend package="sensor_msgs" />
   <depend package="geometry_msgs" />
 
   <export>
