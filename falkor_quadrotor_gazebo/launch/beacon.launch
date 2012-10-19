@@ -1,0 +1,13 @@
+<launch>
+  <include file="$(find falkor_quadrotor_urdf)/launch/spawn_boy.launch" >
+    <arg name="x_pos" value="2.0" />
+    <arg name="y_pos" value="1.0" />
+    <arg name="joy_dev" value="/dev/input/js1" />
+  </include>
+
+  <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
+    <param name="tf_prefix" value="ekf/beacon" />
+    <param name="nav_frame" value="/nav" />
+    <param name="with_covariances" value="true" />
+  </node>
+</launch>

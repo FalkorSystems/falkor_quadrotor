@@ -8,38 +8,11 @@
   </include>
 
   <group ns="robot">
-    <!-- simulation -->
-    
-    <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_with_cam.launch">
-      <arg name="model_name" value="robot" />
-    </include>
-
-    <!-- control bits -->
-    <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
-      <arg name="joy_dev" value="/dev/input/js3" />
-    </include>
-
-    <!-- localization -->
-    <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
-      <param name="tf_prefix" value="ekf/robot" />
-      <param name="nav_frame" value="/nav" />
-      <param name="with_covariances" value="true" />
-    </node>
-
+    <include file="$(find falkor_quadrotor_gazebo)/launch/robot.launch" />
   </group>
 
   <group ns="beacon">
-    <include file="$(find falkor_quadrotor_gazebo)/launch/spawn_boy.launch" >
-      <arg name="x_pos" value="2.0" />
-      <arg name="y_pos" value="1.0" />
-      <arg name="joy_dev" value="/dev/input/js1" />
-    </include>
-
-    <node type="pose_estimation" pkg="hector_pose_estimation" name="pose_estimation">
-      <param name="tf_prefix" value="ekf/beacon" />
-      <param name="nav_frame" value="/nav" />
-      <param name="with_covariances" value="true" />
-    </node>
+    <include file="$(find falkor_quadrotor_gazebo)/launch/beacon.launch" />
   </group>
 
 <node pkg="image_view" name="camera_view" type="image_view" >
@@ -52,7 +25,7 @@
 </include>
 
 <!-- control -->
-<!-- <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />  -->
+<node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
 
 <node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
 
