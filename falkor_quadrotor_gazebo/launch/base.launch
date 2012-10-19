@@ -42,10 +42,6 @@
     </node>
   </group>
 
-<node pkg="image_view" name="camera_view" type="image_view" >
-  <remap to="/robot/front_cam/camera/image" from="image" />
-</node>
-
 <!-- navigation -->
 <include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" > 
   <arg name="joy_dev" value="/dev/input/js2" />

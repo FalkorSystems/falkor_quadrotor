@@ -70,7 +70,7 @@ class FalkorQuadrotorNav:
             (trans,rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
                                                          '/ekf/beacon/base_position',
                                                          relpose_cached.header.stamp )
-#            print "got transform"
+            rospy.logdebug( "got transform from /ekf/beacon/base_position to /ekf/robot/base_stabilized" );
 
             target_pose = self.listener.transformPose( '/ekf/robot/base_stabilized',
                                                    relpose_cached )
@@ -89,7 +89,7 @@ class FalkorQuadrotorNav:
 
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
-            print "navigate: transform exception:", e
+            rospy.logwarn( "navigate: transform exception: %s", str( e ) )
             return
 
     def run( self ):
@@ -102,7 +102,10 @@ class FalkorQuadrotorNav:
 def main():
     rospy.init_node('falkor_quadrotor_navigate')
     navigator = FalkorQuadrotorNav()
-    navigator.run()
+    try:
+        navigator.run()
+    except KeyboardInterrupt:
+        print "Shutting down"
 
 if __name__  == '__main__':
     main()

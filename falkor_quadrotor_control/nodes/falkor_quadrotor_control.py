@@ -64,7 +64,7 @@ class FalkorQuadrotorControl:
             self.cmd_gimbal_pub.publish( gimbal_cmd )
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
-            print "control: transform exception: ", e
+            rospy.logwarn( "control: transform exception: %s", str( e ) )
             return
  
 
@@ -77,8 +77,10 @@ def main():
 
     # wait a minute before starting
     rospy.sleep( rospy.Duration( 1.0 ) )
-    control.run()
-
+    try:
+        control.run()
+    except KeyboardInterrupt:
+        print "Shutting down"
 if __name__  == '__main__':
     main()
 
