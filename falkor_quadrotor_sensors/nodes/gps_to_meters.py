@@ -17,11 +17,12 @@ class FalkorGpsToMeters:
         self.rotation_matrix = np.array( [ [ np.cos( self.ref_head_rad ),  -np.sin( self.ref_head_rad ) ],
                                            [ -np.sin( self.ref_head_rad, ), np.cos( self.ref_head_rad ) ] ] )
 
-        # brooklyn
-        self.reference_latitude = rospy.get_param( "~reference latitude", 40.6500 )
+        # RCSMP, Marine Park, Brooklyn
+        # (40.589303, -73.918800), 
+        self.reference_latitude = rospy.get_param( "~reference latitude", 40.589303 )
         self.ref_lat_rad = self.to_rad( self.reference_latitude )
 
-        self.reference_longitude = rospy.get_param( "~reference_longitude", 73.9500 )
+        self.reference_longitude = rospy.get_param( "~reference_longitude", -73.918800 )
         self.ref_long_rad = self.to_rad( self.reference_longitude )
 
         # MSL
