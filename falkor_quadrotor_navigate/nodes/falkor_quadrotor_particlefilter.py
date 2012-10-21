@@ -98,9 +98,9 @@ class FalkorQuadrotorParticleFilter:
         self.publish_particles()
 
     def reinitialize_particles( self ):
-        # replace 1/10th of the particles with new particles
-        new_particles = self.create_particles( int( self.num_particles / 10 ) )
-        self.particles[range(0,self.num_particles,10)] = new_particles
+        portion = 1000
+        new_particles = self.create_particles( int( self.num_particles / portion ) )
+        self.particles[0:self.num_particles:portion] = new_particles
         
     def mv_norm_pdf( values, mean, Sigma ):
         det = np.linalg.det( Sigma )
@@ -206,8 +206,7 @@ class FalkorQuadrotorParticleFilter:
             best_guess, covariance = self.resample_particles()
 
             self.publish_pose( best_guess, covariance )
-            if self.seq % 300 == 0:
-                self.reinitialize_particles()
+            self.reinitialize_particles()
 
     def run( self ):
         while not rospy.is_shutdown():
