@@ -43,15 +43,14 @@ class FalkorQuadrotorParticleFilter:
         if data.range <= data.min_range or data.range >= data.max_range:
             self.sonar_dist = ( -1, self.sonar_max_variance )
         else:
-            self.sonar_dist = ( data.range, self.sonar_variance )
+            self.sonar_dist = ( data.range, self.sonar_stddev )
             
     def __init__( self ):
         self.pose_pub = rospy.Publisher( '/beacon/pf/pose', PoseWithCovarianceStamped )
         self.pointcloud_pub = rospy.Publisher( '/beacon/pf/point_cloud', PointCloud )
         self.tf_broadcaster = tf.TransformBroadcaster()
 
-        self.sonar_variance = rospy.get_param( '~sonar_variance', 0.5 )
-        self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 10000 )
+        self.sonar_stddev = rospy.get_param( '~sonar_stddev', 0.05 )
         self.num_particles = rospy.get_param( '~num_particles', 10000 )
         self.particles_initialized = False
         self.last_time = None
@@ -74,7 +73,7 @@ class FalkorQuadrotorParticleFilter:
     def create_particles( self, num_particles ):
         # Now move the particles out in a random direction (uniformly distributed)
         # determined by the sonar distance
-        distances = np.random.normal( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ),
+        distances = np.random.normal( self.sonar_dist[0], self.sonar_dist[1],
                                       num_particles )
 
         # to get uniform sphere take 3 independent gaussians and then divide by norm
@@ -122,7 +121,7 @@ class FalkorQuadrotorParticleFilter:
         distance_to_robot = np.sqrt( np.square( self.particles[:,0] ) +
                                      np.square( self.particles[:,1] ) +
                                      np.square( self.particles[:,2] ) )
-        distance_dist = stats.norm( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ) )
+        distance_dist = stats.norm( self.sonar_dist[0], self.sonar_dist[1] )
         prob_robot_distance_data = distance_dist.pdf( distance_to_robot )
 
         weights = prob_robot_distance_data
