@@ -35,52 +35,57 @@ class FalkorQuadrotorParticleFilter:
     def robot_state_cb( self, data ):
         self.robot_state = self.filter_odom_msg( data )
 
+    def robot_truth_cb( self, data ):
+        self.robot_truth_state = self.filter_odom_msg( data )
+
     def sonar_dist_cb( self, data ):
         # if we're at min/max then the data is invalid
         if data.range <= data.min_range or data.range >= data.max_range:
             self.sonar_dist = ( -1, self.sonar_max_variance )
         else:
-            self.sonar_dist = ( data.range, self.sonar_variance )
+            self.sonar_dist = ( data.range, self.sonar_stddev )
             
     def __init__( self ):
-        self.beacon_state_sub = rospy.Subscriber( '/beacon/state', Odometry,
-                                                  self.beacon_state_cb )
-        self.robot_state_sub = rospy.Subscriber( '/robot/state', Odometry,
-                                                 self.robot_state_cb )
-        self.sonar_dist_sub = rospy.Subscriber( '/beacon/sonar', Range,
-                                                self.sonar_dist_cb )
         self.pose_pub = rospy.Publisher( '/beacon/pf/pose', PoseWithCovarianceStamped )
         self.pointcloud_pub = rospy.Publisher( '/beacon/pf/point_cloud', PointCloud )
         self.tf_broadcaster = tf.TransformBroadcaster()
 
-        self.sonar_variance = rospy.get_param( '~sonar_variance', 0.5 )
-        self.sonar_max_variance = rospy.get_param( '~sonar_max_variance', 10000 )
+        self.sonar_stddev = rospy.get_param( '~sonar_stddev', 0.05 )
         self.num_particles = rospy.get_param( '~num_particles', 10000 )
         self.particles_initialized = False
         self.last_time = None
         self.robot_state = None
         self.sonar_dist = None
         self.beacon_state = None
+        self.robot_truth_state = None
         self.rate = rospy.Rate( rospy.get_param( '~update_rate', 10 ) )
         self.seq = 0
 
-    def create_particles( self, num_particles ):
-        # create a bunch of particles, picking from a gaussian centered around robot_state
-        particles = np.random.multivariate_normal( self.robot_state[0],
-                                                   self.robot_state[1],
-                                                   num_particles )
+        self.beacon_state_sub = rospy.Subscriber( '/beacon/state', Odometry,
+                                                  self.beacon_state_cb )
+        self.robot_state_sub = rospy.Subscriber( '/robot/state', Odometry,
+                                                 self.robot_state_cb )
+        self.sonar_dist_sub = rospy.Subscriber( '/beacon/sonar', Range,
+                                                self.sonar_dist_cb )
+        self.robot_truth_sub = rospy.Subscriber( '/robot/ground_truth/state', Odometry,
+                                                 self.robot_truth_cb )
 
+    def create_particles( self, num_particles ):
         # Now move the particles out in a random direction (uniformly distributed)
         # determined by the sonar distance
-        distances = np.random.normal( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ),
+        distances = np.random.normal( self.sonar_dist[0], self.sonar_dist[1],
                                       num_particles )
-        directions_polar = np.random.rand( num_particles, 2 ) * [ np.pi, np.pi*2 ]
 
-        directions_cartesian = np.array( ( np.sin( directions_polar[:,0] ) * np.cos( directions_polar[:,1] ),
-                                           np.sin( directions_polar[:,0] ) * np.sin( directions_polar[:,1] ),
-                                           np.cos( directions_polar[:,0] ) ) )
+        # to get uniform sphere take 3 independent gaussians and then divide by norm
 
-        particles += ( distances * directions_cartesian ).transpose()
+        directions_z_theta = ( np.random.rand( num_particles, 2 ) - 0.5 ) * [ 2, np.pi*2 ]
+
+        directions_cartesian = np.array( ( np.sin( directions_z_theta[:,1] ) * np.sqrt( 1 - np.square( directions_z_theta[:,0] ) ),
+                                           np.cos( directions_z_theta[:,1] ) * np.sqrt( 1 - np.square( directions_z_theta[:,0] ) ),
+                                           directions_z_theta[:,0] ) )
+
+        # the particle vector is the relative distance [x,y,z] from the robot to the beacon
+        particles = ( distances * directions_cartesian ).transpose()
         return particles
     
     def initialize_particles( self ):
@@ -92,9 +97,9 @@ class FalkorQuadrotorParticleFilter:
         self.publish_particles()
 
     def reinitialize_particles( self ):
-        # replace 1/10th of the particles with new particles
-        new_particles = self.create_particles( int( self.num_particles / 10 ) )
-        self.particles[range(0,self.num_particles,10)] = new_particles
+        portion = 1000
+        new_particles = self.create_particles( int( self.num_particles / portion ) )
+        self.particles[0:self.num_particles:portion] = new_particles
         
     def mv_norm_pdf( values, mean, Sigma ):
         det = np.linalg.det( Sigma )
@@ -113,17 +118,11 @@ class FalkorQuadrotorParticleFilter:
         return pdf
 
     def particle_weights( self ):
-        # probability values given the sonar data
-        vector_to_robot = self.robot_state[0] - self.particles
-        distance_to_robot = np.sqrt( np.square( vector_to_robot[:,0] ) +
-                                     np.square( vector_to_robot[:,1] ) +
-                                     np.square( vector_to_robot[:,2] ) )
-        distance_dist = stats.norm( self.sonar_dist[0], np.sqrt( self.sonar_dist[1] ) )
+        distance_to_robot = np.sqrt( np.square( self.particles[:,0] ) +
+                                     np.square( self.particles[:,1] ) +
+                                     np.square( self.particles[:,2] ) )
+        distance_dist = stats.norm( self.sonar_dist[0], self.sonar_dist[1] )
         prob_robot_distance_data = distance_dist.pdf( distance_to_robot )
-
-        # probability values given the beacon data
-
-        # probability values given the robot data
 
         weights = prob_robot_distance_data
         return weights
@@ -135,32 +134,40 @@ class FalkorQuadrotorParticleFilter:
         self.publish_particles()
 
         particles_cdf = np.cumsum( weights_normalized )
-        randoms = np.random.sample( self.num_particles )
+        randoms = np.random.rand( self.num_particles )
         self.particles = self.particles[np.searchsorted( particles_cdf, randoms )]
 
-        best_guess = np.mean( self.particles, 0 )
+        # this guess is in the robot's frame
+        best_guess = np.mean( self.particles, axis=0 )
+
         covariance = np.cov( self.particles, rowvar = 0 )
         return best_guess, covariance
 
     def move_particles( self, dt ):
-        movements = np.random.multivariate_normal( self.beacon_state[2],
-                                                   self.beacon_state[3],
-                                                   self.num_particles ) * dt
+        movements_beacon = np.random.multivariate_normal( self.beacon_state[2],
+                                                          self.beacon_state[3],
+                                                          self.num_particles ) * dt
+        movements_robot = np.random.multivariate_normal( self.robot_state[2],
+                                                         self.robot_state[3],
+                                                         self.num_particles ) * dt
 
-        self.particles += movements
+        relative_movements = movements_beacon - movements_robot
+
+        self.particles += relative_movements
         self.publish_particles()
 
     def publish_particles( self ):
         pointcloud_msg = PointCloud()
-        pointcloud_msg.header = Header( self.seq, rospy.Time.now(), '/nav' )
+        pointcloud_msg.header = Header( self.seq, rospy.Time.now(), '/ground_truth/robot/base_position' )
         for particle in self.particles:
+            # beacon - robot + robot_truth_state
             pointcloud_msg.points.append( Point32( *particle ) )
 
         self.pointcloud_pub.publish( pointcloud_msg )
 
     def publish_pose( self, best_guess, covariance ):
         pose_msg = PoseWithCovarianceStamped()
-        pose_msg.header = Header( self.seq, rospy.Time.now(), "/nav" )
+        pose_msg.header = Header( self.seq, rospy.Time.now(), "/ekf/robot/base_position" )
         pose_msg.pose.pose.position = Point( *best_guess )
         pose_msg.pose.pose.orientation = Quaternion( 0, 0, 0, 1 )
         covariance_flat = covariance.reshape( (1,9) )
@@ -168,11 +175,13 @@ class FalkorQuadrotorParticleFilter:
 
         self.pose_pub.publish( pose_msg )
 
-        self.tf_broadcaster.sendTransform( ( best_guess[0], best_guess[1], 0.0 ),
+
+        self.tf_broadcaster.sendTransform( ( best_guess[0], best_guess[1], best_guess[2] ),
                                            ( 0.0, 0.0, 0.0, 1.0 ),
                                            rospy.Time.now(),
-                                           "/pf/beacon/base_footprint",
-                                           "/nav" )
+                                           "/ground_truth/robot/base_position",
+                                           "/pf/beacon/base_position" )
+
 
         self.tf_broadcaster.sendTransform( ( 0.0, 0.0, best_guess[2] ),
                                            ( 0.0, 0.0, 0.0, 1.0 ),
@@ -196,8 +205,7 @@ class FalkorQuadrotorParticleFilter:
             best_guess, covariance = self.resample_particles()
 
             self.publish_pose( best_guess, covariance )
-            if self.seq % 300 == 0:
-                self.reinitialize_particles()
+            self.reinitialize_particles()
 
     def run( self ):
         while not rospy.is_shutdown():
