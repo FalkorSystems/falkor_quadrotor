@@ -95,7 +95,7 @@ class FalkorQuadrotorParticleFilter:
         self.tf_broadcaster = tf.TransformBroadcaster()
 
         self.sonar_stddev = rospy.get_param( '~sonar_stddev', 0.5 )
-        self.num_particles = rospy.get_param( '~num_particles', 100 )
+        self.num_particles = rospy.get_param( '~num_particles', 10000 )
         self.world_frame = rospy.get_param( '~world_frame', '/nav' )
 
         self.particles_initialized = False
@@ -166,7 +166,6 @@ class FalkorQuadrotorParticleFilter:
         self.publish_particles()
 
     def reinitialize_particles( self ):
-        return
         portion = 1000
         new_particles = self.create_particles( int( self.num_particles / portion ) )
         self.particles[0:self.num_particles:portion] = new_particles
