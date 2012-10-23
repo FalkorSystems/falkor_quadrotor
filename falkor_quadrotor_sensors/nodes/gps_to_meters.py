@@ -138,7 +138,7 @@ class FalkorGpsToMeters:
         header = Header( self.fix_seq, rospy.Time.now(), self.world_frame )
         pose_msg = PoseWithCovarianceStamped( header, PoseWithCovariance( pose, covariance ) )
         self.fix_pub.publish( pose_msg )
-        self.publish_state( pose = pose_msg )vvv
+        self.publish_state( pose = pose_msg )
 
     def run( self ):
         rospy.spin()

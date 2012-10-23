@@ -43,6 +43,11 @@ xmlns:xacro="http://ros.org/wiki/xacro"
         <offset>0 0 0</offset>
         <drift>0.0 0.0 0.0</drift>
         <gaussianNoise>1.3e-2 1.3e-2 1.3e-2</gaussianNoise>
+	<!-- for zip code 11234
+	     from http://www.ngdc.noaa.gov/geomagmodels/struts/calcIGRFWMM 
+	-->
+	<declination>-13.083</declination>
+	<inclination>66.867</inclination>
       </controller:hector_gazebo_ros_magnetic>
 
       <controller:hector_gazebo_ros_gps name="beacon_gps_sim" plugin="libhector_gazebo_ros_gps.so">
@@ -55,6 +60,11 @@ xmlns:xacro="http://ros.org/wiki/xacro"
         <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
         <velocityDrift>0 0 0</velocityDrift>
         <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+	<!-- RCSMP Marine Park, Brooklyn, NY -->
+	<referenceLatitude>40.589681</referenceLatitude>
+	<referenceLongitude>-73.918580</referenceLongitude>
+	<referenceAltitude>0</referenceAltitude>
+	<referenceHeading>0</referenceHeading>
       </controller:hector_gazebo_ros_gps>
 
       <controller:gazebo_ros_p3d name="beacon_groundtruth_sim" plugin="libgazebo_ros_p3d.so">
