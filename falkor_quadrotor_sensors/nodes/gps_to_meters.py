@@ -32,9 +32,9 @@ class FalkorGpsToMeters:
         self.fix_topic = rospy.get_param( "~fix_topic", "fix" )
         self.vel_topic = rospy.get_param( "~fix_vel_topic", "fix_velocity" )
 
-        self.fix_pub = rospy.Publisher( self.fix_topic + "/pose", PoseWithCovarianceStamped )
-        self.vel_pub = rospy.Publisher( self.fix_topic + "/twist", TwistWithCovarianceStamped )
-        self.state_pub = rospy.Publisher( self.fix_topic  + "/state", Odometry )
+        self.fix_pub = rospy.Publisher( self.fix_topic + "_m/pose", PoseWithCovarianceStamped )
+        self.vel_pub = rospy.Publisher( self.fix_topic + "_m/twist", TwistWithCovarianceStamped )
+        self.state_pub = rospy.Publisher( self.fix_topic  + "_m/state", Odometry )
 
         self.world_frame = rospy.get_param( "~world_frame", "/nav" )
 
@@ -62,7 +62,6 @@ class FalkorGpsToMeters:
         return degrees / 180.0 * np.pi
     
     def xy( self, destination ):
-        import pdb; pdb.set_trace()
         # From http://www.movable-type.co.uk/scripts/latlong.html
         lat1 = self.ref_lat_rad
         long1 = self.ref_long_rad
@@ -70,20 +69,15 @@ class FalkorGpsToMeters:
         long2 = self.to_rad( destination[1] )
 
         dlat = lat2-lat1
+        dx = dlat * self.earth_radius
+
         dlong = long2-long1
+        # west is positive y, negative longitude
+        dy = - dlong * np.cos( (lat1+lat2)/2 ) * self.earth_radius
 
-        a = np.square( np.sin( dlat/2 ) ) + np.cos( lat1 ) * np.cos( lat2 ) * np.square( np.sin( dlong/2 ) )
-        c = 2 * np.arctan2( np.sqrt( a ), np.sqrt( 1-a ) )
-        distance = self.earth_radius * c
-
-        y_tmp = np.sin( dlong ) * np.cos( lat2 )
-        x_tmp = np.cos( lat1 ) * np.sin( lat2 ) - np.sin( lat1 ) * np.cos( lat2 ) * np.cos( dlong )
-        bearing = np.arctan2( y_tmp, x_tmp )
-
-        adjusted_bearing = ( bearing + self.ref_head_rad ) % ( 2 * np.pi )
-        x = distance * np.cos( adjusted_bearing )
-        y = - distance * np.sin( adjusted_bearing )
-        return x, y
+        # rotate
+        xy = self.rotate_xy( dx, dy )
+        return xy[0], xy[1]
 
     def rotate_xy( self, x, y ):
         return self.rotation_matrix.dot( np.array( ( x, y ) ).transpose() )
@@ -93,6 +87,7 @@ class FalkorGpsToMeters:
         self.state.header = Header( self.state_seq, rospy.Time.now(), self.world_frame )
         if not pose == None:
             self.state.pose = pose.pose
+
         if not vel == None:
             self.state.twist = vel.twist
 
