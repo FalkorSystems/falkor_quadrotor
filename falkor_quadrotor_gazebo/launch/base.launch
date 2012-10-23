@@ -1,18 +1,20 @@
 <launch>
   <!-- simulation world -->
 
-
-<include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
-<!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
-   <arg name="gui" value="false" />
+  <include file="$(find falkor_quadrotor_gazebo)/launch/world.launch" >
+    <arg name="gui" value="false" />
   </include>
 
   <group ns="robot">
-    <include file="$(find falkor_quadrotor_gazebo)/launch/robot.launch" />
+    <include file="$(find falkor_quadrotor_gazebo)/launch/robot.launch" >
+      <arg name="joy_dev" value="/dev/input/js3" />
+    </include>
   </group>
 
   <group ns="beacon">
-    <include file="$(find falkor_quadrotor_gazebo)/launch/beacon.launch" />
+    <include file="$(find falkor_quadrotor_gazebo)/launch/beacon.launch" >
+      <arg name="joy_dev" value="/dev/input/js1" />
+    </include>
   </group>
 
 <!-- navigation -->

@@ -11,11 +11,11 @@ from nav_msgs.msg import *
 
 class FalkorGpsToMeters:
     def __init__( self ):
-        self.reference_heading = rospy.get_param( "~reference_heading", 0 )
+        self.reference_heading = rospy.get_param( "~reference_heading", 30 )
         self.ref_head_rad = self.to_rad( self.reference_heading )
 
-        self.rotation_matrix = np.array( [ [ np.cos( self.ref_head_rad ),  -np.sin( self.ref_head_rad ) ],
-                                           [ -np.sin( self.ref_head_rad, ), np.cos( self.ref_head_rad ) ] ] )
+        self.rotation_matrix = np.array( [ [ np.cos( self.ref_head_rad ),   np.sin( self.ref_head_rad ) ],
+                                           [ np.sin( self.ref_head_rad, ), -np.cos( self.ref_head_rad ) ] ] )
 
         # RCSMP, Marine Park, Brooklyn
         # 40.589681,-73.91852
@@ -73,7 +73,7 @@ class FalkorGpsToMeters:
 
         dlong = long2-long1
         # west is positive y, negative longitude
-        dy = - dlong * np.cos( (lat1+lat2)/2 ) * self.earth_radius
+        dy = - dlong * np.cos( lat2 ) * self.earth_radius
 
         # rotate
         xy = self.rotate_xy( dx, dy )
@@ -118,6 +118,7 @@ class FalkorGpsToMeters:
 
         if not data.position_covariance_type == NavSatFix.COVARIANCE_TYPE_UNKNOWN:
             # rotate, scale, and publish covariance
+            # this bit has NOT BEEN TESTED
             covariance_matrix = np.array( data.position_covariance ).reshape( 3, 3 )
             new_covariance = self.scaled_rotation_matrix_inverse.dot( covariance_matrix ).dot( self.scaled_rotation_matrix )
         else:
