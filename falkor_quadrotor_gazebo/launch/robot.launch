@@ -18,5 +18,5 @@
   </node>
 -->
 
-  <node type="gps_to_meters" pkg="falkor_quadrotor_sensors" name="gps_to_meters.py"/>
+  <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters"/>
 </launch>
