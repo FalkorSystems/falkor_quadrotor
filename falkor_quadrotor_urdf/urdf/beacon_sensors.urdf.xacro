@@ -90,6 +90,8 @@ xmlns:xacro="http://ros.org/wiki/xacro"
 	<remoteBodyName>base_link</remoteBodyName>
 	<gaussianNoise>0.05</gaussianNoise>
       </controller:falkor_quadrotor_sonar>
+
     </gazebo>
+
   </xacro:macro>
 </robot>
