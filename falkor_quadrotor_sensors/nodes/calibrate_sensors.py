@@ -22,7 +22,7 @@ class CalibrationCollection:
 
         self.world_frame = rospy.get_param( '~world_frame', "/nav" )
         self.magnetic_frame = rospy.get_param( '~magnetic_field_frame', self.world_frame + "/magnet" )
-        self.tf_prefix = ''
+        self.tf_prefix = rospy.get_param( '~tf_prefix', '' )
         self.imu_sub = rospy.Subscriber( 'imu/data',
                                          Imu,
                                          self.imu_cb )
@@ -38,7 +38,6 @@ class CalibrationCollection:
         if self.collecting == False:
             return
 
-        print "got mag", data
         mag_vector = np.array( [ [ data.vector.x,
                                    data.vector.y,
                                    data.vector.z ] ] )
@@ -51,7 +50,6 @@ class CalibrationCollection:
         if self.collecting == False:
             return
 
-        print "got imu",data
         angular_velocity = np.array( [ [ data.angular_velocity.x,
                                          data.angular_velocity.y,
                                          data.angular_velocity.z ] ] )
