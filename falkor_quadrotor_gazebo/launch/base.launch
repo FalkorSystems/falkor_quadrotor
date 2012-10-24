@@ -1,6 +1,7 @@
 <launch>
   <include file="$(find falkor_quadrotor_gazebo)/launch/world.launch" >
     <arg name="gui" value="false" />
+    <arg name="rviz" value="false" />
   </include>
 
   <group ns="robot">

@@ -1,4 +1,5 @@
 <launch>
+  <arg name="gui" default="false" />
   <arg name="gui" default="true" />
   <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
     <!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
@@ -9,5 +10,8 @@
     <param name="declination" value="-13.083" />
     <param name="world_frame" value="/nav" />
   </node>
-  
+
+  <group if="$(arg rviz)">
+    <node pkg="rviz" type="rviz" name="rviz" />
+  </group>
 </launch>
