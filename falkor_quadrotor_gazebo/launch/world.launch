@@ -1,6 +1,6 @@
 <launch>
   <arg name="gui" default="false" />
-  <arg name="gui" default="true" />
+  <arg name="rviz" default="true" />
   <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch">
     <!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
     <arg name="gui" value="$(arg gui)" />
