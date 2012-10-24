@@ -19,7 +19,7 @@ class FalkorGpsToMeters:
 
         # RCSMP, Marine Park, Brooklyn
         # 40.589681,-73.91852
-        self.reference_latitude = rospy.get_param( "~reference latitude", 40.589681 )
+        self.reference_latitude = rospy.get_param( "~reference_latitude", 40.589681 )
         self.ref_lat_rad = self.to_rad( self.reference_latitude )
 
         self.reference_longitude = rospy.get_param( "~reference_longitude", -73.918520 )

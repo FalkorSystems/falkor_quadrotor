@@ -1,6 +1,6 @@
 <launch>
   <arg name="joy_dev" default="/dev/input/js1" />
-  <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_with_cam.launch">
+  <include file="$(find falkor_quadrotor_urdf)/launch/spawn_quadrotor_with_cam.launch">
     <arg name="model_name" value="robot" />
   </include>
 
@@ -13,7 +13,11 @@
     <param name="fixed_frame" value="/nav/magnet" />
     <remap to="raw_imu" from="imu/data_raw" />
     <remap to="magnetic" from="imu/mag" />
+    <remap to="imu" from="imu/data" />
   </node>
 
   <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters"/>
+
+  <node type="combineraw_gps_imu.py" pkg="falkor_quadrotor_sensors" name="combine_raw_gps_imu" />
+
 </launch>

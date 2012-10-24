@@ -1,6 +1,6 @@
 <launch>
   <arg name="joy_dev" default="/dev/input/js1" />
-  <include file="$(find falkor_quadrotor_urdf)/launch/spawn_boy.launch" >
+  <include file="$(find falkor_quadrotor_urdf)/launch/spawn_beacon.launch" >
     <arg name="x_pos" value="2.0" />
     <arg name="y_pos" value="1.0" />
     <arg name="joy_dev" value="$(arg joy_dev)" />
@@ -13,4 +13,6 @@
   </node>
 
   <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters"/>
+
+  <node type="combineraw_gps_imu.py" pkg="falkor_quadrotor_sensors" name="combine_raw_gps_imu"/>
 </launch>

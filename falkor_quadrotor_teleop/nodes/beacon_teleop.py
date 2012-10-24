@@ -9,7 +9,7 @@ from gazebo_msgs.msg import ModelStates
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState, SetModelStateRequest
 
-class BoyTeleopJoy:
+class BeaconTeleopJoy:
 
     def __init__( self ):
         self.joy_sub = rospy.Subscriber( "joy", Joy, self.callback_joy )
@@ -96,9 +96,9 @@ class BoyTeleopJoy:
         self.last_buttons = data.buttons
 
 def main():
-  rospy.init_node( 'boy_teleop_joy' )
+  rospy.init_node( 'beacon_teleop_joy' )
 
-  BoyTeleopJoy()
+  BeaconTeleopJoy()
 
   try:
     rospy.spin()

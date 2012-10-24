@@ -76,10 +76,7 @@ class FalkorQuadrotorParticleFilter:
         distances = np.random.normal( self.sonar_dist[0], self.sonar_dist[1],
                                       num_particles )
 
-        # to get uniform sphere take 3 independent gaussians and then divide by norm
-
         directions_z_theta = ( np.random.rand( num_particles, 2 ) - 0.5 ) * [ 2, np.pi*2 ]
-
         directions_cartesian = np.array( ( np.sin( directions_z_theta[:,1] ) * np.sqrt( 1 - np.square( directions_z_theta[:,0] ) ),
                                            np.cos( directions_z_theta[:,1] ) * np.sqrt( 1 - np.square( directions_z_theta[:,0] ) ),
                                            directions_z_theta[:,0] ) )
@@ -117,7 +114,7 @@ class FalkorQuadrotorParticleFilter:
                 exp )
         return pdf
 
-    def particle_weights( self ):
+    def calculate_particle_weights( self ):
         distance_to_robot = np.sqrt( np.square( self.particles[:,0] ) +
                                      np.square( self.particles[:,1] ) +
                                      np.square( self.particles[:,2] ) )
@@ -125,23 +122,17 @@ class FalkorQuadrotorParticleFilter:
         prob_robot_distance_data = distance_dist.pdf( distance_to_robot )
 
         weights = prob_robot_distance_data
-        return weights
+        self.weights = weights / np.sum( weights )
 
     def resample_particles( self ):
-        weights = self.particle_weights()
-
-        weights_normalized = weights / np.sum( weights )
-        self.publish_particles()
-
-        particles_cdf = np.cumsum( weights_normalized )
+        particles_cdf = np.cumsum( self.weights )
         randoms = np.random.rand( self.num_particles )
         self.particles = self.particles[np.searchsorted( particles_cdf, randoms )]
 
+    def get_best_guess( self ):
         # this guess is in the robot's frame
-        best_guess = np.mean( self.particles, axis=0 )
-
-        covariance = np.cov( self.particles, rowvar = 0 )
-        return best_guess, covariance
+        best_guess = np.average( self.particles, axis=0, weights=self.weights )
+        return best_guess
 
     def move_particles( self, dt ):
         movements_beacon = np.random.multivariate_normal( self.beacon_state[2],
@@ -158,20 +149,19 @@ class FalkorQuadrotorParticleFilter:
 
     def publish_particles( self ):
         pointcloud_msg = PointCloud()
-        pointcloud_msg.header = Header( self.seq, rospy.Time.now(), '/ground_truth/robot/base_position' )
+        pointcloud_msg.header = Header( self.seq, rospy.Time.now(), '/robot/ground_truth/base_position' )
         for particle in self.particles:
-            # beacon - robot + robot_truth_state
+            # beacon - robot
             pointcloud_msg.points.append( Point32( *particle ) )
 
         self.pointcloud_pub.publish( pointcloud_msg )
 
     def publish_pose( self, best_guess, covariance ):
         pose_msg = PoseWithCovarianceStamped()
-        pose_msg.header = Header( self.seq, rospy.Time.now(), "/ekf/robot/base_position" )
+        pose_msg.header = Header( self.seq, rospy.Time.now(), "/robot/base_position" )
         pose_msg.pose.pose.position = Point( *best_guess )
         pose_msg.pose.pose.orientation = Quaternion( 0, 0, 0, 1 )
         covariance_flat = covariance.reshape( (1,9) )
-#        pose_msg.pose.covariance = np.asarray( covariance_flat ) + [ 1e-10, 0, 0, 0, 1e-10, 0, 0, 0, 1e-10 ]
 
         self.pose_pub.publish( pose_msg )
 
@@ -179,7 +169,7 @@ class FalkorQuadrotorParticleFilter:
         self.tf_broadcaster.sendTransform( ( best_guess[0], best_guess[1], best_guess[2] ),
                                            ( 0.0, 0.0, 0.0, 1.0 ),
                                            rospy.Time.now(),
-                                           "/ground_truth/robot/base_position",
+                                           "/robot/base_position",
                                            "/pf/beacon/base_position" )
 
 

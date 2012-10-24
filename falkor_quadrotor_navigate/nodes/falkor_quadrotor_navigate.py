@@ -90,7 +90,6 @@ class FalkorQuadrotorNav:
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
             rospy.logwarn( "navigate: transform exception: %s", str( e ) )
-            return
 
     def run( self ):
         while not rospy.is_shutdown():

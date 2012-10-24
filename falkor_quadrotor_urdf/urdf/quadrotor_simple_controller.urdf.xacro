@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<robot
+xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+xmlns:xacro="http://ros.org/wiki/xacro"
+>
+
+  <!-- Quadrotor Simple Controller Plugin -->
+  <property name="M_PI" value="3.1415926535897931" />
+
+  <xacro:macro name="quadrotor_controller">
+    <gazebo>
+      <controller:hector_gazebo_quadrotor_simple_controller name="quadrotor_simple_controller" plugin="libhector_gazebo_quadrotor_simple_controller.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <bodyName>base_link</bodyName>
+        <stateTopic>ground_truth/state</stateTopic>
+        <imuTopic>raw_imu</imuTopic>
+        <topicName>cmd_vel</topicName>
+	<gimbalPoseTopicName>cmd_gimbal</gimbalPoseTopicName>
+	<gimbalStateTopicName>joint_states</gimbalStateTopicName>
+	<gimbalJointNamePrefix>front_cam_</gimbalJointNamePrefix>
+	<gimbalProportionalGain>1.0</gimbalProportionalGain>
+	<gimbalDifferentialGain>0.5</gimbalDifferentialGain>
+	<gimbalLimit>${M_PI/4}</gimbalLimit>
+        <rollpitchProportionalGain>10.0</rollpitchProportionalGain>
+        <rollpitchDifferentialGain>5.0</rollpitchDifferentialGain>
+        <rollpitchLimit>0.5</rollpitchLimit>
+        <yawProportionalGain>2.0</yawProportionalGain>
+        <yawDifferentialGain>1.0</yawDifferentialGain>
+        <yawLimit>1.5</yawLimit>
+        <velocityXYProportionalGain>5.0</velocityXYProportionalGain>
+        <velocityXYDifferentialGain>1.0</velocityXYDifferentialGain>
+        <velocityXYLimit>2</velocityXYLimit>
+        <velocityZProportionalGain>5.0</velocityZProportionalGain>
+        <velocityZDifferentialGain>1.0</velocityZDifferentialGain>
+        <velocityZLimit>2</velocityZLimit>
+        <maxForce>30</maxForce>
+
+      </controller:hector_gazebo_quadrotor_simple_controller>
+    </gazebo>
+  </xacro:macro>
+</robot>
