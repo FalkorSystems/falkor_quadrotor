@@ -1,0 +1,5 @@
+# request
+uint16 time # in seconds
+---
+# return value
+bool success
