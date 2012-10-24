@@ -1,6 +1,4 @@
 <launch>
-  <!-- simulation world -->
-
   <include file="$(find falkor_quadrotor_gazebo)/launch/world.launch" >
     <arg name="gui" value="false" />
   </include>

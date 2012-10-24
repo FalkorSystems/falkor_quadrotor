@@ -15,4 +15,5 @@
 -->
 
   <node type="gps_to_meters" pkg="falkor_quadrotor_sensors" name="gps_to_meters.py"/>
+  <node type="mag_to_tf.py" pkg="falkor_quadrotor_sensors" name="mag_to_tf" />
 </launch>

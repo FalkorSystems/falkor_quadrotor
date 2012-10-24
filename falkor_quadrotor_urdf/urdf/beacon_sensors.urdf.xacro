@@ -48,6 +48,13 @@ xmlns:xacro="http://ros.org/wiki/xacro"
 	-->
 	<declination>-13.083</declination>
 	<inclination>66.867</inclination>
+	<!-- for zip code 11234
+	     from http://www.ngdc.noaa.gov/geomagmodels/struts/calcIGRFWMM 
+	-->
+	<declination>-13.083</declination>
+	<inclination>66.867</inclination>
+	<referenceHeading>0</referenceHeading>
+	<frameId>/beacon/magnetic</frameId>
       </controller:hector_gazebo_ros_magnetic>
 
       <controller:hector_gazebo_ros_gps name="beacon_gps_sim" plugin="libhector_gazebo_ros_gps.so">

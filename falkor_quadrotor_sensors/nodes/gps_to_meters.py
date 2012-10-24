@@ -11,7 +11,7 @@ from nav_msgs.msg import *
 
 class FalkorGpsToMeters:
     def __init__( self ):
-        self.reference_heading = rospy.get_param( "~reference_heading", 30 )
+        self.reference_heading = rospy.get_param( "~reference_heading", 0 )
         self.ref_head_rad = self.to_rad( self.reference_heading )
 
         self.rotation_matrix = np.array( [ [ np.cos( self.ref_head_rad ),   np.sin( self.ref_head_rad ) ],
