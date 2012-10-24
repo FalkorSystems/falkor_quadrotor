@@ -119,6 +119,8 @@ class CalibrationCollection:
 class CalibrateSensors:
     def __init__(self):
         self.calibrated = False
+        self.calibrator = None
+        self.calibrating = False
 
         self.service = rospy.Service( 'calibrate_sensors',
                                       Calibrate,
@@ -132,6 +134,11 @@ class CalibrateSensors:
         return { 'done': self.calibrated }
 
     def calibrate( self, req ):
+        # if a calibration already happening, return failure
+        if self.calibrating:
+            return { 'success': False }
+
+        self.calibrating = True
         self.calibrated = False
         # setup data collection
         self.calibrator = CalibrationCollection( req.time )
@@ -145,6 +152,7 @@ class CalibrateSensors:
         # reset stored data
         self.calibrator.init_data()
         self.calibrated = True
+        self.calibrating = False
         return { 'success': True }
 
     def run( self ):
