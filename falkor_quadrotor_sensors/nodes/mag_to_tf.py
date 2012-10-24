@@ -27,7 +27,7 @@ class FalkorMagToTf:
                                             self.magnet_cb )
 
         self.magnetic_field_world = tf.transformations.quaternion_from_euler( 0,
-                                                                              self.incl_rad,
+                                                                              0, # self.incl_rad,
                                                                               -self.decl_rad )
 
     def to_rad( self, degrees ):
@@ -51,7 +51,9 @@ class FalkorMagToTf:
                                self.world_frame )
 
         self.tf.sendTransform( (0.0, 0.0, 0.0),
-                               tf.transformations.quaternion_from_euler( roll, pitch, yaw ),
+                               tf.transformations.quaternion_from_euler( 0, #roll
+                                                                         0, #pitch
+                                                                         yaw ),
                                rospy.Time.now(),
                                magnetometer_frame,
                                self.magnetic_field_frame )
