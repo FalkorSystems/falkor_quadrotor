@@ -16,6 +16,8 @@
     <param name="x_velocity_max" value="5"/>
     <param name="y_velocity_max" value="5"/>
     <param name="z_velocity_max" value="5"/>
+    <param name="on_button" value="13" />
+    <param name="off_button" value="15" />
   </node>
 </launch>
 
