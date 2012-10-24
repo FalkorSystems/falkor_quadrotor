@@ -16,13 +16,17 @@
   </group>
 
 <!-- navigation -->
+<!-- 
 <include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" > 
   <arg name="joy_dev" value="/dev/input/js2" />
 </include>
+-->
 
 <!-- control -->
+<!--
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
 
 <node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
+-->
 
 </launch>

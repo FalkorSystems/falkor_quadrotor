@@ -14,52 +14,32 @@ class FalkorMagToTf:
     def __init__( self ):
         self.reference_heading = rospy.get_param( "~referenceHeading", 0 )
         self.declination = rospy.get_param( "~declination", -13.083 )
-        self.inclination = rospy.get_param( "~inclination", 66.867 )
         self.world_frame = rospy.get_param( "~world_frame", '/nav' )
         self.magnetic_field_frame = rospy.get_param( "~magnetic_field_frame", self.world_frame + "/magnet" )
 
         self.ref_head_rad = self.to_rad( self.reference_heading )
         self.decl_rad = self.to_rad( self.declination )
-        self.incl_rad = self.to_rad( self.inclination )
 
         self.tf = tf.TransformBroadcaster()
-        self.magnet_sub = rospy.Subscriber( "magnetic", Vector3Stamped,
-                                            self.magnet_cb )
-
         self.magnetic_field_world = tf.transformations.quaternion_from_euler( 0,
-                                                                              0, # self.incl_rad,
-                                                                              -self.decl_rad )
+                                                                              0,
+                                                                              self.reference_heading-self.decl_rad )
+        self.rate = rospy.Rate( rospy.get_param( "~update_rate", 10 ) )
 
     def to_rad( self, degrees ):
         return degrees / 180.0 * np.pi
 
-    def magnet_cb( self, data ):
-        magnetometer_frame = data.header.frame_id
-        yaw = np.arctan2( - data.vector.y, data.vector.x ) 
-        z = data.vector.z / np.sqrt( np.square( data.vector.y ) +
-                                     np.square( data.vector.x ) +
-                                     np.square( data.vector.z ) )
-        pitch_raw = np.arcsin( z )
-
-        pitch = np.cos( yaw ) * pitch_raw
-        roll = np.sin( yaw ) * pitch_raw
-
+    def send_transform( self ):
         self.tf.sendTransform( (0.0, 0.0, 0.0),
                                self.magnetic_field_world,
                                rospy.Time.now(),
                                self.magnetic_field_frame,
                                self.world_frame )
 
-        self.tf.sendTransform( (0.0, 0.0, 0.0),
-                               tf.transformations.quaternion_from_euler( 0, #roll
-                                                                         0, #pitch
-                                                                         yaw ),
-                               rospy.Time.now(),
-                               magnetometer_frame,
-                               self.magnetic_field_frame )
-
     def run( self ):
-        rospy.spin()
+        while not rospy.is_shutdown():
+            self.send_transform()
+            self.rate.sleep()
 
 def main():
     rospy.init_node('mag_to_tf')

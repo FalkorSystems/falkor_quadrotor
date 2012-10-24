@@ -16,6 +16,7 @@
   <depend package="geometry_msgs" />
   <depend package="std_msgs" />
   <depend package="tf" />
+  <depend package="imu_filter_madgwick" />
 
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib" />

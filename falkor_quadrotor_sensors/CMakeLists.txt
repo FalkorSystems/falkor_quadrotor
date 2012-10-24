@@ -18,6 +18,5 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 rosbuild_add_boost_directories()
 
-rosbuild_gensrv()
 rosbuild_add_library(falkor_quadrotor_sonar src/gazebo_ros_sonar2.cpp)
 
