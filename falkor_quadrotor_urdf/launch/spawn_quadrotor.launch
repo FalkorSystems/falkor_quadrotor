@@ -21,28 +21,9 @@
 	       -model $(arg model_name)"
 	 respawn="false" output="screen"/>
      
-   <!-- start robot state publisher -->
-   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen" >
-     <param name="publish_frequency" type="double" value="50.0" />
-     <param name="tf_prefix" type="string" value="$(arg model_name)" />
-   </node>
-
-   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher_gt" output="screen" >
-     <param name="publish_frequency" type="double" value="50.0" />
-     <param name="tf_prefix" type="string" value="$(arg model_name)/ground_truth" />
-   </node>
-
-   <node name="ground_truth_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
-     <param name="odometry_topic" value="ground_truth/state" />
-     <param name="frame_id" value="/nav" />
-     <param name="tf_prefix" value="$(arg model_name)/ground_truth" />
-   </node>
-
-   <node name="raw_pose_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
-     <param name="pose_topic" value="raw/pose" />
-     <param name="frame_id" value="/nav" />
-     <param name="tf_prefix" value="$(arg model_name)" />
-   </node>
+   <include file="$(find falkor_quadrotor_urdf)/launch/for_tf.launch" >
+     <arg name="model_name" value="$(arg model_name)" />
+   </include>
 
    <rosparam command="load" ns="gazebo" file="$(find hector_quadrotor_controller)/param/quadrotor_aerodynamics.yaml" />
  </launch>
