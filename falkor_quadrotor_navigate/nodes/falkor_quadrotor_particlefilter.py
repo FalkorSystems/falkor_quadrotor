@@ -150,12 +150,13 @@ class FalkorQuadrotorParticleFilter:
 
         self.pointcloud_pub.publish( pointcloud_msg )
 
-    def publish_pose( self, best_guess, covariance ):
+    def publish_pose( self, best_guess ):
         pose_msg = PoseWithCovarianceStamped()
         pose_msg.header = Header( self.seq, rospy.Time.now(), "/robot/base_position" )
         pose_msg.pose.pose.position = Point( *best_guess )
         pose_msg.pose.pose.orientation = Quaternion( 0, 0, 0, 1 )
-        covariance_flat = covariance.reshape( (1,9) )
+        covariance_flat = np.zeros( 9 )
+#        covariance_flat = covariance.reshape( (1,9) )
 
         self.pose_pub.publish( pose_msg )
 
@@ -186,9 +187,13 @@ class FalkorQuadrotorParticleFilter:
             self.last_time = time_now
 
             self.move_particles( dt )
-            best_guess, covariance = self.resample_particles()
+            self.calculate_particle_weights()
 
-            self.publish_pose( best_guess, covariance )
+            best_guess = self.get_best_guess()
+            if self.seq % 60 == 0:
+                self.resample_particles()
+
+            self.publish_pose( best_guess )
             self.reinitialize_particles()
 
     def run( self ):
