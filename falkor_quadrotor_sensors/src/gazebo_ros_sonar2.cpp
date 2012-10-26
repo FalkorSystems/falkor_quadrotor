@@ -37,8 +37,10 @@ GazeboRosSonar2::~GazeboRosSonar2()
   else
     remote_model_name_ = _sdf->GetElement("remoteModelName")->GetValueString();
 
-
   remote_model = boost::shared_dynamic_cast<physics::Model>(world->GetEntity(remote_model_name_));
+  if( !remote_model )
+    ROS_FATAL( "gazebo_ros_sonar2: unable to get remote model: %s", remote_model_name_.c_str() );
+
   ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "got remote model: %s", remote_model->GetName().c_str() );
 
   if( !_sdf->HasElement("remoteBodyName"))
@@ -51,6 +53,11 @@ GazeboRosSonar2::~GazeboRosSonar2()
     remote_link_name_ = _sdf->GetElement("remoteBodyName")->GetValueString();
     remote_link = remote_model->GetLink( remote_link_name_ );
   }
+
+  if( !remote_link )
+    ROS_FATAL( "gazebo_ros_sonar2: unable to get remote link: %s",
+	       remote_link_name_.c_str() );
+    
   ROS_DEBUG_NAMED( "gazebo_ros_sonar2", "got remote link: %s", remote_link->GetName().c_str() );
 
   if (!_sdf->HasElement("bodyName"))

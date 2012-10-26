@@ -5,7 +5,7 @@
     <param name="dev" value="$(arg joy_dev)" />
   </node>
 
-   <node name="boy_teleop" pkg="falkor_quadrotor_teleop" type="boy_teleop.py" output="screen">
+   <node name="beacon_teleop" pkg="falkor_quadrotor_teleop" type="beacon_teleop.py" output="screen">
      <param name="jump_button" value="10" />
      <param name="forward_button" value="4" />
      <param name="backward_button" value="6" />
