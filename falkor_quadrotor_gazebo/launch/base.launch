@@ -16,14 +16,13 @@
     </include>
   </group>
 
-<!-- navigation -->
-<!-- 
+<!-- navigate -->
 <include file="$(find falkor_quadrotor_navigate)/launch/navigate.launch" > 
   <arg name="joy_dev" value="/dev/input/js2" />
 </include>
--->
 
 <!-- control -->
+<!-- this works, kind of it is commented out for now because we want to test other things -->
 <!--
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
 -->

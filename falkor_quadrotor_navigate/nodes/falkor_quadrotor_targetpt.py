@@ -39,7 +39,7 @@ class FalkorQuadrotorTargetPt:
         y = numpy.sin( self.bearing ) * self.horizontal_distance
         x = numpy.cos( self.bearing ) * self.horizontal_distance
 
-        pub_data = PointStamped( Header( self.seq, rospy.Time.now(), '/ekf/beacon/base_position' ),
+        pub_data = PointStamped( Header( self.seq, rospy.Time.now(), '/beacon/base_position' ),
                                  Point( x, y, z ) )
         self.targetpt_pub.publish( pub_data )
 

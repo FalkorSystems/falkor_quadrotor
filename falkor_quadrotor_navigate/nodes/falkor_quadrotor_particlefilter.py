@@ -35,9 +35,6 @@ class FalkorQuadrotorParticleFilter:
     def robot_state_cb( self, data ):
         self.robot_state = self.filter_odom_msg( data )
 
-    def robot_truth_cb( self, data ):
-        self.robot_truth_state = self.filter_odom_msg( data )
-
     def sonar_dist_cb( self, data ):
         # if we're at min/max then the data is invalid
         if data.range <= data.min_range or data.range >= data.max_range:
@@ -57,18 +54,15 @@ class FalkorQuadrotorParticleFilter:
         self.robot_state = None
         self.sonar_dist = None
         self.beacon_state = None
-        self.robot_truth_state = None
         self.rate = rospy.Rate( rospy.get_param( '~update_rate', 10 ) )
         self.seq = 0
 
-        self.beacon_state_sub = rospy.Subscriber( '/beacon/state', Odometry,
+        self.beacon_state_sub = rospy.Subscriber( '/beacon/fix_m/state', Odometry,
                                                   self.beacon_state_cb )
-        self.robot_state_sub = rospy.Subscriber( '/robot/state', Odometry,
+        self.robot_state_sub = rospy.Subscriber( '/robot/fix_m/state', Odometry,
                                                  self.robot_state_cb )
         self.sonar_dist_sub = rospy.Subscriber( '/beacon/sonar', Range,
                                                 self.sonar_dist_cb )
-        self.robot_truth_sub = rospy.Subscriber( '/robot/ground_truth/state', Odometry,
-                                                 self.robot_truth_cb )
 
     def create_particles( self, num_particles ):
         # Now move the particles out in a random direction (uniformly distributed)
