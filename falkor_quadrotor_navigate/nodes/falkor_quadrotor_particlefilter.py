@@ -38,7 +38,7 @@ class FalkorQuadrotorParticleFilter:
     def sonar_dist_cb( self, data ):
         # if we're at min/max then the data is invalid
         if data.range <= data.min_range or data.range >= data.max_range:
-            self.sonar_dist = ( -1, self.sonar_max_variance )
+            self.sonar_dist = ( -1, self.sonar_maxstddev )
         else:
             self.sonar_dist = ( data.range, self.sonar_stddev )
             
@@ -48,6 +48,7 @@ class FalkorQuadrotorParticleFilter:
         self.tf_broadcaster = tf.TransformBroadcaster()
 
         self.sonar_stddev = rospy.get_param( '~sonar_stddev', 0.05 )
+        self.sonar_maxstddev = rospy.get_param( '~sonar_maxstddev', 100 )
         self.num_particles = rospy.get_param( '~num_particles', 10000 )
         self.particles_initialized = False
         self.last_time = None
@@ -57,9 +58,9 @@ class FalkorQuadrotorParticleFilter:
         self.rate = rospy.Rate( rospy.get_param( '~update_rate', 10 ) )
         self.seq = 0
 
-        self.beacon_state_sub = rospy.Subscriber( '/beacon/fix_m/state', Odometry,
+        self.beacon_state_sub = rospy.Subscriber( '/beacon/raw/state', Odometry,
                                                   self.beacon_state_cb )
-        self.robot_state_sub = rospy.Subscriber( '/robot/fix_m/state', Odometry,
+        self.robot_state_sub = rospy.Subscriber( '/robot/raw/state', Odometry,
                                                  self.robot_state_cb )
         self.sonar_dist_sub = rospy.Subscriber( '/beacon/sonar', Range,
                                                 self.sonar_dist_cb )
@@ -126,7 +127,10 @@ class FalkorQuadrotorParticleFilter:
     def get_best_guess( self ):
         # this guess is in the robot's frame
         best_guess = np.average( self.particles, axis=0, weights=self.weights )
-        return best_guess
+        demeaned = self.particles - best_guess
+        covariance = np.dot( self.weights * demeaned.T, demeaned )
+
+        return best_guess, covariance
 
     def move_particles( self, dt ):
         movements_beacon = np.random.multivariate_normal( self.beacon_state[2],
@@ -150,13 +154,12 @@ class FalkorQuadrotorParticleFilter:
 
         self.pointcloud_pub.publish( pointcloud_msg )
 
-    def publish_pose( self, best_guess ):
+    def publish_pose( self, best_guess, covariance ):
         pose_msg = PoseWithCovarianceStamped()
         pose_msg.header = Header( self.seq, rospy.Time.now(), "/robot/base_position" )
         pose_msg.pose.pose.position = Point( *best_guess )
         pose_msg.pose.pose.orientation = Quaternion( 0, 0, 0, 1 )
-        covariance_flat = np.zeros( 9 )
-#        covariance_flat = covariance.reshape( (1,9) )
+        pose_msg.pose.covariance = covariance.reshape( 9 )
 
         self.pose_pub.publish( pose_msg )
 
@@ -189,11 +192,11 @@ class FalkorQuadrotorParticleFilter:
             self.move_particles( dt )
             self.calculate_particle_weights()
 
-            best_guess = self.get_best_guess()
+            best_guess, covariance = self.get_best_guess()
             if self.seq % 60 == 0:
                 self.resample_particles()
 
-            self.publish_pose( best_guess )
+            self.publish_pose( best_guess, covariance )
             self.reinitialize_particles()
 
     def run( self ):

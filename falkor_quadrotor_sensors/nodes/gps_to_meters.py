@@ -58,6 +58,13 @@ class FalkorGpsToMeters:
         # using TwistWithCovarianceStamped
         self.vel_sub = rospy.Subscriber( self.vel_topic, Vector3Stamped, self.vel_cb )
 
+        # Let this be parameterizable, for now default to 5m in every direction
+        # this is in NWU coordinates, not geodetic
+        self.default_fix_covariance = np.diag( ( 5, 5, 5 ) )
+
+        # likewise, 0.5 m/s in every direction
+        self.default_vel_covariance = np.diag( ( 0.1, 0.1, 0.1 ) )
+
     def to_rad( self, degrees ):
         return degrees / 180.0 * np.pi
     
@@ -98,9 +105,13 @@ class FalkorGpsToMeters:
         self.vel_seq += 1
         header = Header( self.vel_seq, rospy.Time.now(), self.world_frame )
 
-        # for now covariance is zeros but we will have to take the input covariance and 
-        # rotate it
-        covariance = np.zeros( 36 )
+        # for now covariance is given 
+        covariance = self.default_vel_covariance
+
+        # add bits to make it 6x6
+        covariance = np.append( covariance, np.zeros( ( 3, 3 ) ), 1 )
+        covariance = np.append( covariance, np.zeros( ( 3, 6 ) ), 0 )
+        covariance = covariance.reshape( 36 )
         
         vel_msg = TwistWithCovarianceStamped( header, TwistWithCovariance( 
                 Twist( Vector3( x, y, data.vector.z ), Vector3( 0, 0, 0 ) ),
@@ -122,7 +133,7 @@ class FalkorGpsToMeters:
             covariance_matrix = np.array( data.position_covariance ).reshape( 3, 3 )
             new_covariance = self.scaled_rotation_matrix_inverse.dot( covariance_matrix ).dot( self.scaled_rotation_matrix )
         else:
-            new_covariance = np.zeros( ( 3, 3 ) )
+            new_covariance = self.default_fix_covariance
 
         # add zeros to make it 6x6
         new_covariance = np.append( new_covariance, np.zeros( ( 3, 3 ) ), 1 )

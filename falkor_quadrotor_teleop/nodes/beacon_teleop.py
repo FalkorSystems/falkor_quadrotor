@@ -26,10 +26,10 @@ class BeaconTeleopJoy:
         self.my_model_state = None
         self.model_name = rospy.get_param( "~model_name", "beacon" )
         self.reference_frame = rospy.get_param( "~reference_frame", "world" )
-        self.last_buttons = None
+        self.last_buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def model_state_cb( self, data ):
-        model_names = data.name
+       model_names = data.name
         try:
             model_ix = model_names.index( self.model_name )
             self.my_model_state = ModelState( self.model_name,
