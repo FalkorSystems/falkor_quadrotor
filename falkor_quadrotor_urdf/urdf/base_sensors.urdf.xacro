@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 
 <robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
-xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
-xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
-xmlns:xacro="http://ros.org/wiki/xacro"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://ros.org/wiki/xacro"
 >
 
-  <!-- Quadrotor Sensor Plugins -->
-  <xacro:macro name="quadrotor_sensors">
+  <!-- Base Sensor Plugins -->
+  <xacro:macro name="base_sensors" params="tf_prefix">
     <gazebo>
       <controller:hector_gazebo_ros_imu name="quadrotor_imu_sim" plugin="libhector_gazebo_ros_imu.so">
         <alwaysOn>true</alwaysOn>
@@ -19,7 +19,7 @@ xmlns:xacro="http://ros.org/wiki/xacro"
         <accelDrift>0.5 0.5 0.5</accelDrift>
         <accelGaussianNoise>0.35 0.35 0.3</accelGaussianNoise>
         <rateDrift>0.1 0.1 0.1</rateDrift>
-        <rateGaussianNoise>0.05 0.05 0.015</rateGaussianNoise>
+        <rateGaussianNoise>0.5 0.5 0.5</rateGaussianNoise>
         <headingDrift>0.1</headingDrift>
         <headingGaussianNoise>0.05</headingGaussianNoise>
 	<frameId>/robot/imu</frameId>

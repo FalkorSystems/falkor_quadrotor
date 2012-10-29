@@ -9,6 +9,7 @@
   <property name="pi" value="3.1415926535897931" />
 
   <include filename="$(find falkor_quadrotor_urdf)/urdf/beacon_sensors.urdf.xacro" />
+  <include filename="$(find falkor_quadrotor_urdf)/urdf/base_sensors.urdf.xacro" />
 
   <xacro:macro name="boy_base" params="mass height width depth">
     <link name="base_link">
@@ -45,6 +46,7 @@
     </gazebo>
 
     <beacon_sensors />
+    <base_sensors tf_prefix="/beacon" />
   </xacro:macro>
 
   <boy_base height="1.70" width="0.80" depth="0.60" mass="70" />
