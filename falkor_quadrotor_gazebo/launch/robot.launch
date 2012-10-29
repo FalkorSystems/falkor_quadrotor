@@ -16,6 +16,8 @@
     <remap to="imu" from="imu/data" />
   </node>
 
+  <node type="falkor_quadrotor_takeoffland.py" pkg="falkor_quadrotor_control" name="falkor_quadrotor_takeoffland" />
+
   <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters"/>
 
   <node type="combineraw_gps_imu.py" pkg="falkor_quadrotor_sensors" name="combine_raw_gps_imu" />
