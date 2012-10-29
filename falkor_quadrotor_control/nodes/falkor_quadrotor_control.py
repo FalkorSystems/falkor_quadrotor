@@ -11,8 +11,8 @@ from std_srvs.srv import *
 class FalkorQuadrotorControl:
     def __init__( self ):
         self.yaw_pid = pid.PidController( -0.5, 0, 0 )
-        self.x_pid = pid.PidController( -2.5, 0, 0 )
-        self.y_pid = pid.PidController( -2.5, 0, 0 )
+        self.x_pid = pid.PidController( -1.25, 0, 0.5 )
+        self.y_pid = pid.PidController( -1.25, 0, 0.5 )
         self.z_pid = pid.PidController( -1.25, 0, 0 )
 
         print "waiting for services"
@@ -32,6 +32,7 @@ class FalkorQuadrotorControl:
     def on( self ):
         req = Empty()
         self.on_service()
+        self.cmd_vel_pub.publish( Twist() )
 
     def off( self ):
         req = Empty()
@@ -93,8 +94,8 @@ def main():
     control = FalkorQuadrotorControl()
 
     # wait a minute before starting
-    print "waiting a minute"
-    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 60 ) ) )
+    print "waiting 5 seconds"
+    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 5 ) ) )
 
     try:
         control.run()
