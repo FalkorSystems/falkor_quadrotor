@@ -16,11 +16,11 @@ class FalkorQuadrotorControl:
         self.z_pid = pid.PidController( -1.25, 0, 0 )
 
         print "waiting for services"
-        rospy.wait_for_service( "/robot/on" )
-        self.on_service = rospy.ServiceProxy( "/robot/on", Empty )
+        rospy.wait_for_service( "/robot/takeoff" )
+        self.on_service = rospy.ServiceProxy( "/robot/takeoff", Empty )
 
-        rospy.wait_for_service( "/robot/off" )
-        self.off_service = rospy.ServiceProxy( "/robot/off", Empty )
+        rospy.wait_for_service( "/robot/land" )
+        self.off_service = rospy.ServiceProxy( "/robot/land", Empty )
 
         self.target_pose_sub = rospy.Subscriber( '/navigate/robot/target_pose', PoseStamped,
                                                  self.target_pose_update )
@@ -103,6 +103,7 @@ def main():
         print "turning off because of", e
         control.off()
         print "Shutting down"
+
 if __name__  == '__main__':
     main()
 
