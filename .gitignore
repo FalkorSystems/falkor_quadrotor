@@ -19,12 +19,18 @@ Makefile
 
 # Emacs cruft
 *~
+.#*
+*#
 
 # build dirs
 /falkor_quadrotor_gazebo/build/
 /falkor_quadrotor_navigate/build/
+
 /falkor_quadrotor_teleop/build/
+/falkor_quadrotor_teleop/bin/
+
 /falkor_quadrotor_sensors/build/
+
 /falkor_quadrotor_sensors/srv_gen/
 /falkor_quadrotor_sensors/src/falkor_quadrotor_sensors/
 

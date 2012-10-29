@@ -2,7 +2,7 @@
   <arg name="joy_dev" default="/dev/input/js1" />
 
   <group ns="navigate">
-    <include file="$(find falkor_quadrotor_teleop)/launch/ps3_gamepad.launch">
+    <include file="$(find falkor_quadrotor_teleop)/launch/robot_teleop.launch">
       <arg name="joy_dev" value="$(arg joy_dev)" />
     </include>
 

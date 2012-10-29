@@ -33,9 +33,9 @@ class BeaconTeleopJoy:
        try:
            model_ix = model_names.index( self.model_name )
            self.my_model_state = ModelState( self.model_name,
-                                              data.pose[model_ix],
-                                              data.twist[model_ix],
-                                              self.reference_frame )
+                                             data.pose[model_ix],
+                                             data.twist[model_ix],
+                                             self.reference_frame )
        except ValueError:
            self.my_model_state = None
 

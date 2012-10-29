@@ -9,7 +9,7 @@ xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface">
     <property name="M_PI" value="3.1415926535897931" />
     
     <!-- Included URDF Files -->
-    <include filename="$(find hector_quadrotor_urdf)/urdf/quadrotor_base.urdf.xacro" />
+    <include filename="$(find falkor_quadrotor_urdf)/urdf/quadrotor_base.urdf.xacro" />
     
     <!-- Instantiate quadrotor_base_macro once (has no parameters atm) -->
     <quadrotor_base_macro />
