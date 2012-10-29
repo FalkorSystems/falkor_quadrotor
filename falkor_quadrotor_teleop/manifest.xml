@@ -11,7 +11,7 @@
   <depend package="rospy" />
   <depend package="roscpp" />
   <depend package="sensor_msgs" />
-  <depeng package="gazebo_msgs" />
+  <depend package="gazebo_msgs" />
   <depend package="geometry_msgs" />
   <depend package="joy" />
 
