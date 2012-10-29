@@ -21,7 +21,7 @@
         <origin pose="0 0 0 0 0 0"/>
         <collision name="ground_collision">
           <geometry>
-	    <mesh filename="mountain.dae" />
+	    <mesh filename="/home/sameer/ros/falkor_quadrotor_gazebo/Media/models/mountain.dae" />
           </geometry>
           <surface>
             <friction>
@@ -36,7 +36,7 @@
 
         <visual name="ground_visual" cast_shadows="false">
           <geometry>
-	    <mesh filename="mountain.dae" />
+	    <mesh filename="/home/sameer/ros/falkor_quadrotor_gazebo/Media/models/mountain.dae" />
           </geometry>
         </visual>
       </link>
