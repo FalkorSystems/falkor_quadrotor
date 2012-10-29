@@ -30,14 +30,14 @@ class BeaconTeleopJoy:
 
     def model_state_cb( self, data ):
        model_names = data.name
-        try:
-            model_ix = model_names.index( self.model_name )
-            self.my_model_state = ModelState( self.model_name,
+       try:
+           model_ix = model_names.index( self.model_name )
+           self.my_model_state = ModelState( self.model_name,
                                               data.pose[model_ix],
                                               data.twist[model_ix],
                                               self.reference_frame )
-        except ValueError:
-            self.my_model_state = None
+       except ValueError:
+           self.my_model_state = None
 
     def set_model_state( self ):
         model_state_request = SetModelStateRequest( self.my_model_state )

@@ -9,88 +9,14 @@ xmlns:xacro="http://ros.org/wiki/xacro"
   <!-- Quadrotor Sensor Plugins -->
   <xacro:macro name="beacon_sensors">
     <gazebo>
-      <controller:hector_gazebo_ros_imu name="beacon_imu_sim" plugin="libhector_gazebo_ros_imu.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>100.0</updateRate>
-        <bodyName>base_link</bodyName>
-        <topicName>raw_imu</topicName>
-        <rpyOffsets>0 0 0</rpyOffsets> <!-- deprecated -->
-        <gaussianNoise>0</gaussianNoise>  <!-- deprecated -->
-        <accelDrift>0.5 0.5 0.5</accelDrift>
-        <accelGaussianNoise>0.35 0.35 0.3</accelGaussianNoise>
-        <rateDrift>0.1 0.1 0.1</rateDrift>
-        <rateGaussianNoise>0.05 0.05 0.015</rateGaussianNoise>
-        <headingDrift>0.1</headingDrift>
-        <headingGaussianNoise>0.05</headingGaussianNoise>
-	<frameId>/beacon/imu</frameId>
-      </controller:hector_gazebo_ros_imu>
-
-      <controller:hector_gazebo_ros_baro name="beacon_baro_sim" plugin="libhector_gazebo_ros_baro.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>10.0</updateRate>
-        <bodyName>base_link</bodyName>
-        <topicName>pressure_height</topicName>
-        <altimeterTopicName>altimeter</altimeterTopicName>
-        <offset>0</offset>
-        <drift>0.1</drift>
-        <gaussianNoise>0.5</gaussianNoise>
-      </controller:hector_gazebo_ros_baro>
-
-      <controller:hector_gazebo_ros_magnetic name="beacon_magnetic_sim" plugin="libhector_gazebo_ros_magnetic.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>10.0</updateRate>
-        <bodyName>base_link</bodyName>
-        <topicName>magnetic</topicName>
-        <offset>0 0 0</offset>
-        <drift>0.0 0.0 0.0</drift>
-        <gaussianNoise>1.3e-2 1.3e-2 1.3e-2</gaussianNoise>
-	<!-- for zip code 11234
-	     from http://www.ngdc.noaa.gov/geomagmodels/struts/calcIGRFWMM 
-	-->
-	<declination>-13.083</declination>
-	<inclination>66.867</inclination>
-	<!-- for zip code 11234
-	     from http://www.ngdc.noaa.gov/geomagmodels/struts/calcIGRFWMM 
-	-->
-	<referenceHeading>0</referenceHeading>
-	<frameId>/beacon/magnetometer</frameId>
-      </controller:hector_gazebo_ros_magnetic>
-
-      <controller:hector_gazebo_ros_gps name="beacon_gps_sim" plugin="libhector_gazebo_ros_gps.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>4.0</updateRate>
-        <bodyName>base_link</bodyName>
-        <topicName>fix</topicName>
-        <velocityTopicName>fix_velocity</velocityTopicName>
-        <drift>5.0 5.0 5.0</drift>
-        <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
-        <velocityDrift>0 0 0</velocityDrift>
-        <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
-	<!-- RCSMP Marine Park, Brooklyn, NY -->
-	<referenceLatitude>40.589681</referenceLatitude>
-	<referenceLongitude>-73.918520</referenceLongitude>
-	<referenceAltitude>0</referenceAltitude>
-	<referenceHeading>0</referenceHeading>
-      </controller:hector_gazebo_ros_gps>
-
-      <controller:gazebo_ros_p3d name="beacon_groundtruth_sim" plugin="libgazebo_ros_p3d.so">
-        <alwaysOn>true</alwaysOn>
-        <updateRate>100.0</updateRate>
-        <bodyName>base_link</bodyName>
-        <topicName>ground_truth/state</topicName>
-        <gaussianNoise>0.0</gaussianNoise>
-        <frameName>map</frameName>
-      </controller:gazebo_ros_p3d>
-
       <controller:falkor_quadrotor_sonar name="falkor_quadrotor_sonar" plugin="libfalkor_quadrotor_sonar.so">
 	<alwaysOn>true</alwaysOn>
 	<updateRate>10.0</updateRate>
 	<bodyName>base_link</bodyName>
 	<remoteModelName>robot</remoteModelName>
 	<remoteBodyName>base_link</remoteBodyName>
-	<gaussianNoise>0.05</gaussianNoise>
+	<gaussianNoise>0.01</gaussianNoise>
       </controller:falkor_quadrotor_sonar>
-
     </gazebo>
 
   </xacro:macro>
