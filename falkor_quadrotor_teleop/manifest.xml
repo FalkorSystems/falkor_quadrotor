@@ -8,9 +8,11 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>https://github.com/sameerparekh/falkor_quadrotor</url>
-  <depend package="hector_quadrotor_teleop"/>
   <depend package="rospy" />
-  <depend package="gazebo_msgs" />
+  <depend package="roscpp" />
+  <depend package="sensor_msgs" />
+  <depend package="geometry_msgs" />
+  <depend package="joy" />
 
 </package>
 
