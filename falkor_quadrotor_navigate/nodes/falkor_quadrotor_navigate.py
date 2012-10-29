@@ -49,7 +49,7 @@ class FalkorQuadrotorNav:
         self.nav_target = rospy.Publisher( 'robot/target_pose', PoseStamped )
 
         relative_point = PointStamped( Header( 0, rospy.Time.now(),
-                                              '/ekf/beacon/base_position' ),
+                                              '/beacon/base_position' ),
                                       Point( 1, 0.5, 0.25 ) )
 
         self.update_relative_pose( relative_point )
@@ -62,12 +62,17 @@ class FalkorQuadrotorNav:
         relpose_cached = self.relative_pose
 
         try:
-            (trans,rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
-                                                         '/ekf/beacon/base_position',
-                                                         relpose_cached.header.stamp )
-#            print "got transform"
+            self.listener.waitForTransform( '/robot/base_stabilized',
+                                            '/beacon/base_position',
+                                            relpose_cached.header.stamp,
+                                            rospy.Duration( 4.0 ) )
 
-            target_pose = self.listener.transformPose( '/ekf/robot/base_stabilized',
+            (trans,rot) = self.listener.lookupTransform( '/robot/base_stabilized',
+                                                         '/beacon/base_position',
+                                                         relpose_cached.header.stamp )
+            rospy.logdebug( "got transform from /beacon/base_position to /robot/base_stabilized" );
+
+            target_pose = self.listener.transformPose( '/robot/base_stabilized',
                                                    relpose_cached )
             target_pose.header.stamp = rospy.Time.now()
             target_pose.header.seq = self.seq
@@ -83,9 +88,8 @@ class FalkorQuadrotorNav:
             self.nav_target.publish( target_pose )
 
         except (tf.LookupException, tf.Exception,
-                tf.ConnectivityException, tf.ExtrapolationException):
-            print "navigate: transform exception"
-            return
+                tf.ConnectivityException, tf.ExtrapolationException) as e:
+            rospy.logwarn( "navigate: transform exception: %s", str( e ) )
 
     def run( self ):
         while not rospy.is_shutdown():
@@ -97,7 +101,10 @@ class FalkorQuadrotorNav:
 def main():
     rospy.init_node('falkor_quadrotor_navigate')
     navigator = FalkorQuadrotorNav()
-    navigator.run()
+    try:
+        navigator.run()
+    except KeyboardInterrupt:
+        print "Shutting down"
 
 if __name__  == '__main__':
     main()

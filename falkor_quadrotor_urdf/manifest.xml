@@ -8,6 +8,7 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/falkor_quadrotor_urdf</url>
+  <depend package="falkor_quadrotor_sensors" />
 
 </package>
 

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+
+ <launch>
+   <arg name="model_name" default="quadrotor" />
+   <arg name="x_pos" default="0.0" />
+   <arg name="y_pos" default="0.0" />
+   <arg name="z_pos" default="0.18246" />
+
+   <include file="$(find falkor_quadrotor_urdf)/launch/spawn_quadrotor.launch" >
+     <arg name="model" value="$(find falkor_quadrotor_urdf)/urdf/quadrotor_with_cam.urdf.xacro"/> 
+     <arg name="model_name" value="$(arg model_name)" />
+     <arg name="x_pos" value="$(arg x_pos)" />
+     <arg name="y_pos" value="$(arg y_pos)" />
+     <arg name="z_pos" value="$(arg z_pos)" />
+   </include>
+ </launch>
+ 

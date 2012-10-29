@@ -9,7 +9,7 @@ from gazebo_msgs.msg import ModelStates
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState, SetModelStateRequest
 
-class BoyTeleopJoy:
+class BeaconTeleopJoy:
 
     def __init__( self ):
         self.joy_sub = rospy.Subscriber( "joy", Joy, self.callback_joy )
@@ -26,17 +26,21 @@ class BoyTeleopJoy:
         self.my_model_state = None
         self.model_name = rospy.get_param( "~model_name", "beacon" )
         self.reference_frame = rospy.get_param( "~reference_frame", "world" )
-        self.last_buttons = None
+        self.last_buttons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def model_state_cb( self, data ):
-        model_names = data.name
-        model_ix = model_names.index( self.model_name )
-        self.my_model_state = ModelState( self.model_name, data.pose[model_ix], data.twist[model_ix],
-                                          self.reference_frame )
+       model_names = data.name
+        try:
+            model_ix = model_names.index( self.model_name )
+            self.my_model_state = ModelState( self.model_name,
+                                              data.pose[model_ix],
+                                              data.twist[model_ix],
+                                              self.reference_frame )
+        except ValueError:
+            self.my_model_state = None
 
     def set_model_state( self ):
         model_state_request = SetModelStateRequest( self.my_model_state )
-        print "Setting model state: ", model_state_request
         self.state_service( model_state_request )
 
     def twist_forward( self ):
@@ -92,9 +96,9 @@ class BoyTeleopJoy:
         self.last_buttons = data.buttons
 
 def main():
-  rospy.init_node( 'boy_teleop_joy' )
+  rospy.init_node( 'beacon_teleop_joy' )
 
-  BoyTeleopJoy()
+  BeaconTeleopJoy()
 
   try:
     rospy.spin()

@@ -1,0 +1,18 @@
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="rviz" default="true" />
+  <!--  <include file="$(find gazebo_worlds)/launch/empty_world_throttled.launch"> -->
+  <!--  <include file="$(find hector_gazebo_worlds)/launch/rolling_landscape_120m.launch" > -->
+  <include file="$(find falkor_quadrotor_gazebo)/launch/mountain_world_throttled.launch" >
+    <arg name="gui" value="$(arg gui)" />
+  </include>
+
+  <node pkg="falkor_quadrotor_sensors" name="mag_to_tf" type="mag_to_tf.py">
+    <param name="declination" value="-13.083" />
+    <param name="world_frame" value="/nav" />
+  </node>
+
+  <group if="$(arg rviz)">
+    <node pkg="rviz" type="rviz" name="rviz" />
+  </group>
+</launch>

@@ -5,12 +5,19 @@ Beacon.Alpha=1
 Beacon.Collision\ Enabled=0
 Beacon.Enabled=1
 Beacon.Robot\ Description=/beacon/robot_description
-Beacon.TF\ Prefix=/ground_truth/beacon
+Beacon.TF\ Prefix=/beacon/ground_truth
 Beacon.Update\ Interval=0
 Beacon.Visual\ Enabled=1
-Camera\ Config=0.0147965 6.20359 10 0.101469 -0.0393893 0.00100002
+Camera\ Config=0.319796 1.2404 10 0 0 0
 Camera\ Type=rviz::XYOrbitViewController
-Fixed\ Frame=/ground_truth/beacon/base_position
+Camera.Enabled=1
+Camera.Image\ Rendering=background & overlay
+Camera.Image\ Topic=/robot/front_cam/camera/image
+Camera.Overlay\ Alpha=0.5
+Camera.Queue\ Size=2
+Camera.Transport\ Hint=raw
+Camera.Zoom\ Factor=1
+Fixed\ Frame=/nav
 Grid.Alpha=0.5
 Grid.Cell\ Size=1
 Grid.ColorB=0.5
@@ -26,6 +33,35 @@ Grid.OffsetZ=0
 Grid.Plane=0
 Grid.Plane\ Cell\ Count=10
 Grid.Reference\ Frame=<Fixed Frame>
+PointCloud..AxisColorAutocompute\ Value\ Bounds=1
+PointCloud..AxisColorAxis=2
+PointCloud..AxisColorMax\ Value=10
+PointCloud..AxisColorMin\ Value=-10
+PointCloud..AxisColorUse\ Fixed\ Frame=1
+PointCloud..FlatColorColorB=1
+PointCloud..FlatColorColorG=1
+PointCloud..FlatColorColorR=1
+PointCloud..IntensityAutocompute\ Intensity\ Bounds=1
+PointCloud..IntensityChannel\ Name=intensity
+PointCloud..IntensityMax\ ColorB=1
+PointCloud..IntensityMax\ ColorG=1
+PointCloud..IntensityMax\ ColorR=1
+PointCloud..IntensityMax\ Intensity=4096
+PointCloud..IntensityMin\ ColorB=0
+PointCloud..IntensityMin\ ColorG=0
+PointCloud..IntensityMin\ ColorR=0
+PointCloud..IntensityMin\ Intensity=0
+PointCloud..IntensityUse\ full\ RGB\ spectrum=1
+PointCloud.Alpha=0.01
+PointCloud.Billboard\ Size=0.1
+PointCloud.Color\ Transformer=Intensity
+PointCloud.Decay\ Time=1
+PointCloud.Enabled=1
+PointCloud.Position\ Transformer=XYZ
+PointCloud.Queue\ Size=10
+PointCloud.Selectable=1
+PointCloud.Style=0
+PointCloud.Topic=/beacon/pf/point_cloud
 Pose.Alpha=1
 Pose.ColorB=0
 Pose.ColorG=0.1
@@ -37,14 +73,14 @@ Pose.Shaft\ Length=1
 Pose.Shaft\ Radius=0.1
 Pose.Shape=0
 Pose.Topic=/navigate/robot/target_pose
-Property\ Grid\ Splitter=1159,78
-Property\ Grid\ State=expanded=.Global Options,TF.Enabled,TF.Frames,TF.Frames./ekf/robot/base_footprint,TF.Frames./ekf/robot/base_link,TF.Frames./ekf/robot/base_position,TF.Frames./ekf/robot/base_stabilized,TF.Frames./ground_truth/robot/base_footprint,TF.Frames./ground_truth/robot/base_link,TF.Frames./ground_truth/robot/base_position,TF.Frames./ground_truth/robot/base_stabilized,TF.Frames./nav,TF.Frames./ekf/robot/front_cam_link,TF.Frames./ekf/robot/front_cam_optical_frame,TF.Frames./ekf/robot/sonar_link,TF.Frames./ekf/robot/front_cam_interm_link,TF.Frames./ground_truth/beacon/base_footprint,TF.Frames./ground_truth/beacon/base_link,TF.Frames./ground_truth/beacon/base_position,TF.Frames./ground_truth/beacon/base_stabilized,TF.Frames./ekf/beacon/base_footprint,TF.Frames./ekf/beacon/base_link,TF.Frames./ekf/beacon/base_position,TF.Frames./ekf/beacon/base_stabilized,Grid.Enabled,Pose.Enabled,Pose.Shape Properties,Quad.Enabled,Quad.Status,Beacon.Enabled;splitterratio=0.5
-QMainWindow=000000ff00000000fd00000003000000000000028600000527fc0200000001fb000000100044006900730070006c006100790073010000001d00000527000000ee00ffffff000000010000013100000527fc0200000003fb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000001d000001830000006700fffffffb0000000a0056006900650077007301000001a600000215000000bb00fffffffb0000001200530065006c0065006300740069006f006e01000003c1000001830000006700ffffff00000003000009bf0000003efc0100000001fb0000000800540069006d00650100000000000009bf000002bf00ffffff000005fc0000052700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+Property\ Grid\ Splitter=389,78
+Property\ Grid\ State=;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000025a00000225fc0200000002fb000000100044006900730070006c006100790073010000001d00000225000000ee00fffffffb0000000c00430061006d006500720061030000034500000265000002080000020e0000000100000131000003d8fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000005c2000000370000013100000120fb0000000a00560069006500770073030000042600000241000001390000012dfb0000001200530065006c0065006300740069006f006e02000005b600000204000001310000019c000000030000042c0000003efc0100000001fb0000000800540069006d006501000000000000042c000002bf00ffffff000001cc0000022500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
 Quad.Alpha=1
 Quad.Collision\ Enabled=0
 Quad.Enabled=1
 Quad.Robot\ Description=/robot/robot_description
-Quad.TF\ Prefix=/ground_truth/robot
+Quad.TF\ Prefix=/robot/ground_truth
 Quad.Update\ Interval=0
 Quad.Visual\ Enabled=1
 Robot\:\ Beacon\ Link\ base_linkAlpha=1
@@ -93,15 +129,42 @@ Name=Quad
 [Display4]
 ClassName=rviz::RobotModelDisplay
 Name=Beacon
+[Display5]
+ClassName=rviz::PointCloudDisplay
+Name=PointCloud
+[Display6]
+ClassName=rviz::CameraDisplay
+Name=Camera
 [TF.Frames.]
 nav.Enabled=1
-[TF.Frames./ekf]
-[TF.Frames./ekf/beacon]
+[TF.Frames./beacon]
 base_footprint.Enabled=1
 base_link.Enabled=1
 base_position.Enabled=1
 base_stabilized.Enabled=1
-[TF.Frames./ekf/robot]
+imu.Enabled=1
+[TF.Frames./beacon/ground_truth]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+[TF.Frames./nav]
+magnet.Enabled=1
+[TF.Frames./pf]
+[TF.Frames./pf/beacon]
+base_footprint.Enabled=1
+base_position.Enabled=1
+[TF.Frames./robot]
+base_footprint.Enabled=1
+base_link.Enabled=1
+base_position.Enabled=1
+base_stabilized.Enabled=1
+front_cam_interm_link.Enabled=1
+front_cam_link.Enabled=1
+front_cam_optical_frame.Enabled=1
+imu.Enabled=1
+sonar_link.Enabled=1
+[TF.Frames./robot/ground_truth]
 base_footprint.Enabled=1
 base_link.Enabled=1
 base_position.Enabled=1
@@ -110,19 +173,19 @@ front_cam_interm_link.Enabled=1
 front_cam_link.Enabled=1
 front_cam_optical_frame.Enabled=1
 sonar_link.Enabled=1
-[TF.Frames./ground_truth]
-[TF.Frames./ground_truth/beacon]
-base_footprint.Enabled=1
-base_link.Enabled=1
-base_position.Enabled=1
-base_stabilized.Enabled=1
-[TF.Frames./ground_truth/robot]
-base_footprint.Enabled=1
-base_link.Enabled=1
-base_position.Enabled=1
-base_stabilized.Enabled=1
+[Views]
+0Name=Overview
+1Name=Top Down
+[Views/0]
+Config=0.319796 0.885398 10 0 0 0
+Target=<Fixed Frame>
+Type=rviz::XYOrbitViewController
+[Views/1]
+Config=54.7356 0 0 0
+Target=<Fixed Frame>
+Type=rviz::FixedOrientationOrthoViewController
 [Window]
-Height=1416
-Width=2495
-X=64
-Y=-4
+Height=682
+Width=1084
+X=1369
+Y=395

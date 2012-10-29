@@ -6,6 +6,7 @@ import rospy
 import pid
 import tf
 from geometry_msgs.msg import *
+from std_srvs.srv import *
 
 class FalkorQuadrotorControl:
     def __init__( self ):
@@ -14,12 +15,27 @@ class FalkorQuadrotorControl:
         self.y_pid = pid.PidController( -2.5, 0, 0 )
         self.z_pid = pid.PidController( -1.25, 0, 0 )
 
+        print "waiting for services"
+        rospy.wait_for_service( "/robot/on" )
+        self.on_service = rospy.ServiceProxy( "/robot/on", Empty )
+
+        rospy.wait_for_service( "/robot/off" )
+        self.off_service = rospy.ServiceProxy( "/robot/off", Empty )
+
         self.target_pose_sub = rospy.Subscriber( '/navigate/robot/target_pose', PoseStamped,
                                                  self.target_pose_update )
         self.cmd_vel_pub = rospy.Publisher( '/robot/cmd_vel', Twist )
         self.last_update = rospy.Time.now()
         self.cmd_gimbal_pub = rospy.Publisher( '/robot/cmd_gimbal', Point )
         self.listener = tf.TransformListener()
+
+    def on( self ):
+        req = Empty()
+        self.on_service()
+
+    def off( self ):
+        req = Empty()
+        self.off_service()
 
     def target_pose_update( self, data ):
         dt = ( data.header.stamp - self.last_update ).to_sec()
@@ -38,16 +54,16 @@ class FalkorQuadrotorControl:
 
         self.cmd_vel_pub.publish( twist_cmd )
 
-        # Get the transform from base_stabilized to base_link
-        # so we know what angle to roll the gimbal at
-#        self.listener.waitForTransform( '/ekf/robot/base_stabilized',
-#                                        '/ekf/robot/base_link',
-#                                        data.header.stamp,
-#                                        rospy.Duration( 4.0 ) )
-
         try:
-            (trans, rot) = self.listener.lookupTransform( '/ekf/robot/base_stabilized',
-                                                          '/ekf/robot/base_link',
+            # Get the transform from base_stabilized to base_link
+            # so we know what angle to roll the gimbal at
+            self.listener.waitForTransform( '/robot/base_stabilized',
+                                            '/robot/base_link',
+                                            data.header.stamp,
+                                            rospy.Duration( 4.0 ) )
+
+            (trans, rot) = self.listener.lookupTransform( '/robot/base_stabilized',
+                                                          '/robot/base_link',
                                                           data.header.stamp )
 
             stabilize_euler = tf.transformations.euler_from_quaternion( rot )
@@ -63,19 +79,30 @@ class FalkorQuadrotorControl:
 
             self.cmd_gimbal_pub.publish( gimbal_cmd )
         except (tf.LookupException, tf.Exception,
-                tf.ConnectivityException, tf.ExtrapolationException):
-            print "control: transform exception"
+                tf.ConnectivityException, tf.ExtrapolationException) as e:
+            rospy.logwarn( "control: transform exception: %s", str( e ) )
             return
  
-
     def run( self ):
+        print "turning on"
+        self.on()
         rospy.spin()
         
 def main():
     rospy.init_node('falkor_quadrotor_control')
     control = FalkorQuadrotorControl()
-    control.run()
 
+    # wait a minute before starting
+    print "waiting a minute"
+    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 60 ) ) )
+
+    try:
+        control.run()
+    except ( KeyboardInterrupt, rospy.Exceptions.ROSInterruptException ) as e:
+        # send a 'turn off command'
+        print "turning off because of", e
+        control.off()
+        print "Shutting down"
 if __name__  == '__main__':
     main()
 
