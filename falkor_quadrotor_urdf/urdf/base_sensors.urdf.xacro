@@ -53,16 +53,17 @@
 	<frameId>/robot/magnetometer</frameId>
       </controller:hector_gazebo_ros_magnetic>
 
+      <!-- Differential GPS with no drift and 20cm of noise -->
       <controller:hector_gazebo_ros_gps name="quadrotor_gps_sim" plugin="libhector_gazebo_ros_gps.so">
         <alwaysOn>true</alwaysOn>
         <updateRate>4.0</updateRate>
         <bodyName>base_link</bodyName>
         <topicName>fix</topicName>
         <velocityTopicName>fix_velocity</velocityTopicName>
-        <drift>5.0 5.0 5.0</drift>
-        <gaussianNoise>0.1 0.1 0.1</gaussianNoise>
+        <drift>0.0 0.0 0.0</drift>
+        <gaussianNoise>0.2 0.2 0.2</gaussianNoise>
         <velocityDrift>0 0 0</velocityDrift>
-        <velocityGaussianNoise>0.1 0.1 0.1</velocityGaussianNoise>
+        <velocityGaussianNoise>0.05 0.05 0.05</velocityGaussianNoise>
 	<!-- RCSMP Marine Park, Brooklyn, NY -->
 	<referenceLatitude>40.589681</referenceLatitude>
 	<referenceLongitude>-73.918520</referenceLongitude>
