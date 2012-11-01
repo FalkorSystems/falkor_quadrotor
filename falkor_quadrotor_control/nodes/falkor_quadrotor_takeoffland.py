@@ -80,6 +80,7 @@ class FalkorQuadrotorTakeoffLand:
         self.on_service()
         self.control( self.takeoff_height, self.takeoff_tol, ( 2.0, 0, 0.1 ) )
         self.on = True
+        self.busy = False
 
         return EmptyResponse()
 
@@ -92,6 +93,7 @@ class FalkorQuadrotorTakeoffLand:
         self.control( self.ground_height, self.land_tol, ( 0.5, 0, 0.1 ) )
         self.off_service()
         self.on = False
+        self.busy = False
         return EmptyResponse()
      
 

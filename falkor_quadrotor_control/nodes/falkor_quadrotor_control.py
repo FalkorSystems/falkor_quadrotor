@@ -22,12 +22,16 @@ class FalkorQuadrotorControl:
         rospy.wait_for_service( "/robot/land" )
         self.off_service = rospy.ServiceProxy( "/robot/land", Empty )
 
-        self.target_pose_sub = rospy.Subscriber( '/navigate/robot/target_pose', PoseStamped,
-                                                 self.target_pose_update )
+        print "turning on"
         self.cmd_vel_pub = rospy.Publisher( '/robot/cmd_vel', Twist )
+        self.on()
+
         self.last_update = rospy.Time.now()
         self.cmd_gimbal_pub = rospy.Publisher( '/robot/cmd_gimbal', Point )
         self.listener = tf.TransformListener()
+        self.target_pose_sub = rospy.Subscriber( '/navigate/robot/target_pose',
+                                                 PoseStamped,
+                                                 self.target_pose_update )
 
     def on( self ):
         req = Empty()
@@ -97,18 +101,17 @@ class FalkorQuadrotorControl:
             return
  
     def run( self ):
-        print "turning on"
-        self.on()
         print "controlling"
         rospy.spin()
         
 def main():
     rospy.init_node('falkor_quadrotor_control')
-    control = FalkorQuadrotorControl()
 
     # wait a minute before starting
     print "waiting some seconds"
-    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 10 ) ) )
+    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 60 ) ) )
+
+    control = FalkorQuadrotorControl()
 
     try:
         control.run()
