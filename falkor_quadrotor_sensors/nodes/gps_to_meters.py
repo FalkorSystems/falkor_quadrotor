@@ -63,7 +63,7 @@ class FalkorGpsToMeters:
         self.default_fix_covariance = np.diag( ( 5, 5, 5 ) )
 
         # likewise, 0.5 m/s in every direction
-        self.default_vel_covariance = np.diag( ( 0.1, 0.1, 0.1 ) )
+        self.default_vel_covariance = np.diag( ( 0.5, 0.5, 0.5 ) )
 
     def to_rad( self, degrees ):
         return degrees / 180.0 * np.pi
