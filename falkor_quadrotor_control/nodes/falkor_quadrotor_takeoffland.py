@@ -38,7 +38,7 @@ class FalkorQuadrotorTakeoffLand:
         try:
             self.listener.waitForTransform( '/robot/base_stabilized',
                                             point_msg.header.frame_id,
-                                            rospy.Time.now(),
+                                            point_msg.header.stamp,
                                             rospy.Duration( 4.0 ) )
             point_transformed = self.listener.transformPoint( '/robot/base_stabilized', point_msg )
         except (tf.LookupException, tf.Exception,

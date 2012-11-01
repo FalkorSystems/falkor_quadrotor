@@ -68,7 +68,7 @@ class FalkorCombineGpsImu:
         try:
             self.listener.waitForTransform( data.header.frame_id,
                                             self.world_frame,
-                                            rospy.Time.now(),
+                                            data.header.stamp,
                                             rospy.Duration( 4.0 ) )
             quaternion_imu = QuaternionStamped( data.header, data.orientation )
             angular_velocity_imu = Vector3Stamped( data.header, data.angular_velocity )

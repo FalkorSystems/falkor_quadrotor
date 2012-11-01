@@ -11,8 +11,8 @@ from std_srvs.srv import *
 class FalkorQuadrotorControl:
     def __init__( self ):
         self.yaw_pid = pid.PidController( -0.5, 0, 0 )
-        self.x_pid = pid.PidController( -0.5, 0.0, 2.0 )
-        self.y_pid = pid.PidController( -0.5, 0.0, 2.0 )
+        self.x_pid = pid.PidController( -0.5, 0.0, 0 )
+        self.y_pid = pid.PidController( -0.5, 0.0, 0 )
         self.z_pid = pid.PidController( -1.25, 0, 0 )
 
         print "waiting for services"
