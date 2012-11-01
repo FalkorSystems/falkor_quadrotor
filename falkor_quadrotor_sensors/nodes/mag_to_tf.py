@@ -24,7 +24,7 @@ class FalkorMagToTf:
         self.magnetic_field_world = tf.transformations.quaternion_from_euler( 0,
                                                                               0,
                                                                               self.reference_heading-self.decl_rad )
-        self.rate = rospy.Rate( rospy.get_param( "~update_rate", 50 ) )
+        self.rate = rospy.Rate( rospy.get_param( "~update_rate", 100 ) )
 
     def to_rad( self, degrees ):
         return degrees / 180.0 * np.pi
