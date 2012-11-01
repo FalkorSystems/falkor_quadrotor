@@ -13,7 +13,7 @@ import numpy as np
 class FalkorCombineGpsImu:
     def __init__( self ):
         self.gps_topic = rospy.get_param( "~gps_fix_topic", "fix_m/state" )
-        self.imu_topic = rospy.get_param( "~imu_topic", "imu" )
+        self.imu_topic = rospy.get_param( "~imu_topic", "imu/data" )
         self.world_frame = rospy.get_param( "~world_frame", "/nav" )
         self.gravity = rospy.get_param( "~gravity", 9.82 )
 
@@ -68,7 +68,7 @@ class FalkorCombineGpsImu:
         try:
             self.listener.waitForTransform( data.header.frame_id,
                                             self.world_frame,
-                                            data.header.stamp,
+                                            rospy.Time.now(),
                                             rospy.Duration( 4.0 ) )
             quaternion_imu = QuaternionStamped( data.header, data.orientation )
             angular_velocity_imu = Vector3Stamped( data.header, data.angular_velocity )

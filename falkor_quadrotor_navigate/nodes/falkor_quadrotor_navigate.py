@@ -50,7 +50,7 @@ class FalkorQuadrotorNav:
 
         relative_point = PointStamped( Header( 0, rospy.Time.now(),
                                               '/beacon/base_position' ),
-                                      Point( 1, 0.5, 0.25 ) )
+                                       Point( 1, 0.5, 0.25 ) )
 
         self.update_relative_pose( relative_point )
         self.publish_target_pose()

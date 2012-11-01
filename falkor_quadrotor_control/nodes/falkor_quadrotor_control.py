@@ -11,8 +11,8 @@ from std_srvs.srv import *
 class FalkorQuadrotorControl:
     def __init__( self ):
         self.yaw_pid = pid.PidController( -0.5, 0, 0 )
-        self.x_pid = pid.PidController( -1.25, 0, 0.5 )
-        self.y_pid = pid.PidController( -1.25, 0, 0.5 )
+        self.x_pid = pid.PidController( -0.5, 0.0, 2.0 )
+        self.y_pid = pid.PidController( -0.5, 0.0, 2.0 )
         self.z_pid = pid.PidController( -1.25, 0, 0 )
 
         print "waiting for services"
@@ -38,6 +38,16 @@ class FalkorQuadrotorControl:
         req = Empty()
         self.off_service()
 
+    def limit_cmd( self, cmd ):
+        if abs( cmd.linear.x ) < 0.3:
+            cmd.linear.x = 0
+        if abs( cmd.linear.y ) < 0.3:
+            cmd.linear.y = 0
+        if abs( cmd.linear.z ) < 0.3:
+            cmd.linear.z = 0
+        if abs( cmd.angular.z ) < 0.3:
+            cmd.angular.z = 0
+
     def target_pose_update( self, data ):
         dt = ( data.header.stamp - self.last_update ).to_sec()
         self.last_update = data.header.stamp
@@ -52,6 +62,8 @@ class FalkorQuadrotorControl:
         twist_cmd.linear.x = self.x_pid.get_output( data.pose.position.x, dt )
         twist_cmd.linear.y = self.y_pid.get_output( data.pose.position.y, dt )
         twist_cmd.linear.z = self.z_pid.get_output( data.pose.position.z, dt )
+
+        self.limit_cmd( twist_cmd )
 
         self.cmd_vel_pub.publish( twist_cmd )
 
@@ -94,8 +106,8 @@ def main():
     control = FalkorQuadrotorControl()
 
     # wait a minute before starting
-    print "waiting 5 seconds"
-    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 5 ) ) )
+    print "waiting some seconds"
+    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 0 ) ) )
 
     try:
         control.run()
