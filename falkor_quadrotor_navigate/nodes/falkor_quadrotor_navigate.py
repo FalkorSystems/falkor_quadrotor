@@ -57,7 +57,6 @@ class FalkorQuadrotorNav:
 
         self.rate = rospy.Rate(10.0)
 
-
     def publish_target_pose( self ):
         relpose_cached = self.relative_pose
 

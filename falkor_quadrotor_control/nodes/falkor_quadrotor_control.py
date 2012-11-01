@@ -11,9 +11,9 @@ from std_srvs.srv import *
 class FalkorQuadrotorControl:
     def __init__( self ):
         self.yaw_pid = pid.PidController( -0.5, 0, 0 )
-        self.x_pid = pid.PidController( -0.5, 0.0, 0 )
-        self.y_pid = pid.PidController( -0.5, 0.0, 0 )
-        self.z_pid = pid.PidController( -1.25, 0, 0 )
+        self.x_pid = pid.PidController( -1.0, 0.0, 0 )
+        self.y_pid = pid.PidController( -1.0, 0.0, 0 )
+        self.z_pid = pid.PidController( -1.0, 0, 0 )
 
         print "waiting for services"
         rospy.wait_for_service( "/robot/takeoff" )
@@ -39,51 +39,51 @@ class FalkorQuadrotorControl:
         self.off_service()
 
     def limit_cmd( self, cmd ):
-        if abs( cmd.linear.x ) < 0.3:
+        if abs( cmd.linear.x ) < 0.1:
             cmd.linear.x = 0
-        if abs( cmd.linear.y ) < 0.3:
+        if abs( cmd.linear.y ) < 0.1:
             cmd.linear.y = 0
-        if abs( cmd.linear.z ) < 0.3:
+        if abs( cmd.linear.z ) < 0.1:
             cmd.linear.z = 0
-        if abs( cmd.angular.z ) < 0.3:
+        if abs( cmd.angular.z ) < 0.1:
             cmd.angular.z = 0
 
     def target_pose_update( self, data ):
         dt = ( data.header.stamp - self.last_update ).to_sec()
         self.last_update = data.header.stamp
 
+        twist_cmd = Twist()
+
+        # The gimbal pitch is the pitch of this euler plus the pitch between link
+        # and stabilized
+
         euler = tf.transformations.euler_from_quaternion( [ data.pose.orientation.x,
                                                             data.pose.orientation.y,
                                                             data.pose.orientation.z,
                                                             data.pose.orientation.w ] )
-        twist_cmd = Twist()
 
         twist_cmd.angular.z = self.yaw_pid.get_output( euler[2], dt )
         twist_cmd.linear.x = self.x_pid.get_output( data.pose.position.x, dt )
         twist_cmd.linear.y = self.y_pid.get_output( data.pose.position.y, dt )
         twist_cmd.linear.z = self.z_pid.get_output( data.pose.position.z, dt )
 
-        self.limit_cmd( twist_cmd )
+#       self.limit_cmd( twist_cmd )
 
         self.cmd_vel_pub.publish( twist_cmd )
 
         try:
             # Get the transform from base_stabilized to base_link
             # so we know what angle to roll the gimbal at
-            self.listener.waitForTransform( '/robot/base_stabilized',
-                                            '/robot/base_link',
-                                            data.header.stamp,
-                                            rospy.Duration( 4.0 ) )
+            #self.listener.waitForTransform( '/robot/base_stabilized',
+            #                                '/robot/base_link',
+            #                                data.header.stamp,
+            #                                rospy.Duration( 0.1 ) )
 
             (trans, rot) = self.listener.lookupTransform( '/robot/base_stabilized',
                                                           '/robot/base_link',
-                                                          data.header.stamp )
+                                                          rospy.Time(0) )
 
             stabilize_euler = tf.transformations.euler_from_quaternion( rot )
-
-
-            # The gimbal pitch is the pitch of the euler above plus the pitch between link
-            # and stabilized
 
             gimbal_pitch = euler[1] - stabilize_euler[1]
             gimbal_roll = stabilize_euler[0]
@@ -99,6 +99,7 @@ class FalkorQuadrotorControl:
     def run( self ):
         print "turning on"
         self.on()
+        print "controlling"
         rospy.spin()
         
 def main():
@@ -107,7 +108,7 @@ def main():
 
     # wait a minute before starting
     print "waiting some seconds"
-    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 0 ) ) )
+    rospy.sleep( rospy.Duration( rospy.get_param( "~calibration_pause", 10 ) ) )
 
     try:
         control.run()
