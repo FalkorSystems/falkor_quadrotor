@@ -42,8 +42,8 @@ class FalkorControlPwm:
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
         self.full_frame_id = self.tf_prefix + "/" + self.frame_id
 
-        self.pwm_min = rospy.get_param( "~pwm_min", 200 )
-        self.pwm_max = rospy.get_param( "~pwm_max", 1000 )
+        self.pwm_min = rospy.get_param( "~pwm_min", 1000 )
+        self.pwm_max = rospy.get_param( "~pwm_max", 2000 )
         self.pwm_range = self.pwm_max - self.pwm_min
 
         self.update_rate = rospy.get_param( "~update_rate", 10 )
