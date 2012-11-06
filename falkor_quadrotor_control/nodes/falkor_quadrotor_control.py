@@ -26,7 +26,7 @@ class FalkorQuadrotorControl:
                                                  self.target_pose_update )
         self.cmd_vel_pub = rospy.Publisher( '/robot/cmd_vel', Twist )
         self.last_update = rospy.Time.now()
-        self.cmd_gimbal_pub = rospy.Publisher( '/robot/cmd_gimbal', Point )
+        self.cmd_gimbal_pub = rospy.Publisher( '/robot/cmd_gimbal', Gimbal )
         self.listener = tf.TransformListener()
 
     def on( self ):
