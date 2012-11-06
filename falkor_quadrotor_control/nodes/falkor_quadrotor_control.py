@@ -76,7 +76,7 @@ class FalkorQuadrotorControl:
             gimbal_pitch = euler[1] - stabilize_euler[1]
             gimbal_roll = stabilize_euler[0]
 
-            gimbal_cmd = Point( gimbal_pitch, gimbal_roll, 0 )
+            gimbal_cmd = Gimbal( gimbal_roll, gimbal_pitch, 0 )
 
             self.cmd_gimbal_pub.publish( gimbal_cmd )
         except (tf.LookupException, tf.Exception,

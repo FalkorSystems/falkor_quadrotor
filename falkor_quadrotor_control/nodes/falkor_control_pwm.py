@@ -50,7 +50,7 @@ class FalkorControlPwm:
         self.rate = rospy.Rate( self.update_rate )
 
         self.cmd_vel_sub = rospy.Subscriber( "cmd_vel", Twist, self.cmd_vel_cb )
-        self.cmd_gimbal_sub = rospy.Subscriber( "cmd_vel", Twist, self.cmd_gimbal_cb )
+        self.cmd_gimbal_sub = rospy.Subscriber( "cmd_gimbal", Gimbal, self.cmd_gimbal_cb )
         self.state_sub = rospy.Subscriber( "state", Odometry, self.state_cb )
 
     def to_pwm( self, value, min_value = -100, max_value = 100 ):
