@@ -34,7 +34,8 @@ class RazorDriver:
             now = rospy.Time.now()
 
             if line[1] != '$' or line[-3] != '#':
-                raise Exception( "invalid IMU data line: %s" % line )
+                rospy.logwarn( "invalid IMU data line: %s" % line )
+                continue
 
             split_line = line[2:-3].split(',')
             split_line_ints = [int(a) for a in split_line]
