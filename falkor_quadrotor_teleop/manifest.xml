@@ -13,6 +13,7 @@
   <depend package="sensor_msgs" />
   <depend package="gazebo_msgs" />
   <depend package="geometry_msgs" />
+  <depend package="falkor_msgs" />
   <depend package="joy" />
 
 </package>

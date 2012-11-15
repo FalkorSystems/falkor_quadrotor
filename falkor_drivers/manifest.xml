@@ -12,6 +12,7 @@
   <depend package="geometry_msgs" />
   <depend package="std_msgs" />
   <depend package="falkor_msgs" />
+  <depend package="joy" />
 
 </package>
 
