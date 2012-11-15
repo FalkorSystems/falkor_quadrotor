@@ -7,24 +7,31 @@ import roslib; roslib.load_manifest("falkor_drivers")
 import rospy
 from sensor_msgs.msg import *
 from std_msgs.msg import *
-import numpy as np
 
 class Mb1200Driver:
     def __init__(self, pin=0):
-        self.file = '/sys/devices/platform/omap/tsc/ain' + ( pin + 1 )
+        self.file = '/sys/devices/platform/omap/tsc/ain' + str( pin + 1 )
 
-        # 99ms update rate
-        self.update_timer = ropsy.Timer( rospy.Duration( 0.099 ), self.update_cb )
-        self.sonar_topic = rospy.param( "~sonar_topic", "sonar" )
-        self.tf_prefix = rospy.param( "~tf_prefix", "" )
+        self.sonar_topic = rospy.get_param( "~sonar_topic", "sonar" )
+        self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
         self.sonar_frame = self.tf_prefix + "/" + rospy.get_param( "~sonar_frame", "sonar_link" )
         self.range_pub = rospy.Publisher( self.sonar_topic, Range )
 
-    def update_cb( self, data ):
+        # 10Hz update rate
+        self.update_timer = rospy.Timer( rospy.Duration( 0.1 ), self.update_cb )
+
+    def update_cb( self, timer_info ):
         # read from file
         f = open( self.file, 'r' )
-        data = f.read()
-        number = int( data )
+        data = f.readline()
+	data_clean = data.replace( '\x00', '' )
+	try:
+    	    number = int( data_clean )
+	except Exception as e:
+	    print data + " gave me an error " + str(e)
+	    return
+
+	f.close()
         
         # 3.3V yields 3.2mV/cm so 1.8V should yield 1.745 mV/cm
         mV = number / 4096.0 * 1800.0
@@ -36,7 +43,7 @@ class Mb1200Driver:
         msg.min_range = 0.2
         msg.max_range = 6
         msg.range = m
-        self.range_pub( msg )
+        self.range_pub.publish( msg )
 
     def run(self):
         rospy.spin()
