@@ -1,0 +1,9 @@
+<launch>
+  <arg name="joy_dev" default="/dev/input/js1" />
+
+  <node name="joy_node" pkg="joy" type="joy_node" output="screen" >
+    <param name="dev" value="$(arg joy_dev)" />
+  </node>
+
+  <node name="pwm_teleop_joy" type="pwm_teleop_joy.py" pkg="falkor_quadrotor_teleop" />
+</launch>
