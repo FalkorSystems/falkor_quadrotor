@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/falkor_quadrotor_control</url>
   <depend package="geometry_msgs" />
   <depend package="tf" />
+  <depend package="falkor_msgs" />
 
 </package>
 

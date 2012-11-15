@@ -11,7 +11,7 @@
 *.la
 *.a
 /nbproject/private/
-Makefile
+#Makefile
 /build/CMakeFiles/
 
 # Compiled python files
@@ -33,6 +33,10 @@ Makefile
 
 /falkor_quadrotor_sensors/srv_gen/
 /falkor_quadrotor_sensors/src/falkor_quadrotor_sensors/
+
+/falkor_msgs/build/
+/falkor_msgs/msg_gen/
+/falkor_msgs/src/falkor_msgs/
 
 # frames cruft
 frames.gv
