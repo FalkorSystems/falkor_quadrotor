@@ -11,10 +11,10 @@ import numpy as np
 class RazorDriver:
     def __init__(self):
         self.timeout = rospy.get_param( "~timeout", 5.0 )
-        self.port = rospy.get_param( "~port", "/dev/ttyUSB0" )
+        self.port_name = rospy.get_param( "~port", "/dev/ttyUSB0" )
         self.baud = rospy.get_param( "~baud", 57600 )
 
-        self.port = Serial(self.port, self.baud, timeout=self.timeout * 0.5)
+        self.port = Serial(self.port_name, self.baud, timeout=self.timeout * 0.5)
     
         self.mag_topic = rospy.get_param( "~mag_topic", "imu/mag" )
         self.imu_topic = rospy.get_param( "~imu_topic", "imu/data_raw" )
