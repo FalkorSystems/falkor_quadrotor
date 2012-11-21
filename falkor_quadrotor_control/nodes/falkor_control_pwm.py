@@ -16,7 +16,7 @@ class FalkorControlPwm:
         self.linear_y_pid = pid.PidController( 1, 0, 0 )
         self.linear_z_pid = pid.PidController( 1, 0, 0 )
 
-        self.pwm_pub = rospy.Publisher( "pwm", Pwm )
+        self.pwm_pub = rospy.Publisher( "pwm_out", Pwm )
 
         self.throttle_channel = rospy.get_param( "~throttle_channel", 1 )
         self.yaw_channel = rospy.get_param( "~yaw_channel", 2 )
@@ -45,6 +45,7 @@ class FalkorControlPwm:
         self.pwm_min = rospy.get_param( "~pwm_min", 1000 )
         self.pwm_max = rospy.get_param( "~pwm_max", 2000 )
         self.pwm_range = self.pwm_max - self.pwm_min
+        self.pwm_center = ( self.pwm_min + self.pwm_max / 2 )
 
         self.update_rate = rospy.get_param( "~update_rate", 10 )
         self.rate = rospy.Rate( self.update_rate )
@@ -52,6 +53,21 @@ class FalkorControlPwm:
         self.cmd_vel_sub = rospy.Subscriber( "cmd_vel", Twist, self.cmd_vel_cb )
         self.cmd_gimbal_sub = rospy.Subscriber( "cmd_gimbal", Gimbal, self.cmd_gimbal_cb )
         self.state_sub = rospy.Subscriber( "state", Odometry, self.state_cb )
+
+        self.pwm_in_msg = Pwm()
+        self.manual_control = True
+
+        self.pwm_deadzone = rospy.get_param( "~pwm_deadzone", 5 )
+        self.pwm_calibration = rospy.get_param( "~pwm_in_calibration" )
+
+        self.pwm_sub = rospy.Subscriber( "pwm_in", Pwm, self.pwm_in_cb )
+
+    def pwm_in_cb( self, data ):
+        self.pwm_in_msg = data
+        if self.pwm_in_rescale( self.pwm_in_msg[4], 4 )X > self.pwm_center:
+            self.manual_control = True
+        else:
+            self.manual_control = False
 
     def to_pwm( self, value, min_value = -100, max_value = 100 ):
         # convert a float from -100 to 100 into an int from pwm_min to pwm_max
@@ -71,6 +87,20 @@ class FalkorControlPwm:
 
     def state_cb( self, data ):
         self.state = data
+
+    def pwm_in_rescale( self, pwm_value, channel ):
+        if abs( pwm_value - self.pwm_calibration['center'][channel] ) < self.pwm_deadzone:
+            return self.pwm_center
+
+        return int( ( pwm_value - self.pwm_calibration['min'][channel] )
+                    / self.pwm_calibration['range'][channel]
+                    * self.pwm_range ) + self.pwm_min 
+
+    def manual_control( self ):
+        # rescale input pwm to pwm min/max
+        self.pwm_msg.pwm = [self.pwm_in_rescale(self.pwm_in_msg.pwm[i],i)
+                            for i in range(0,len(self.pwm_in_msg.pwm)]
+        self.pwm_pub.publish( self.pwm_msg )
 
     def control( self ):
         now = rospy.Time.now()
@@ -123,8 +153,26 @@ class FalkorControlPwm:
 
     def run( self ):
         while not rospy.is_shutdown():
-            self.control()
+            if self.manual_control:
+                self.manual_control()
+            else:
+                self.control()
+
             self.rate.sleep()
+
+
+def main():
+    rospy.init_node('falkor_control_pwm')
+    control = FalkorControlPwm()
+
+    try:
+        control.run()
+    except ( KeyboardInterrupt, rospy.Exceptions.ROSInterruptException ) as e:
+        print "Shutting down"
+
+if __name__  == '__main__':
+    main()
+
 
         
 
