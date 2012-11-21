@@ -1,16 +1,18 @@
 <package>
-  <description brief="falkor_quadrotor_control">
+  <description brief="falkor_drivers">
 
-     falkor_quadrotor_control
+     falkor_drivers
 
   </description>
   <author>Sameer Parekh</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/falkor_quadrotor_control</url>
+  <url>http://ros.org/wiki/falkor_drivers</url>
+  <depend package="sensor_msgs" />
   <depend package="geometry_msgs" />
-  <depend package="tf" />
+  <depend package="std_msgs" />
   <depend package="falkor_msgs" />
+  <depend package="joy" />
 
 </package>
 

@@ -183,7 +183,7 @@ Config=54.7356 0 0 0
 Target=<Fixed Frame>
 Type=rviz::FixedOrientationOrthoViewController
 [Window]
-Height=1062
-Width=1631
-X=71
-Y=-4
+Height=748
+Width=1116
+X=1096
+Y=353

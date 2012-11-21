@@ -12,6 +12,9 @@ class PidController:
         self.outputLimit = outputLimit
         self.setPoint = 0.0
 
+    def setSetPoint( self, setPoint ):
+        self.setPoint = setPoint
+
     def get_output( self, pv, dt ):
         error = self.setPoint - pv
         self.integral += error * dt
