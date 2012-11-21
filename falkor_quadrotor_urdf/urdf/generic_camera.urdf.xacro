@@ -9,7 +9,7 @@ xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
     <property name="M_PI" value="3.1415926535897931" />
   
     <xacro:macro name="generic_camera" params="name parent *origin ros_topic cam_info_topic update_rate res_x res_y image_format hfov tf_prefix">
-      <joint name="${name}_roll" type="continuous">
+      <joint name="${name}_roll" type="revolute">
         <insert_block name="origin" />
         <parent link="${parent}"/>
         <child link="${name}_interm_link"/>
@@ -25,7 +25,7 @@ xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
 	</inertial>
       </link>
 
-      <joint name="${name}_pitch" type="continuous">
+      <joint name="${name}_pitch" type="revolute">
         <insert_block name="origin" />
         <parent link="${name}_interm_link"/>
         <child link="${name}_link"/>

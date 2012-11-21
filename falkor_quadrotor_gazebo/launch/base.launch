@@ -22,10 +22,7 @@
 </include>
 
 <!-- control -->
-<!-- this works, kind of it is commented out for now because we want to test other things -->
-<!--
 <node pkg="falkor_quadrotor_control" type="falkor_quadrotor_control.py" name="falkor_quadrotor_control" />
--->
 
 <node pkg="rviz" type="rviz" name="rviz" args="-d $(find falkor_quadrotor_gazebo)/rviz/rviz.vcg" />
 

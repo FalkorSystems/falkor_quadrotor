@@ -31,14 +31,16 @@ class FalkorQuadrotorTakeoffLand:
         self.cmd_vel_pub = rospy.Publisher( 'cmd_vel', Twist )
 
         self.sonar_sub = rospy.Subscriber( "sonar_height", Range, self.sonar_cb )
-
+        self.busy = False
+        self.on = False
+        self.off = True
 
     def sonar_cb( self, data ):
         point_msg = PointStamped( data.header, Point( data.range, 0, 0 ) )
         try:
             self.listener.waitForTransform( '/robot/base_stabilized',
                                             point_msg.header.frame_id,
-                                            rospy.Time.now(),
+                                            point_msg.header.stamp,
                                             rospy.Duration( 4.0 ) )
             point_transformed = self.listener.transformPoint( '/robot/base_stabilized', point_msg )
         except (tf.LookupException, tf.Exception,
@@ -65,16 +67,35 @@ class FalkorQuadrotorTakeoffLand:
                 been_good += 1
             else:
                 been_good = 0
+        
+        # send a hover command
+        self.cmd_vel_pub.publish( Twist() )
 
     def takeoff( self, req ):
+        # change this so that if busy return a fail
+        if self.busy or self.on:
+            return EmptyResponse()
+    
+        self.busy = True
         self.on_service()
-        self.control( self.takeoff_height, self.takeoff_tol, ( 2.0, 0, 1.0 ) )
+        self.control( self.takeoff_height, self.takeoff_tol, ( 2.0, 0, 0.1 ) )
+        self.on = True
+        self.busy = False
+
         return EmptyResponse()
 
     def land( self, req ):
-        self.control( self.ground_height, self.land_tol, ( 0.5, 0, 0.5 ) )
+        # change this so that if busy return a fail
+        if self.busy or not self.on:
+            return EmptyResponse()
+
+        self.busy = True
+        self.control( self.ground_height, self.land_tol, ( 0.5, 0, 0.1 ) )
         self.off_service()
+        self.on = False
+        self.busy = False
         return EmptyResponse()
+     
 
     def run( self ):
         rospy.spin()
