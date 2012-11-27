@@ -6,6 +6,23 @@ import struct
 from serial import *
 import falkor_msgs.msg
 
+## {{{ http://code.activestate.com/recipes/496969/ (r1)
+#convert string to hex
+def toHex(s):
+    lst = []
+    for ch in s:
+        hv = hex(ord(ch)).replace('0x', '')
+        if len(hv) == 1:
+            hv = '0'+hv
+        lst.append(hv)
+    
+    return reduce(lambda x,y:x+y, lst)
+
+#convert hex repr to string
+def toStr(s):
+    return s and chr(atoi(s[:2], base=16)) + toStr(s[2:]) or ''
+## end of http://code.activestate.com/recipes/496969/ }}}
+
 class Pololu:
     def __init__(self, device_id, port_name, baud, timeout):
         self.device_id = device_id
@@ -22,18 +39,17 @@ class Pololu:
         data2 = position_value & 0x7F
         command_byte = 0x84
 
-        data1 = ( position_value >> 7 ) & 0x7F
-        data2 = position_value & 0x7F
+        data2 = ( position_value >> 7 ) & 0x7F
+        data1 = position_value & 0x7F
         msg = struct.pack( 'Bbbb', command_byte, servo_id, data1, data2 )
         self.port.write( msg )
-
 
 class PwmDriver:
     def __init__( self ):
         self.pwm_topic = rospy.get_param( "~pwm_topic", "pwm" )
 
         self.timeout = rospy.get_param( "~timeout", 5.0 )
-        self.port_name = rospy.get_param( "~port", "/dev/ttyACM0" )
+        self.port_name = rospy.get_param( "~port", "/dev/ttyUSB0" )
         self.baud = rospy.get_param( "~baud", 115200 )
         self.device_id = rospy.get_param( "~pololu_id", 0x01 )
 
@@ -44,7 +60,7 @@ class PwmDriver:
 
     def pwm_cb(self, data):
         for i in range(0,len(data.pwm)):
-            print "sending %d to %d" % ( data.pwm[i], i )
+            rospy.logdebug( "sending %d to %d" % ( data.pwm[i], i ) )
             self.pololu.set_pos( i, data.pwm[i] )
 
     def run(self):
