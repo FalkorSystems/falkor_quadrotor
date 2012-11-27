@@ -6,35 +6,40 @@ from serial import *
 from falkor_msgs.msg import Pwm
 
 class PwmInputDriver:
-    def __init__(self):
-        self.pwm_topic = rospy.get_param( "~input_topic", "pwm_in" )
+    def __init__(self, port):
+        self.port = port
+        self.pwm_topic = rospy.get_param( "~pwm_in_topic", "pwm_in" )
         self.pwm_pub = rospy.Publisher( self.pwm_topic, Pwm )
-        self.port_name = rospy.get_param( "~port", "/dev/ttyUSB1" )
-        self.baud = rospy.get_param( "~baud", 115200 )
-        self.timeout = rospy.get_param( "~timeout", 5.0 )
 
-        self.port = Serial(self.port_name, self.baud, timeout=self.timeout * 0.5)
-
-    def parse_line(self, line):
+    def split_line(self, line):
         split = line.split(',')
         split_ints = [int(a) for a in split]
         return split_ints
 
+    def parse_line( self, line ):
+        try:
+            pwm_data = self.split_line(line)
+        except Exception as e:
+            rospy.logwarn( "Invalid pwm data line: "  + str(e) )
+        else:
+            pwm_msg = Pwm( pwm_data )
+            self.pwm_pub.publish( pwm_msg )
+
     def run(self):
         while not rospy.is_shutdown():
             line = self.port.readline()
-
-            try:
-                pwm_data = self.parse_line(line)
-            except Exception as e:
-                rospy.logwarn( "Invalid pwm data line: "  + str(e) )
-            else:
-                pwm_msg = Pwm( pwm_data )
-                self.pwm_pub.publish( pwm_msg )
+            self.parse_line( line )
 
 def main():
     rospy.init_node('pwm_input_driver')
-    driver = PwmInputDriver()
+
+    port_name = rospy.get_param( "~port", "/dev/ttyUSB0" )
+    baud = rospy.get_param( "~baud", 115200 )
+    timeout = rospy.get_param( "~timeout", 5.0 )
+
+    port = Serial(port_name, baud, timeout=timeout * 0.5)
+
+    driver = PwmInputDriver(port)
     try:
         driver.run()
     except KeyboardInterrupt:
