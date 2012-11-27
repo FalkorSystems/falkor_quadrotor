@@ -1,5 +1,4 @@
 <launch>
-  <node type="pwm_input_driver.py" name="pwm_input_driver" pkg="falkor_drivers" />
-  <node type="pwm_pololu_driver.py" name="pwm_pololu_driver" pkg="falkor_drivers" />
+  <node name="pwm_io_driver" type="pwm_io_driver.py" pkg="falkor_drivers" />
   <node type="pwm_calibrator.py" name="pwm_calibrator" pkg="falkor_drivers" output="screen" />
 </launch>

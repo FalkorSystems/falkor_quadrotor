@@ -1,0 +1,8 @@
+<launch>
+  <!-- SONAR -->
+  <node name="mb1200_beagle_driver" type="mb1200_beagle_driver.py" pkg="falkor_drivers" />
+
+  <!-- PWM -->
+  <node name="pwm_io_driver" type="pwm_io_driver.py" pkg="falkor_drivers" />
+  <node name="pwm_switch" type="pwm_switch.py" pkg="falkor_drivers" />
+</launch>
