@@ -6,8 +6,8 @@ from serial import *
 from falkor_msgs.msg import Pwm
 
 class PwmInputDriver:
-    def __init__(self, pin=0):
-        self.pwm_topic = rospy.get_param( "~input_topic", "pwm" )
+    def __init__(self):
+        self.pwm_topic = rospy.get_param( "~input_topic", "pwm_in" )
         self.pwm_pub = rospy.Publisher( self.pwm_topic, Pwm )
         self.port_name = rospy.get_param( "~port", "/dev/ttyUSB1" )
         self.baud = rospy.get_param( "~baud", 115200 )

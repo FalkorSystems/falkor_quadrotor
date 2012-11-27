@@ -46,7 +46,7 @@ class Pololu:
 
 class PwmDriver:
     def __init__( self ):
-        self.pwm_topic = rospy.get_param( "~pwm_topic", "pwm" )
+        self.pwm_topic = rospy.get_param( "~pwm_topic", "pwm_out" )
 
         self.timeout = rospy.get_param( "~timeout", 5.0 )
         self.port_name = rospy.get_param( "~port", "/dev/ttyUSB0" )
