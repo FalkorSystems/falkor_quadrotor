@@ -10,7 +10,7 @@ from serial import *
 def main():
     rospy.init_node('pwm_io_driver')
 
-    port_name = rospy.get_param( "~port", "/dev/ttyUSB0" )
+    port_name = rospy.get_param( "~port", "/dev/ttyO1" )
     baud = rospy.get_param( "~baud", 115200 )
     timeout = rospy.get_param( "~timeout", 5.0 )
 
