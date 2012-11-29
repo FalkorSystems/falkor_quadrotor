@@ -30,7 +30,7 @@ class FalkorQuadrotorTakeoffLand:
 
         self.cmd_vel_pub = rospy.Publisher( 'cmd_vel', Twist )
 
-        self.sonar_sub = rospy.Subscriber( "sonar_height", Range, self.sonar_cb )
+        self.sonar_sub = rospy.Subscriber( "sonar_height", Range, self.sonar_cb, queue_size=1 )
         self.busy = False
         self.on = False
         self.off = True

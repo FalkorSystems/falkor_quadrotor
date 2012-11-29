@@ -62,6 +62,7 @@ class FalkorCombineGpsImu:
         my_twist_covariance_w_angular[:3,:3] = gps_twist_covariance
 
         self.twist.twist.covariance = list( my_twist_covariance_w_angular.reshape( 36 ) )
+        self.gps_publish( data.header.stamp )
 
     def imu_cb( self, data ):
         # wait for transform
@@ -83,14 +84,16 @@ class FalkorCombineGpsImu:
 
             # remove gravity
             self.accel.vector.z -= self.gravity
+            self.accel.header.stamp = data.header.stamp
+            self.accel.header.frame_id = self.world_frame
+            self.accel_pub.publish( self.accel )
 
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
             rospy.logwarn( "combineraw_gps_imu: transform exception: %s", str( e ) )
 
-    def publish( self ):
-        self.seq += 1
-        self.accel.header = self.twist.header = self.pose.header = self.state.header = Header( self.seq, rospy.Time.now(), self.world_frame )
+    def gps_publish( self, stamp ):
+        self.twist.header = self.pose.header = self.state.header = Header( 0, stamp, self.world_frame )
         self.pose_pub.publish( self.pose )
         self.twist_pub.publish( self.twist )
 
@@ -98,13 +101,9 @@ class FalkorCombineGpsImu:
         self.state.pose = self.pose.pose
 
         self.state_pub.publish( self.state )
-        self.accel_pub.publish( self.accel )
 
     def run( self ):
-        while not rospy.is_shutdown():
-            self.publish()
-            self.rate.sleep()
-
+        rospy.spin()
 
 def main():
     rospy.init_node('combineraw_gps_imu')
