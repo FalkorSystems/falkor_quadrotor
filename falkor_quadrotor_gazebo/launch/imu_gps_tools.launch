@@ -6,4 +6,5 @@
   </node>
   <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters" />
   <node type="combineraw_gps_imu.py" pkg="falkor_quadrotor_sensors" name="combine_raw_gps_imu" />
+  <node type="kalman_filter.py" pkg="falkor_filters" name="kalman_filter" />
 </launch>

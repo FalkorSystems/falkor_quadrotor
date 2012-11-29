@@ -114,18 +114,20 @@ class Filter:
         self.listener = tf.TransformListener()
 
         # TODO: wrap these four callbacks into a mutex
-        self.gps_sub = rospy.Subscriber( self.gps_topic, Odometry, self.gps_cb )
-        self.imu_sub = rospy.Subscriber( self.imu_topic, Vector3Stamped, self.imu_cb )
-        self.sonar_sub = rospy.Subscriber( self.sonar_topic, Range, self.sonar_cb )
-        self.baro_sub = rospy.Subscriber( self.baro_topic, Altimeter, self.baro_cb )
+        self.gps_sub = rospy.Subscriber( self.gps_topic, Odometry, self.gps_cb, queue_size=1 )
+        self.imu_sub = rospy.Subscriber( self.imu_topic, Vector3Stamped, self.imu_cb, queue_size=1 )
+        self.sonar_sub = rospy.Subscriber( self.sonar_topic, Range, self.sonar_cb, queue_size=1 )
+        self.baro_sub = rospy.Subscriber( self.baro_topic, Altimeter, self.baro_cb, queue_size=1 )
         self.gps_data = None
 
         # TODO: Configure proper covariances
-        self.sonar_zdot_cov = np.matrix( 1 )
+        self.sonar_zdot_cov = np.matrix( 0.1 )
         self.baro_zdot_cov = np.matrix( 5 )
         self.imu_cov = np.asmatrix( np.identity( 3 ) )
 
     def get_dt( self, now ):
+        # ignore the stamp
+        now = rospy.Time.now()
         if self.last_update == None:
             self.last_update = now
             return 0
@@ -137,6 +139,8 @@ class Filter:
         return dt
 
     def gps_cb( self, data ):
+#        print "gps stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
+
         self.gps_data = data
         dt = self.get_dt( data.header.stamp )
         if dt < 0:
@@ -152,6 +156,8 @@ class Filter:
         self.publish_state( res, data.header.stamp )
 
     def imu_cb( self, data ):
+#        print "imu stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
+
         dt = self.get_dt( data.header.stamp )
         if dt < 0:
             return
@@ -163,6 +169,8 @@ class Filter:
         self.publish_state( res, data.header.stamp )
 
     def baro_cb( self, data ):
+#        print "baro stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
+
         baro_alt = data.altitude
 
         if self.last_baro == None:
@@ -173,12 +181,15 @@ class Filter:
             if dt < 0:
                 return
 
-            baro_dt = ( self.last_baro_time - data.header.stamp ).to_sec()
+            baro_dt = ( data.header.stamp - self.last_baro_time ).to_sec()
             self.last_baro_time = data.header.stamp
 
             dz = baro_alt - self.last_baro
+            self.last_baro = baro_alt
+
             baro_zdot = np.matrix( dz/baro_dt )
-            res = self.filter.update_zdot( baro_zdot, self.baro_zdot_cov * baro_dt, dt )
+
+            res = self.filter.update_zdot( baro_zdot, self.baro_zdot_cov, dt )
             self.publish_state( res, data.header.stamp )
 
     def publish_state( self, res, timestamp ):
@@ -223,6 +234,7 @@ class Filter:
 
 
     def sonar_cb( self, data ):
+#        print "sonar stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
         # we don't have valid data, 
         if data.range > data.max_range or data.range < data.min_range:
             self.last_sonar = None
@@ -232,7 +244,7 @@ class Filter:
                 self.listener.waitForTransform( "/robot/base_stabilized",
                                                 point_msg.header.frame_id,
                                                 point_msg.header.stamp,
-                                                rospy.Duration( 0.1 ) )
+                                                rospy.Duration( 4.0 ) )
                 point_transformed = self.listener.transformPoint( "/robot/base_stabilized", point_msg )
             except (tf.LookupException, tf.Exception,
                     tf.ConnectivityException, tf.ExtrapolationException) as e:
@@ -250,12 +262,14 @@ class Filter:
                     dt = self.get_dt( data.header.stamp )
                     if dt < 0:
                         return
-                    sonar_dt = ( self.last_sonar_time - data.header.stamp ).to_sec()
+                    sonar_dt = ( data.header.stamp - self.last_sonar_time ).to_sec()
                     self.last_sonar_time = data.header.stamp
 
-                    dz = sonar_range = self.last_sonar
+                    dz = sonar_range - self.last_sonar
                     self.last_sonar = sonar_range
+
                     sonar_zdot = np.matrix( dz/sonar_dt )
+#                    print "sonar_zdot %6.1f" % sonar_zdot
                     res = self.filter.update_zdot( sonar_zdot, self.sonar_zdot_cov, dt )
                     self.publish_state( res, data.header.stamp )
     def run(self):

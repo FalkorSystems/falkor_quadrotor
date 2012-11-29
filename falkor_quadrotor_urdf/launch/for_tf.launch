@@ -20,10 +20,11 @@
     <param name="tf_prefix" value="$(arg model_name)/ground_truth" />
   </node>
 
-  <!-- take estimate to tf -->
-  <node name="raw_pose_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
-    <param name="odometry_topic" value="raw/state" />
+  <!-- take kalman filtered estimate to tf -->
+  <node name="kf_pose_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
+    <param name="odometry_topic" value="state" />
     <param name="frame_id" value="/nav" />
     <param name="tf_prefix" value="$(arg model_name)" />
   </node>
+
 </launch>
