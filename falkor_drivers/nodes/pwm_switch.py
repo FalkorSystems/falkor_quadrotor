@@ -16,7 +16,7 @@ class PwmSwitch:
         self.pwm_cmd = None
         self.pwm_in = None
 
-        self.rate = rospy.rate(50)
+        self.rate = rospy.Rate(50)
 
         self.pwm_out_pub = rospy.Publisher( self.pwm_out_topic, Pwm )
         self.pwm_in_sub = rospy.Subscriber( self.pwm_in_topic, Pwm, self.pwm_in_cb )
