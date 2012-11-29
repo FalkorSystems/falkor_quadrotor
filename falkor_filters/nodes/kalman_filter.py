@@ -102,7 +102,6 @@ class Filter:
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
 
         self.world_frame = rospy.get_param( "~world_frame", "/nav" )
-        self.child_frame = self.tf_prefix + "/" + rospy.get_param( "~child_frame", "base_link" )
 
         self.last_update = None
         self.last_sonar_time = None
@@ -196,7 +195,8 @@ class Filter:
         state = Odometry()
         state.header.stamp = timestamp
         state.header.frame_id = self.world_frame
-        state.child_frame_id = self.child_frame
+# We'll fix this bit later
+#        state.child_frame_id = self.child_frame
         state.pose.pose.position = Point( *res[0][:3] )
         state.twist.twist.linear = Vector3( *res[0][3:6] )
         zeros_33 = np.zeros( ( 3, 3 ) )
