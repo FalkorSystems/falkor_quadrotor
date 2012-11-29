@@ -133,7 +133,7 @@ def main():
 
     try:
         control.run()
-    except ( KeyboardInterrupt, rospy.Exceptions.ROSInterruptException ) as e:
+    except KeyboardInterrupt as e:
         print "Shutting down"
 
 if __name__  == '__main__':
