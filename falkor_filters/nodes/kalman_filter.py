@@ -61,7 +61,7 @@ class KalmanFilter:
             self.prior_cov = F * self.posterior_cov * F.T + self.transition_cov
         except ValueError as e:
             rospy.logwarn( "Exception in matrix multiply %s x %s" % (
-                    str( F ), str( self.posterior_state )
+                    str( F ), str( self.posterior_state ) ) )
 
     def I( self ):
         return np.asmatrix( np.identity( 9 ) )
