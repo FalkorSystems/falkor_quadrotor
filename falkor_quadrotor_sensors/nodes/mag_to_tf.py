@@ -14,7 +14,7 @@ class FalkorMagToTf:
     def __init__( self ):
         self.reference_heading = rospy.get_param( "~referenceHeading", 0 )
         self.declination = rospy.get_param( "~declination", -13.083 )
-        self.world_frame = rospy.get_param( "~world_frame", '/nav' )
+        self.world_frame = rospy.get_param( "~world_frame", '/map' )
         self.magnetic_field_frame = rospy.get_param( "~magnetic_field_frame", self.world_frame + "/magnet" )
 
         self.ref_head_rad = self.to_rad( self.reference_heading )

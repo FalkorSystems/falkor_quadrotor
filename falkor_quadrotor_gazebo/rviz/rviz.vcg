@@ -8,16 +8,16 @@ Beacon.Robot\ Description=/beacon/robot_description
 Beacon.TF\ Prefix=/beacon
 Beacon.Update\ Interval=0
 Beacon.Visual\ Enabled=1
-Camera\ Config=0.134796 3.9554 13.8863 0 0 0
+Camera\ Config=0.434796 5.1354 13.8863 0 0 0
 Camera\ Type=rviz::XYOrbitViewController
-Camera.Enabled=1
+Camera.Enabled=0
 Camera.Image\ Rendering=background & overlay
 Camera.Image\ Topic=/robot/front_cam/camera/image
 Camera.Overlay\ Alpha=0.5
 Camera.Queue\ Size=2
 Camera.Transport\ Hint=raw
 Camera.Zoom\ Factor=1
-Fixed\ Frame=/nav
+Fixed\ Frame=/map
 Grid.Alpha=0.5
 Grid.Cell\ Size=1
 Grid.ColorB=0.5
@@ -73,9 +73,9 @@ Pose.Shaft\ Length=1
 Pose.Shaft\ Radius=0.1
 Pose.Shape=0
 Pose.Topic=/navigate/robot/target_pose
-Property\ Grid\ Splitter=1,1
+Property\ Grid\ Splitter=1158,78
 Property\ Grid\ State=expanded=.Global Options,PointCloud.Enabled;splitterratio=0.5
-QMainWindow=000000ff00000000fd0000000300000000000004be00000509fc0200000002fc0000001d000005090000001900fffffffa000000010100000002fb0000000a005600690065007700730000000000ffffffff0000013100fffffffb0000000c00430061006d0065007200610100000000000004be0000004f00fffffffb000000100044006900730070006c006100790073000000001d0000026d000000ee00ffffff0000000100000131000003d8fc0200000002fb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000055f000000370000013100000120fb0000001200530065006c0065006300740069006f006e020000055f00000204000001310000019c00000003000009bf0000005cfc0100000001fb0000000800540069006d00650100000000000009bf000002bf00ffffff000004fb0000050900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+QMainWindow=000000ff00000000fd0000000300000000000002e100000526fc0200000002fc00000000000005260000000000fffffffaffffffff0100000002fb0000000a005600690065007700730000000000ffffffff0000013100fffffffb0000000c00430061006d0065007200610000000000000004be0000004f00fffffffb000000100044006900730070006c006100790073010000000000000526000000ee00ffffff0000000100000131000003d8fc0200000002fb0000001e0054006f006f006c002000500072006f0070006500720074006900650073020000055f000000370000013100000120fb0000001200530065006c0065006300740069006f006e020000055f00000204000001310000019c00000003000009bf0000005cfc0100000001fb0000000800540069006d00650100000000000009bf000002bf00ffffff000006d80000052600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
 Quad.Alpha=1
 Quad.Collision\ Enabled=0
 Quad.Enabled=1
@@ -136,12 +136,8 @@ Name=PointCloud
 ClassName=rviz::CameraDisplay
 Name=Camera
 [TF.Frames.]
-nav.Enabled=0
+map.Enabled=1
 [TF.Frames./beacon]
-base_footprint.Enabled=0
-base_link.Enabled=0
-base_position.Enabled=1
-base_stabilized.Enabled=0
 [TF.Frames./beacon/ground_truth]
 base_footprint.Enabled=0
 base_link.Enabled=0
@@ -150,8 +146,8 @@ base_stabilized.Enabled=0
 [TF.Frames./beacon/pf]
 base_footprint.Enabled=0
 base_position.Enabled=1
-[TF.Frames./nav]
-magnet.Enabled=0
+[TF.Frames./map]
+magnet.Enabled=1
 [TF.Frames./robot]
 base_footprint.Enabled=0
 base_link.Enabled=1
@@ -183,7 +179,7 @@ Config=54.7356 0 0 0
 Target=<Fixed Frame>
 Type=rviz::FixedOrientationOrthoViewController
 [Window]
-Height=1416
-Width=2495
+Height=1452
+Width=2511
 X=72
 Y=24
