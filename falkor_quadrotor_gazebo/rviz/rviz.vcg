@@ -33,35 +33,6 @@ Grid.OffsetZ=0
 Grid.Plane=0
 Grid.Plane\ Cell\ Count=10
 Grid.Reference\ Frame=<Fixed Frame>
-PointCloud..AxisColorAutocompute\ Value\ Bounds=1
-PointCloud..AxisColorAxis=2
-PointCloud..AxisColorMax\ Value=10
-PointCloud..AxisColorMin\ Value=-10
-PointCloud..AxisColorUse\ Fixed\ Frame=1
-PointCloud..FlatColorColorB=1
-PointCloud..FlatColorColorG=1
-PointCloud..FlatColorColorR=1
-PointCloud..IntensityAutocompute\ Intensity\ Bounds=1
-PointCloud..IntensityChannel\ Name=intensity
-PointCloud..IntensityMax\ ColorB=1
-PointCloud..IntensityMax\ ColorG=1
-PointCloud..IntensityMax\ ColorR=1
-PointCloud..IntensityMax\ Intensity=4096
-PointCloud..IntensityMin\ ColorB=0
-PointCloud..IntensityMin\ ColorG=0
-PointCloud..IntensityMin\ ColorR=0
-PointCloud..IntensityMin\ Intensity=0
-PointCloud..IntensityUse\ full\ RGB\ spectrum=1
-PointCloud.Alpha=0.1
-PointCloud.Billboard\ Size=0.1
-PointCloud.Color\ Transformer=Intensity
-PointCloud.Decay\ Time=0
-PointCloud.Enabled=1
-PointCloud.Position\ Transformer=XYZ
-PointCloud.Queue\ Size=10
-PointCloud.Selectable=1
-PointCloud.Style=2
-PointCloud.Topic=/beacon/pf/point_cloud
 Pose.Alpha=1
 Pose.ColorB=0
 Pose.ColorG=0.1
@@ -130,9 +101,6 @@ Name=Quad
 ClassName=rviz::RobotModelDisplay
 Name=Beacon
 [Display5]
-ClassName=rviz::PointCloudDisplay
-Name=PointCloud
-[Display6]
 ClassName=rviz::CameraDisplay
 Name=Camera
 [TF.Frames.]
@@ -147,9 +115,6 @@ base_footprint.Enabled=0
 base_link.Enabled=0
 base_position.Enabled=0
 base_stabilized.Enabled=0
-[TF.Frames./beacon/pf]
-base_footprint.Enabled=0
-base_position.Enabled=1
 [TF.Frames./map]
 magnet.Enabled=1
 [TF.Frames./robot]
@@ -183,7 +148,7 @@ Config=54.7356 0 0 0
 Target=<Fixed Frame>
 Type=rviz::FixedOrientationOrthoViewController
 [Window]
-Height=1416
-Width=2495
+Height=1452
+Width=2511
 X=71
 Y=-4
