@@ -14,7 +14,7 @@ class FalkorCombineGpsImu:
     def __init__( self ):
         self.gps_topic = rospy.get_param( "~gps_fix_topic", "fix_m/state" )
         self.imu_topic = rospy.get_param( "~imu_topic", "imu/data" )
-        self.world_frame = rospy.get_param( "~world_frame", "/nav" )
+        self.world_frame = rospy.get_param( "~world_frame", "/map" )
         self.gravity = rospy.get_param( "~gravity", 9.82 )
 
         self.pose_pub = rospy.Publisher( "raw/pose", PoseWithCovarianceStamped )

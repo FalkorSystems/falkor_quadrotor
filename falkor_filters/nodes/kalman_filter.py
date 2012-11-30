@@ -56,8 +56,12 @@ class KalmanFilter:
     # generic prediction step
     def predict( self, dt ):
         F = self.F( dt )
-        self.prior_state = F * self.posterior_state 
-        self.prior_cov = F * self.posterior_cov * F.T + self.transition_cov
+        try:
+            self.prior_state = F * self.posterior_state 
+            self.prior_cov = F * self.posterior_cov * F.T + self.transition_cov
+        except ValueError as e:
+            rospy.logwarn( "Exception in matrix multiply %s x %s" % (
+                    str( F ), str( self.posterior_state ) ) )
 
     def I( self ):
         return np.asmatrix( np.identity( 9 ) )

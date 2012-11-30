@@ -36,7 +36,7 @@ class FalkorGpsToMeters:
         self.vel_pub = rospy.Publisher( self.fix_topic + "_m/twist", TwistWithCovarianceStamped )
         self.state_pub = rospy.Publisher( self.fix_topic  + "_m/state", Odometry )
 
-        self.world_frame = rospy.get_param( "~world_frame", "/nav" )
+        self.world_frame = rospy.get_param( "~world_frame", "/map" )
 
         self.fix_seq = 0
         self.vel_seq = 0

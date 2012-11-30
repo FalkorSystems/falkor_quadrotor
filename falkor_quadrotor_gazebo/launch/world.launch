@@ -8,7 +8,7 @@
 
   <node pkg="falkor_quadrotor_sensors" name="mag_to_tf" type="mag_to_tf.py">
     <param name="declination" value="-13.083" />
-    <param name="world_frame" value="/nav" />
+    <param name="world_frame" value="/map" />
   </node>
 
   <group if="$(arg rviz)">

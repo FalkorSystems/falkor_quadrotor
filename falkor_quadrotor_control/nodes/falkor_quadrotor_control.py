@@ -7,6 +7,7 @@ import pid
 import tf
 from geometry_msgs.msg import *
 from std_srvs.srv import *
+from falkor_msgs.msg import *
 
 class FalkorQuadrotorControl:
     def __init__( self ):
