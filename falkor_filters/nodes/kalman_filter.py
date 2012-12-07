@@ -13,33 +13,34 @@ import tf
 
 class KalmanFilter:
     def __init__( self ):
+        # Starting out we have no idea what the deal is
         self.prior_state = np.asmatrix( np.zeros( ( 9, 1 ) ) )
-        self.prior_cov = np.asmatrix( np.identity( 9 ) )
+        self.prior_cov = np.asmatrix( np.identity( 9 ) * 100 )
     
-        self.posterior_state = np.asmatrix( np.zeros( ( 9, 1 ) ) )
-        self.posterior_cov = np.asmatrix( np.identity( 9 ) )
+        self.posterior_state = self.prior_state
+        self.posterior_cov = self.prior_cov
 
-        # TODO: configure transition covariances
-        # We should make the variances around acceleration
-        # fairly large here
-        self.transition_cov = np.asmatrix( np.identity( 9 ) )
+        # the variance around position and velocity should be fairly low 
+        # because those are pretty deterministic
+        # it should be higher around acceleration
+        # ( pos stddev = 10cm, vel stddev = 10cm/s, accel stddev = ( 10, 10, 10 ) m/s2)
+        self.transition_cov = np.asmatrix( np.diag( np.append( np.ones( 6 ) * 0.01, np.ones( 3 ) * 5 ) ) )
 
     # Build transition matrix for a time interval dt
     def F( self, dt ):
         id_6 = np.identity( 6 )
         dt_6 = id_6 * dt
         zeros_63 = np.zeros( ( 6, 3 ) )
-        zeros_39 = np.zeros( ( 3, 9 ) )
+        zeros_36 = np.zeros( ( 3, 6 ) )
 
-        return np.asmatrix( np.vstack( ( np.hstack( ( id_6, zeros_63 ) ) +
-                                         np.hstack( ( zeros_63, dt_6 ) ),
-                                         zeros_39 ) ) )
+        return np.asmatrix( np.vstack( ( np.hstack( ( id_6, zeros_63 ) ) + np.hstack( ( zeros_63, dt_6 ) ),
+                                         np.hstack( ( zeros_36, np.identity( 3 ) ) ) ) ) )
 
     # measurement matrix for gps
     def H_gps( self ):
-        id_3 = np.identity( 3 )
-        zeros_36 = np.zeros( ( 3, 6 ) )
-        return np.asmatrix( np.hstack( ( id_3, zeros_36 ) ) )
+        id_6 = np.identity( 6 )
+        zeros_63 = np.zeros( ( 6, 3 ) )
+        return np.asmatrix( np.hstack( ( id_6, zeros_63 ) ) )
 
     # measurement matrix for baro & sonar
     def H_zdot( self ):
@@ -72,6 +73,9 @@ class KalmanFilter:
         innovation_cov = H * self.prior_cov * H.T + measurement_cov
         kalman_gain = self.prior_cov * H.T * np.linalg.inv( innovation_cov )
         self.posterior_state = self.prior_state + kalman_gain * innovation
+        if self.posterior_state.shape != ( 9, 1 ):
+            import pdb; pdb.set_trace()
+
         self.posterior_cov = ( self.I() - kalman_gain * H ) * self.prior_cov
 
         return( self.posterior_state, self.posterior_cov )
@@ -126,7 +130,7 @@ class Filter:
         # TODO: Configure proper covariances
         self.sonar_zdot_cov = np.matrix( 0.1 )
         self.baro_zdot_cov = np.matrix( 5 )
-        self.imu_cov = np.asmatrix( np.identity( 3 ) )
+        self.imu_cov = np.asmatrix( np.identity( 3 ) ) * 0.1
 
     def get_dt( self, now ):
         # ignore the stamp
@@ -149,14 +153,22 @@ class Filter:
         if dt < 0:
             return
         
-        gps_position = np.matrix( [ data.pose.pose.position.x, 
-                                    data.pose.pose.position.y,
-                                    data.pose.pose.position.z ] ).T
+        gps_data = np.matrix( [ data.pose.pose.position.x, 
+                                data.pose.pose.position.y,
+                                data.pose.pose.position.z,
+                                data.twist.twist.linear.x,
+                                data.twist.twist.linear.y,
+                                data.twist.twist.linear.z ] ).T
 
-        gps_cov = np.matrix( data.pose.covariance ).reshape( ( 6, 6 ) )[:3,:3]
+        gps_pos_cov = np.matrix( data.pose.covariance ).reshape( ( 6, 6 ) )[:3,:3]
+        gps_vel_cov = np.matrix( data.twist.covariance ).reshape( ( 6, 6 ) )[:3,:3]
 
-        res = self.filter.update_gps( gps_position, gps_cov, dt )
-        self.publish_state( res, data.header.stamp )
+        zeros_33 = np.asmatrix( np.zeros( ( 3, 3 ) ) )
+        gps_cov = np.vstack( ( np.hstack( ( gps_pos_cov, zeros_33 ) ),
+                               np.hstack( ( zeros_33, gps_vel_cov ) ) ) )
+
+        res = self.filter.update_gps( gps_data, gps_cov, dt )
+        self.publish_state( res, rospy.Time.now() )
 
     def imu_cb( self, data ):
 #        print "imu stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
@@ -169,7 +181,7 @@ class Filter:
                                 data.vector.y,
                                 data.vector.z ] ).T
         res = self.filter.update_imu( imu_data, self.imu_cov, dt )
-        self.publish_state( res, data.header.stamp )
+        self.publish_state( res, rospy.Time.now() )
 
     def baro_cb( self, data ):
 #        print "baro stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
@@ -193,7 +205,7 @@ class Filter:
             baro_zdot = np.matrix( dz/baro_dt )
 
             res = self.filter.update_zdot( baro_zdot, self.baro_zdot_cov, dt )
-            self.publish_state( res, data.header.stamp )
+            self.publish_state( res, rospy.Time.now() )
 
     def publish_state( self, res, timestamp ):
         state = Odometry()
@@ -275,7 +287,7 @@ class Filter:
                     sonar_zdot = np.matrix( dz/sonar_dt )
 #                    print "sonar_zdot %6.1f" % sonar_zdot
                     res = self.filter.update_zdot( sonar_zdot, self.sonar_zdot_cov, dt )
-                    self.publish_state( res, data.header.stamp )
+                    self.publish_state( res, rospy.Time.now() )
     def run(self):
         rospy.spin()
     

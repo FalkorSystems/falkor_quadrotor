@@ -60,7 +60,7 @@ class FalkorGpsToMeters:
 
         # Let this be parameterizable, for now default to 5m in every direction
         # this is in NWU coordinates, not geodetic
-        self.default_fix_covariance = np.diag( ( 25, 25, 25 ) )
+        self.default_fix_covariance = np.diag( ( .05, .05, .05 ) )
 
         # likewise, 0.5 m/s in every direction
         self.default_vel_covariance = np.diag( ( 0.25, 0.25, 0.25 ) )
