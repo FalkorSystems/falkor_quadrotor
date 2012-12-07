@@ -1,0 +1,16 @@
+<package>
+  <description brief="falkor_bringup">
+
+     falkor_bringup
+
+  </description>
+  <author>Demo User</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/falkor_bringup</url>
+  <depend package="falkor_drivers" />
+  <depend package="falkor_quadrotor_sensors" />
+
+</package>
+
+
