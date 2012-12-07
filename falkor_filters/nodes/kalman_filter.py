@@ -6,7 +6,7 @@ from nav_msgs.msg import *
 from sensor_msgs.msg import *
 from geometry_msgs.msg import *
 from std_msgs.msg import *
-from hector_uav_msgs.msg import *
+from falkor_msgs.msg import *
 
 import numpy as np
 import tf
