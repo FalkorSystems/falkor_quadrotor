@@ -19,6 +19,8 @@ class FalkorControlPwm:
         self.linear_y_pid = pid.PidController( 1, 0, 0 )
         self.linear_z_pid = pid.PidController( 1, 0, 0 )
 
+	self.listener = tf.TransformListener()
+
         self.pwm_pub = rospy.Publisher( "pwm_cmd", Pwm )
 
         self.on_service = rospy.Service( 'on', Empty, self.turn_on )
