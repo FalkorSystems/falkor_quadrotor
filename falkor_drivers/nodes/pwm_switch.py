@@ -13,8 +13,9 @@ class PwmSwitch:
         self.pwm_cmd_topic = rospy.get_param( "~pwm_cmd_topic", "pwm_cmd" )
         self.pwm_out_topic = rospy.get_param( "~pwm_out_topic", "pwm_out" )
 
-        self.pwm_cmd = Pwm([0] * 5)
-        self.pwm_in = Pwm([0] * 5)
+        # 7 channels - 4 for control, 1 for switch, 2 for gimbal control
+        self.pwm_cmd = Pwm([1500] * 7)
+        self.pwm_in = Pwm([1500] * 7)
 
 	# Chan 5 fix is what we use to set the control mode switch
 	# for the DJI Naza 1870 means GPS
