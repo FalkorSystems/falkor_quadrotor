@@ -9,7 +9,6 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/falkor_filters</url>
   <depend package="falkor_msgs" />
-  <depend package="hector_uav_msgs" />
   <depend package="sensor_msgs" />
   <depend package="nav_msgs" />
   <depend package="tf" />
