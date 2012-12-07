@@ -27,20 +27,22 @@ class PwmSwitch:
 
     def pwm_in_cb(self, data):
         self.pwm_in.pwm = list( data.pwm )
-	self.pwm_in.pwm[4] = self.chan_5_fix
 
     def pwm_cmd_cb(self, data):
         self.pwm_cmd.pwm = list( data.pwm )
-	self.pwm_cmd.pwm[4] = self.chan_5_fix
 
     def run(self):
         while not rospy.is_shutdown():
             if self.pwm_in == None:
                 pass
             elif self.pwm_in.pwm[4] > 1500:            
-                self.pwm_out_pub.publish( self.pwm_in )
+		pwm_out = self.pwm_in
+		pwm_out.pwm[4] = self.chan_5_fix
+                self.pwm_out_pub.publish( pwm_out )
             else:
-                self.pwm_out_pub.publish( self.pwm_cmd )
+		pwm_out = self.pwm_cmd
+		pwm_out.pwm[4] = self.chan_5_fix
+                self.pwm_out_pub.publish( pwm_out )
             self.rate.sleep()
 
 def main():
