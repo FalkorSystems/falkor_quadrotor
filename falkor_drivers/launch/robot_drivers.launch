@@ -5,4 +5,7 @@
   <!-- PWM -->
   <node name="pwm_io_driver" type="pwm_io_driver.py" pkg="falkor_drivers" />
   <node name="pwm_switch" type="pwm_switch.py" pkg="falkor_drivers" />
+
+  <!-- PWM Controller -->
+  <node name="falkor_control_pwm" type="falkor_control_pwm.py" pkg="falkor_quadrotor_control" />
 </launch>

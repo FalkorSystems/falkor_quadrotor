@@ -9,7 +9,6 @@
     <arg name="joy_dev" value="$(arg joy_dev)" />
   </include>
 
-  <node type="falkor_quadrotor_takeoffland.py" pkg="falkor_quadrotor_control" name="falkor_quadrotor_takeoffland" />
-
-  <include file="$(find falkor_quadrotor_gazebo)/launch/imu_gps_tools.launch" />
+  <include file="$(find falkor_quadrotor_control)/launch/robot.launch" />
+  <include file="$(find falkor_quadrotor_sensors)/launch/imu_gps_tools.launch" />
 </launch>

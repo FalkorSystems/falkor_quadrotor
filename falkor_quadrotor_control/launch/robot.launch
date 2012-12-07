@@ -1,0 +1,6 @@
+<launch>
+
+  <!-- Takeoff/land -->
+  <node pkg="falkor_quadrotor_control" name="falkor_control_takeoffland" type="falkor_control_takeoffland.py" />
+
+</launch>

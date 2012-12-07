@@ -6,4 +6,4 @@
     <arg name="joy_dev" value="$(arg joy_dev)" />
   </include>
 
-  <include file="$(find falkor_quadrotor_gazebo)/launch/imu_gps_tools.launch" /></launch>
+  <include file="$(find falkor_quadrotor_sensors)/launch/imu_gps_tools.launch" /></launch>

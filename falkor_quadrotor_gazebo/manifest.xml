@@ -8,8 +8,15 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/falkor_quadrotor_gazebo</url>
+  <depend package="gazebo" />
+  <depend package="roscpp" />
   <depend package="hector_quadrotor_gazebo"/>
   <depend package="falkor_quadrotor_sensors"/>
+
+  <export>
+    <cpp cflags="-I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib" />
+    <gazebo plugin_path="${prefix}/lib" />
+  </export>
 </package>
 
 

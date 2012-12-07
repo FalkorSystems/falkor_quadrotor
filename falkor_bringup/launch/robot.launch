@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find falkor_drivers)/launch/robot.launch" />
+  <include file="$(find falkor_quadrotor_sensors)/launch/imu_gps_tools.launch" />
+  <include file="$(find falkor_quadrotor_control)/launch/robot.launch" />
+</launch>
