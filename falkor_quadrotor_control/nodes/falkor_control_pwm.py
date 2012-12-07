@@ -11,6 +11,8 @@ from falkor_msgs.msg import *
 
 class FalkorControlPwm:
     def __init__( self ):
+        self.on = False
+
         self.angular_z_pid = pid.PidController( 1, 0, 0 )
         self.linear_x_pid = pid.PidController( 1, 0, 0 )
         self.linear_y_pid = pid.PidController( 1, 0, 0 )
@@ -18,13 +20,16 @@ class FalkorControlPwm:
 
         self.pwm_pub = rospy.Publisher( "pwm_cmd", Pwm )
 
-        self.throttle_channel = rospy.get_param( "~throttle_channel", 1 )
-        self.yaw_channel = rospy.get_param( "~yaw_channel", 2 )
-        self.pitch_channel = rospy.get_param( "~pitch_channel", 3 )
-        self.roll_channel = rospy.get_param( "~roll_channel", 4 )
+        self.on_service = rospy.Service( 'on', Empty, self.on )
+        self.off_service = rospy.Service( 'off', Empty, self.off )
 
-        self.gimbal_roll_channel = rospy.get_param( "~gimbal_pitch_channel", 5 )
-        self.gimbal_pitch_channel = rospy.get_param( "~gimbal_roll_channel", 6 )
+        self.throttle_channel = rospy.get_param( "~throttle_channel", 3 )
+        self.yaw_channel = rospy.get_param( "~yaw_channel", 4 )
+        self.pitch_channel = rospy.get_param( "~pitch_channel", 2 )
+        self.roll_channel = rospy.get_param( "~roll_channel", 1 )
+
+        self.gimbal_roll_channel = rospy.get_param( "~gimbal_pitch_channel", 6 )
+        self.gimbal_pitch_channel = rospy.get_param( "~gimbal_roll_channel", 7 )
 
         self.num_channels = max( self.throttle_channel,
                                  self.yaw_channel,
@@ -53,6 +58,52 @@ class FalkorControlPwm:
         self.cmd_gimbal_sub = rospy.Subscriber( "cmd_gimbal", Gimbal, self.cmd_gimbal_cb )
         self.state_sub = rospy.Subscriber( "state", Odometry, self.state_cb )
 
+
+    def on( self, req ):
+        if self.on:
+            return EmptyResponse()
+
+        pwm_cmd = Pwm( [ 0 ] * self.num_channels )
+
+        # DJI on command
+        # Bring the left stick to lower left, the right stick to lower right
+        # Left stick is channels 3 (throttle) and 4 (yaw)
+        # Right stick is channels 2 (pitch) and 1 (roll)
+        # channel 5 we have to send but can be 0
+        pwm_cmd.pwm[self.throttle_channel-1] = 1000
+        pwm_cmd.pwm[self.yaw_channel-1] = 1000
+        pwm_cmd.pwm[self.roll_channel-1] = 2000
+        pwm_cmd.pwm[self.pitch_channel-1] = 1000
+
+        self.pwm_pub.publish( pwm_cmd )
+
+        # Wait a second
+        rospy.sleep( 1 )
+
+        # Return everything to the center
+        pwm_cmd.pwm[self.throttle_channel-1] = 1500
+        pwm_cmd.pwm[self.yaw_channel-1] = 1500
+        pwm_cmd.pwm[self.roll_channel-1] = 1500
+        pwm_cmd.pwm[self.pitch_channel-1] = 1500
+
+        self.pwm_pub.publish( pwm_cmd )
+        self.on = True
+        return EmptyResponse()
+
+    def off( self, req ):
+        if not self.on:
+            return EmptyResponse()
+
+        pwm_cmd = Pwm( [0] * self.num_channels )
+        # Send throttle to 0, everything else to the center
+        pwm_cmd.pwm[self.throttle_channel-1] = 1000
+        pwm_cmd.pwm[self.yaw_channel-1] = 1500
+        pwm_cmd.pwm[self.roll_channel-1] = 1500
+        pwm_cmd.pwm[self.pitch_channel-1] = 1500
+
+        self.pwm_pub.publish( pwm_cmd )
+        return EmptyResponse()
+
     def to_pwm( self, value, min_value = -100, max_value = 100 ):
         # convert a float from -100 to 100 into an int from pwm_min to pwm_max
 
@@ -71,6 +122,9 @@ class FalkorControlPwm:
 
     def state_cb( self, data ):
         self.state = data
+
+    def wait_for_on( self ):
+        self.last_time = rospy.Time.now()
 
     def control( self ):
         now = rospy.Time.now()
@@ -123,7 +177,11 @@ class FalkorControlPwm:
 
     def run( self ):
         while not rospy.is_shutdown():
-            self.control()
+            if self.on:
+                self.control()
+            else:
+                self.wait_for_on()
+
             self.rate.sleep()
 
 
