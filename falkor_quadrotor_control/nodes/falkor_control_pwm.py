@@ -41,7 +41,7 @@ class FalkorControlPwm:
         self.cmd_vel = Twist()
         self.cmd_gimbal = Gimbal()
         self.state = Odometry()
-        self.pwm_msg = Pwm( [0]*self.num_channels )
+        self.pwm_msg = Pwm( [1500]*self.num_channels )
 
         self.frame_id = rospy.get_param( "~frameId", "base_link" )
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
@@ -63,7 +63,7 @@ class FalkorControlPwm:
         if self.on:
             return EmptyResponse()
 
-        pwm_cmd = Pwm( [ 0 ] * self.num_channels )
+        pwm_cmd = Pwm( [1500] * self.num_channels )
 
         # DJI on command
         # Bring the left stick to lower left, the right stick to lower right
@@ -94,7 +94,7 @@ class FalkorControlPwm:
         if not self.on:
             return EmptyResponse()
 
-        pwm_cmd = Pwm( [0] * self.num_channels )
+        pwm_cmd = Pwm( [1500] * self.num_channels )
         # Send throttle to 0, everything else to the center
         pwm_cmd.pwm[self.throttle_channel-1] = 1000
         pwm_cmd.pwm[self.yaw_channel-1] = 1500
