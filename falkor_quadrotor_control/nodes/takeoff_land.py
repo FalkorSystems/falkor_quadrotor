@@ -9,7 +9,7 @@ from geometry_msgs.msg import *
 from std_srvs.srv import *
 import tf
 
-class FalkorQuadrotorTakeoffLand:
+class TakeoffLand:
     def __init__( self ):
         self.ground_height = rospy.get_param( "~ground_height", 0.15 )
         self.takeoff_height = rospy.get_param( "~takeoff_height", 2.0 )
@@ -101,8 +101,8 @@ class FalkorQuadrotorTakeoffLand:
         rospy.spin()
         
 def main():
-    rospy.init_node('falkor_quadrotor_takeoffland')
-    control = FalkorQuadrotorTakeoffLand()
+    rospy.init_node('takeoff_land')
+    control = TakeoffLand()
 
     try:
         control.run()
