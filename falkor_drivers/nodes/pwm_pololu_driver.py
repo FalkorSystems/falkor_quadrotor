@@ -57,7 +57,7 @@ class PwmOutputDriver:
 
     def pwm_cb(self, data):
         for i in range(0,len(data.pwm)):
-            rospy.logwarn( "sending %d to %d" % ( data.pwm[i], i ) )
+            rospy.logdebug( "sending %d to %d" % ( data.pwm[i], i ) )
             self.pololu.set_pos( i, data.pwm[i] )
 
     def run(self):
