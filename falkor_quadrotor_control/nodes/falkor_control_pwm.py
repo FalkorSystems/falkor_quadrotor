@@ -29,8 +29,8 @@ class FalkorControlPwm:
         self.pitch_channel = rospy.get_param( "~pitch_channel", 2 )
         self.roll_channel = rospy.get_param( "~roll_channel", 1 )
 
-        self.gimbal_roll_channel = rospy.get_param( "~gimbal_pitch_channel", 6 )
-        self.gimbal_pitch_channel = rospy.get_param( "~gimbal_roll_channel", 7 )
+        self.gimbal_pitch_channel = rospy.get_param( "~gimbal_pitch_channel", 6 )
+        self.gimbal_roll_channel = rospy.get_param( "~gimbal_roll_channel", 7 )
 
         self.num_channels = max( self.throttle_channel,
                                  self.yaw_channel,

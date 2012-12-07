@@ -23,7 +23,7 @@ class FalkorQuadrotorTakeoffLand:
         self.on_service = rospy.ServiceProxy( "on", Empty )
 
         rospy.wait_for_service( "off" )
-        self.off_service = rospy.ServiceProxy( "off", Empty, self.takeoff )
+        self.off_service = rospy.ServiceProxy( "off", Empty )
 
         self.takeoff_service = rospy.Service( "takeoff", Empty, self.takeoff )
         self.land_service = rospy.Service( "land", Empty, self.land )
