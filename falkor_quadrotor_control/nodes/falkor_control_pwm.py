@@ -21,8 +21,8 @@ class FalkorControlPwm:
 
         self.pwm_pub = rospy.Publisher( "pwm_cmd", Pwm )
 
-        self.on_service = rospy.Service( 'on', Empty, self.on )
-        self.off_service = rospy.Service( 'off', Empty, self.off )
+        self.on_service = rospy.Service( 'on', Empty, self.turn_on )
+        self.off_service = rospy.Service( 'off', Empty, self.turn_off )
 
         self.throttle_channel = rospy.get_param( "~throttle_channel", 3 )
         self.yaw_channel = rospy.get_param( "~yaw_channel", 4 )
@@ -60,7 +60,7 @@ class FalkorControlPwm:
         self.state_sub = rospy.Subscriber( "state", Odometry, self.state_cb )
 
 
-    def on( self, req ):
+    def turn_on( self, req ):
         if self.on:
             return EmptyResponse()
 
@@ -88,10 +88,11 @@ class FalkorControlPwm:
         pwm_cmd.pwm[self.pitch_channel-1] = 1500
 
         self.pwm_pub.publish( pwm_cmd )
+
         self.on = True
         return EmptyResponse()
 
-    def off( self, req ):
+    def turn_off( self, req ):
         if not self.on:
             return EmptyResponse()
 
@@ -103,6 +104,8 @@ class FalkorControlPwm:
         pwm_cmd.pwm[self.pitch_channel-1] = 1500
 
         self.pwm_pub.publish( pwm_cmd )
+
+        self.on = False
         return EmptyResponse()
 
     def to_pwm( self, value, min_value = -100, max_value = 100 ):
