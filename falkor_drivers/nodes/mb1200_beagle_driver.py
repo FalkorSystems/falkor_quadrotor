@@ -9,7 +9,7 @@ from sensor_msgs.msg import *
 from std_msgs.msg import *
 
 class Mb1200Driver:
-    def __init__(self, pin=0):
+    def __init__(self, pin=1):
         self.file = '/sys/devices/platform/omap/tsc/ain' + str( pin + 1 )
 
         self.sonar_topic = rospy.get_param( "~sonar_topic", "sonar" )

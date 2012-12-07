@@ -13,9 +13,12 @@ class PwmSwitch:
         self.pwm_cmd_topic = rospy.get_param( "~pwm_cmd_topic", "pwm_cmd" )
         self.pwm_out_topic = rospy.get_param( "~pwm_out_topic", "pwm_out" )
 
-        self.pwm_cmd = None
-        self.pwm_in = None
+        self.pwm_cmd = Pwm([0] * 5)
+        self.pwm_in = Pwm([0] * 5)
 
+	# Chan 5 fix is what we use to set the control mode switch
+	# for the DJI Naza 1870 means GPS
+	self.chan_5_fix = rospy.get_param( "~chan_five_fix", 1870 )
         self.rate = rospy.Rate(50)
 
         self.pwm_out_pub = rospy.Publisher( self.pwm_out_topic, Pwm )
@@ -23,19 +26,23 @@ class PwmSwitch:
         self.pwm_cmd_sub = rospy.Subscriber( self.pwm_cmd_topic, Pwm, self.pwm_cmd_cb )
 
     def pwm_in_cb(self, data):
-        self.pwm_in = data
+        self.pwm_in.pwm = list( data.pwm )
 
     def pwm_cmd_cb(self, data):
-        self.pwm_cmd = data
+        self.pwm_cmd.pwm = list( data.pwm )
 
     def run(self):
         while not rospy.is_shutdown():
             if self.pwm_in == None:
                 pass
             elif self.pwm_in.pwm[4] > 1500:            
-                self.pwm_out_pub.publish( self.pwm_in )
+		pwm_out = self.pwm_in
+		pwm_out.pwm[4] = self.chan_5_fix
+                self.pwm_out_pub.publish( pwm_out )
             else:
-                self.pwm_out_pub.publish( self.pwm_cmd )
+		pwm_out = self.pwm_cmd
+		pwm_out.pwm[4] = self.chan_5_fix
+                self.pwm_out_pub.publish( pwm_out )
             self.rate.sleep()
 
 def main():
