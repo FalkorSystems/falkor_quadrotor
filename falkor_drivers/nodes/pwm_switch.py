@@ -34,16 +34,23 @@ class PwmSwitch:
 
     def run(self):
         while not rospy.is_shutdown():
-            if self.pwm_in == None:
-                pass
-            elif self.pwm_in.pwm[4] > 1500:            
-		pwm_out = self.pwm_in
-		pwm_out.pwm[4] = self.chan_5_fix
-                self.pwm_out_pub.publish( pwm_out )
-            else:
-		pwm_out = self.pwm_cmd
-		pwm_out.pwm[4] = self.chan_5_fix
-                self.pwm_out_pub.publish( pwm_out )
+            try:
+                if self.pwm_in == None:
+                    pass
+                elif self.pwm_in.pwm[4] > 1500:            
+                    pwm_out = self.pwm_in
+                    pwm_out.pwm[4] = self.chan_5_fix
+                    self.pwm_out_pub.publish( pwm_out )
+                else:
+                    pwm_out = self.pwm_cmd
+                    pwm_out.pwm[4] = self.chan_5_fix
+                    self.pwm_out_pub.publish( pwm_out )
+            except IndexError as e:
+                rospy.logwarn( "IndexError: %s pwm input invalid: pwm_in/pwm_cmd: %s/%s" % ( e,
+                                                                                             str(self.pwm_in),
+                                                                                             str(self.pwm_cmd)
+                                                                                             ) )
+
             self.rate.sleep()
 
 def main():
