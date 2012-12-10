@@ -12,7 +12,7 @@ class Mb1200Driver:
     def __init__(self, pin=1):
         self.file = '/sys/devices/platform/omap/tsc/ain' + str( pin + 1 )
 
-        self.sonar_topic = rospy.get_param( "~sonar_topic", "sonar" )
+        self.sonar_topic = rospy.get_param( "~sonar_topic", "sonar_height" )
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
         self.sonar_frame = self.tf_prefix + "/" + rospy.get_param( "~sonar_frame", "sonar_link" )
         self.range_pub = rospy.Publisher( self.sonar_topic, Range )
