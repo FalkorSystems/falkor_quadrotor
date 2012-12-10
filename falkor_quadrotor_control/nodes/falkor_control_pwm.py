@@ -9,6 +9,7 @@ from geometry_msgs.msg import *
 from std_srvs.srv import *
 from falkor_msgs.msg import *
 from nav_msgs.msg import *
+from sensor_msgs.msg import *
 
 class FalkorControlPwm:
     def __init__( self ):
