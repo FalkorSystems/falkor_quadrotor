@@ -23,7 +23,10 @@ class PwmInputDriver:
             rospy.logwarn( "Invalid pwm data line: "  + str(e) )
         else:
             pwm_msg = Pwm( pwm_data )
-            self.pwm_pub.publish( pwm_msg )
+            try:
+                self.pwm_pub.publish( pwm_msg )
+            except rospy.exceptions.ROSSerializationException as e:
+                rospy.logwarn( "while publishing %s: %s" % ( pwm_msg, str(e) ) )
 
     def run(self):
         while not rospy.is_shutdown():
