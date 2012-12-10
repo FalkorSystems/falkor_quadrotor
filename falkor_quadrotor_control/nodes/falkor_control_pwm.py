@@ -183,12 +183,13 @@ class FalkorControlPwm:
             self.cmd_gimbal.pitch, -np.pi/2, np.pi/2 )
 
         joint_state = JointState()
-        joint_state.header.stamp = ros::Time::now()
+        joint_state.header.stamp = rospy.Time.now()
         joint_state.name = [ self.gimbal_joint_name_prefix + "pitch",
                              self.gimbal_joint_name_prefix + "roll" ]
         joint_state.position = [ self.cmd_gimbal.pitch,
                                  self.cmd_gimbal.roll ]
 
+        self.joint_state_pub.publish( joint_state )
         self.pwm_pub.publish( self.pwm_msg )
 
     def run( self ):
