@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 
-
  <launch>
    <arg name="model_name" default="quadrotor" />
    <arg name="x_pos" default="0.0" />

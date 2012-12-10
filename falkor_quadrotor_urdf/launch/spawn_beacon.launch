@@ -21,6 +21,11 @@
 
    <include file="$(find falkor_quadrotor_urdf)/launch/for_tf.launch" >
      <arg name="model_name" value="$(arg model_name)" />
+     <arg name="model" value="$(arg model)" />
+   </include>
+
+   <include file="$(find falkor_quadrotor_urdf)/launch/for_tf_gazebo.launch" >
+     <arg name="model_name" value="$(arg model_name)" />
    </include>
 
    <include file="$(find falkor_quadrotor_teleop)/launch/beacon_teleop.launch" >

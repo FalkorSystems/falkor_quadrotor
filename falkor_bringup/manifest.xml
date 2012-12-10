@@ -10,6 +10,7 @@
   <url>http://ros.org/wiki/falkor_bringup</url>
   <depend package="falkor_drivers" />
   <depend package="falkor_quadrotor_sensors" />
+  <depend package="falkor_quadrotor_urdf" />
 
 </package>
 

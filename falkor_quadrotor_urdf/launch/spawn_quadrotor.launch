@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 
-
  <launch>
    <arg name="model" default="$(find falkor_quadrotor_urdf)/urdf/quadrotor.urdf.xacro"/>
    <arg name="model_name" default="quadrotor" />
@@ -8,9 +7,9 @@
    <arg name="y_pos" default="0.0" />
    <arg name="z_pos" default="0.18246" />
 
-   <!-- send the robot XML to param server -->
-   <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
-   
+  <!-- push the robot description to the parameter server -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
+
    <!-- push robot_description to factory and spawn robot in gazebo -->
    <node name="spawn_robot" pkg="gazebo" type="spawn_model"
 	 args="-param robot_description
@@ -22,6 +21,11 @@
 	 respawn="false" output="screen"/>
      
    <include file="$(find falkor_quadrotor_urdf)/launch/for_tf.launch" >
+     <arg name="model_name" value="$(arg model_name)" />
+     <arg name="model" value="$(arg model)" />
+   </include>
+
+   <include file="$(find falkor_quadrotor_urdf)/launch/for_tf_gazebo.launch" >
      <arg name="model_name" value="$(arg model_name)" />
    </include>
 

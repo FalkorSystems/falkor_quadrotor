@@ -9,6 +9,9 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/falkor_quadrotor_urdf</url>
   <depend package="falkor_quadrotor_sensors" />
+  <depend package="xacro" />
+  <depend package="message_to_tf" />
+  <depend package="robot_state_publisher" />
 
 </package>
 
