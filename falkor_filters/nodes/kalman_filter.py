@@ -109,7 +109,7 @@ class Filter:
 
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
 
-        self.world_frame = rospy.get_param( "~world_frame", "/nav" )
+        self.world_frame = rospy.get_param( "~world_frame", "/map" )
 
         self.last_update = None
         self.last_sonar_time = None
