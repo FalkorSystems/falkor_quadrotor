@@ -22,6 +22,9 @@ class FalkorControlPwm:
 	self.listener = tf.TransformListener()
 
         self.pwm_pub = rospy.Publisher( "pwm_cmd", Pwm )
+        self.joint_state_pub = rospy.Publisher( "joint_state", JointState )
+        self.gimbal_joint_name_prefix = rospy.get_param( "~gimbal_joint_name_prefix",
+                                                         "front_cam_" )
 
         self.on_service = rospy.Service( 'on', Empty, self.turn_on )
         self.off_service = rospy.Service( 'off', Empty, self.turn_off )
@@ -178,6 +181,13 @@ class FalkorControlPwm:
             self.cmd_gimbal.roll, -np.pi/2, np.pi/2 )
         self.pwm_msg.pwn[self.gimbal_pitch_channel-1] = self.to_pwm(
             self.cmd_gimbal.pitch, -np.pi/2, np.pi/2 )
+
+        joint_state = JointState()
+        joint_state.header.stamp = ros::Time::now()
+        joint_state.name = [ self.gimbal_joint_name_prefix + "pitch",
+                             self.gimbal_joint_name_prefix + "roll" ]
+        joint_state.position = [ self.cmd_gimbal.pitch,
+                                 self.cmd_gimbal.roll ]
 
         self.pwm_pub.publish( self.pwm_msg )
 
