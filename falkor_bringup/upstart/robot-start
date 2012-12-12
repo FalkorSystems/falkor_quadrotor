@@ -1,0 +1,11 @@
+#!/bin/bash
+
+log_file=/tmp/robot-upstart.log
+DATE=`date`
+
+echo "$DATE: robot-start" >> $log_file
+
+source /opt/ros/fuerte/setup.bash
+source /home/ubuntu/ros/setup.sh
+
+setuidgid ubuntu roslaunch falkor_bringup robot.launch

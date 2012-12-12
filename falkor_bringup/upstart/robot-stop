@@ -1,0 +1,14 @@
+#!/bin/bash
+
+log_file=/tmp/robot-upstart.log
+DATE=`date`
+echo "$DATE: robot-stop" >> $log_file
+
+source /opt/ros/fuerte/setup.bash
+source /home/ubuntu/ros/setup.sh
+
+for i in $( rosnode list ); do
+    rosnode kill $i;
+done
+
+killall roslaunch
