@@ -1,3 +1,5 @@
+<?xml version="1.0" ?>
+
 <launch>
   <!-- SONAR -->
   <node name="mb1200_beagle_driver" type="mb1200_beagle_driver.py" pkg="falkor_drivers" >
@@ -10,4 +12,10 @@
 
   <!-- PWM Controller -->
   <node name="falkor_control_pwm" type="falkor_control_pwm.py" pkg="falkor_quadrotor_control" />
+
+  <!-- NMEA Gps (not rtklib) -->
+  <node name="nmea_gps_driver" type="nmea_gps_driver.py" pkg="nmea_gps_driver" >
+    <param name="port" value="/dev/ttyS2" />
+    <param name="baud" value="115200" />
+  </node>
 </launch>

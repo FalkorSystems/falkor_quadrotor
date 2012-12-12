@@ -13,6 +13,7 @@
   <depend package="std_msgs" />
   <depend package="falkor_msgs" />
   <depend package="joy" />
+  <depend package="nmea_gps_driver" />
 
 </package>
 
