@@ -1,3 +1,4 @@
 #!/bin/sh
-cp robot-start /usr/sbin/robot-start
-cp robot-stop /usr/sbin/robot-stop
+cp robot.conf /etc/init
+cp robot-start /usr/sbin
+cp robot-stop /usr/sbin
