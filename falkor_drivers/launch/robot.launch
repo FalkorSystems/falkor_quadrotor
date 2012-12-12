@@ -15,7 +15,7 @@
 
   <!-- NMEA Gps (not rtklib) -->
   <node name="nmea_gps_driver" type="nmea_gps_driver.py" pkg="nmea_gps_driver" >
-    <param name="port" value="/dev/ttyS2" />
+    <param name="port" value="/dev/ttyO2" />
     <param name="baud" value="115200" />
   </node>
 </launch>
