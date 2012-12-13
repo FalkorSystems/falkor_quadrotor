@@ -27,9 +27,9 @@ public:
     pwm_in_ = falkor_msgs::Pwm::ConstPtr( new falkor_msgs::Pwm( pwm_default ) );
     pwm_cmd_ = falkor_msgs::Pwm::ConstPtr( new falkor_msgs::Pwm( pwm_default ) );
 
-    pwm_out_pub_ = nh_.advertise<falkor_msgs::Pwm>("pwm_out", 1000);
-    pwm_in_sub_ = nh_.subscribe( "pwm_in", 1000, &PwmSwitch::pwmInCallback, this );
-    pwm_cmd_sub_ = nh_.subscribe( "pwm_cmd", 1000, &PwmSwitch::pwmCmdCallback, this );
+    pwm_out_pub_ = nh_.advertise<falkor_msgs::Pwm>("pwm_out", 1);
+    pwm_in_sub_ = nh_.subscribe( "pwm_in", 1, &PwmSwitch::pwmInCallback, this );
+    pwm_cmd_sub_ = nh_.subscribe( "pwm_cmd", 1, &PwmSwitch::pwmCmdCallback, this );
     chan_5_fix_ = 1870;
     timer_ = nh_.createTimer( ros::Duration(0.020), &PwmSwitch::loopOnce, this );
   }
