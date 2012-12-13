@@ -1,9 +1,10 @@
 #include "falkor_drivers/pwm_input.h"
 #include "falkor_drivers/pwm_pololu.h"
+#include "falkor_drivers/pwm_switch.h"
 
 int main(int argc, char**argv)
 {
-  ros::init(argc, argv, "PwmInput");
+  ros::init(argc, argv, "pwm_io");
   ros::NodeHandle nh;
   ros::NodeHandle nh_private("~");
   boost::asio::io_service io;
@@ -12,6 +13,7 @@ int main(int argc, char**argv)
 
   PwmInput pwmInput( serialPtr, nh, nh_private );
   PwmPololu pwmPololu( serialPtr, nh, nh_private );
+  PwmSwitch pwmSwitch( nh, nh_private );
 
   while( ros::ok() )
     io.run_one();

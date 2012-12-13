@@ -15,6 +15,7 @@ private:
   ros::Subscriber pwm_cmd_sub_;
   int chan_5_fix_;
   ros::Timer timer_;
+  ros::AsyncSpinner spinner_;
 
 public:
   PwmSwitch(ros::NodeHandle nh, ros::NodeHandle nh_private);

@@ -26,6 +26,8 @@ void PwmPololu::setPosition( uint8_t servo_id, int microseconds )
   uint8_t data1 = position_value & 0x7F;
   uint8_t command_byte = 0x84;
   uint8_t msg[4] = { command_byte, servo_id, data1, data2 };
+  ROS_DEBUG_STREAM( "Sending " << microseconds << " to " << (int) servo_id );
+
   boost::asio::write( *serialPtr_,
 		      boost::asio::buffer( msg, 4 ) );
 }

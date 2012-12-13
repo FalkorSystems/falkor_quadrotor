@@ -2,7 +2,8 @@
 
 PwmSwitch::PwmSwitch(ros::NodeHandle nh, ros::NodeHandle nh_private):
   nh_(nh),
-  nh_private_(nh_private)
+  nh_private_(nh_private),
+  spinner_(1)
 {
   falkor_msgs::Pwm pwm_default;
   for( int i = 0; i < 7; i++ )
@@ -18,6 +19,8 @@ PwmSwitch::PwmSwitch(ros::NodeHandle nh, ros::NodeHandle nh_private):
   pwm_cmd_sub_ = nh_.subscribe( "pwm_cmd", 1, &PwmSwitch::pwmCmdCallback, this );
   chan_5_fix_ = 1870;
   timer_ = nh_.createTimer( ros::Duration(0.020), &PwmSwitch::loopOnce, this );
+
+  spinner_.start();
 }
 
 void PwmSwitch::pwmInCallback(falkor_msgs::Pwm::ConstPtr in_msg)
