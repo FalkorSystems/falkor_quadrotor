@@ -26,8 +26,13 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #target_link_libraries(${PROJECT_NAME} another_library)
 
 rosbuild_add_boost_directories()
+rosbuild_add_library(pwm_io src/pwm_input.cpp)
+rosbuild_add_library(pwm_io src/pwm_pololu.cpp)
+rosbuild_add_library(pwm_io src/pwm_switch.cpp)
+rosbuild_link_boost(pwm_io system)
 
+rosbuild_add_executable(pwm_switch_node src/pwm_switch_node.cpp)
+target_link_libraries(pwm_switch_node pwm_io)
 
-rosbuild_add_executable(pwm_switch src/pwm_switch.cpp)
-rosbuild_add_executable(pwm_input src/pwm_input.cpp)
-rosbuild_link_boost(pwm_input system)
+rosbuild_add_executable(pwm_io_node src/pwm_io_node.cpp)
+target_link_libraries(pwm_io_node pwm_io)

@@ -35,8 +35,6 @@ class Pololu:
     ## Compact protocol
     def set_pos(self, servo_id, microseconds):
         position_value = int( microseconds * 4 )
-        data1 = ( position_value >> 7 ) & 0x7F
-        data2 = position_value & 0x7F
         command_byte = 0x84
 
         data2 = ( position_value >> 7 ) & 0x7F

@@ -38,6 +38,9 @@
 /falkor_msgs/msg_gen/
 /falkor_msgs/src/falkor_msgs/
 
+/falkor_drivers/bin/
+/falkor_drivers/build/
+
 # frames cruft
 frames.gv
 frames.pdf
