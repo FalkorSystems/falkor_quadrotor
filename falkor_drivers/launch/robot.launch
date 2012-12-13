@@ -8,7 +8,6 @@
 
   <!-- PWM -->
   <node name="pwm_io" type="pwm_io" pkg="falkor_drivers" />
-  <node name="pwm_switch" type="pwm_switch" pkg="falkor_drivers" />
 
   <!-- PWM Controller -->
   <node name="falkor_control_pwm" type="falkor_control_pwm.py" pkg="falkor_quadrotor_control" />
