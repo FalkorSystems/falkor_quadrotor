@@ -16,7 +16,7 @@ class I2CDriver:
         self.i2c = I2CSensors( self.i2c_number )
 
         self.mag_topic = rospy.get_param( "~mag_topic", "imu/mag" )
-        self.imu_topic = rospy.get_param( "~imu_topic", "imu/data_raw" )
+        self.imu_topic = rospy.get_param( "~imu_topic", "raw_imu" )
         self.baro_topic = rospy.get_param( "~baro_topic", "altimeter" )
 
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
