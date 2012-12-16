@@ -23,7 +23,7 @@ class FalkorControlPwm:
 	self.listener = tf.TransformListener()
 
         self.pwm_pub = rospy.Publisher( "pwm_cmd", Pwm )
-        self.joint_state_pub = rospy.Publisher( "joint_state", JointState )
+        self.joint_state_pub = rospy.Publisher( "joint_states", JointState )
         self.gimbal_joint_name_prefix = rospy.get_param( "~gimbal_joint_name_prefix",
                                                          "front_cam_" )
 
