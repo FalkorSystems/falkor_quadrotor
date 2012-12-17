@@ -30,9 +30,9 @@ class I2CDriver:
 
         self.baro_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~baro_rate", 100) ) ),
                                        self.baro_cb )
-        self.imu_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~imu_rate", 1000 ) )),
+        self.imu_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~imu_rate", 100 ) )),
                                       self.imu_cb )
-        self.mag_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~mag_rate", 10 )) ),
+        self.mag_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~mag_rate", 15 )) ),
                                       self.mag_cb )
 
     def baro_cb( self, event ):
@@ -51,7 +51,6 @@ class I2CDriver:
         msg.header.frame_id = self.mag_frame
 	msg.header.stamp = rospy.Time.now()
         msg.vector = Vector3( *mag_data )
-        # TODO: Rotate according to IMU orientation
 
         self.mag_pub.publish( msg )
 
@@ -67,14 +66,14 @@ class I2CDriver:
 
         gyro_data = np.array( gyro_data ) / 14.375 / 180 * np.pi
         msg.angular_velocity = Vector3( *gyro_data )
-        # TODO: Rotate according to IMU orientation        
+	msg.angular_velocity.y = -msg.angular_velocity.y
+	msg.angular_velocity.z = -msg.angular_velocity.z
         
         # We need to figure this out
         msg.angular_velocity_covariance = [0] * 9
 
         accel_data = np.array( accel_data ) / 256.0 * 9.82
         msg.linear_acceleration = Vector3( *accel_data )
-        # TODO: Rotate according to IMU orientation        
 
         # Figure this out too
         msg.linear_acceleration_covariance = [0]*9

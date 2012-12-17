@@ -29,7 +29,6 @@ class I2CSensors:
 	self.init_mag()
 	self.baro_data = self.init_baro()
 	self.gyro_avg = self.calib_gyro(1000)
-	
 
     def calib_gyro(self,n):
 	gyro_avg = [0,0,0]
@@ -37,6 +36,9 @@ class I2CSensors:
             gyro_vals = self.gyro_read() 
 	    for i in range(3):
                 gyro_avg[i] += float(gyro_vals[i])/n
+
+            # Gyro runs at 125Hz
+            time.sleep(1/125)
 
 	return gyro_avg
 
@@ -49,14 +51,17 @@ class I2CSensors:
 
     def init_gyro(self):
 	# Power up reset defaults
-	self.bus.write_byte_data(self.gyro_addr,0x3e,0x80)
+	self.bus.write_byte_data(self.gyro_addr,0x3E,0x80)
 	time.sleep(0.005)
 	# Select full-scale range of the gyro sensors
-	# Set LP filter bandwidth to 42Hz
-	self.bus.write_byte_data(self.gyro_addr,0x16,0x1B)
+	# Set LP filter bandwidth to 256Hz
+        # DLPF_CFG = 0, FS_SEL = 3
+	self.bus.write_byte_data(self.gyro_addr,0x16,0x18)
 	time.sleep(0.005)
-	# Set sample rato to 50Hz
-	self.bus.write_byte_data(self.gyro_addr,0x15,0x0A)
+	# Set sample rato to 125Hz
+        # 8kHz / 64 = 125Hz
+        # SMPLRT_DIV = 63
+	self.bus.write_byte_data(self.gyro_addr,0x15,0x3F)
 	time.sleep(0.005)
 	# Set clock to PLL with z gyro reference
 	self.bus.write_byte_data(self.gyro_addr,0x3E,0x00)
@@ -81,7 +86,7 @@ class I2CSensors:
 	time.sleep(0.005)
 	self.bus.write_byte_data(self.accel_addr,0x31,0x08) # Data format register set to full resolution
 	time.sleep(0.005)
-	self.bus.write_byte_data(self.accel_addr,0x2C,0x09) # Set data rate 50 hz
+	self.bus.write_byte_data(self.accel_addr,0x2C,0x0A) # Set data rate 100 hz
 	time.sleep(0.005)
 
     def accel_read(self):
