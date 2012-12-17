@@ -1,4 +1,5 @@
 import smbus,time
+import rospy
 
 def int16(b):
     thres = 1 << 15
@@ -97,10 +98,18 @@ class I2CSensors:
 	return [x, y, z]
 
     def init_mag(self):
+        # Continuous measurement mode
 	self.bus.write_byte_data(self.mag_addr,0x02,0x00)
 	time.sleep(0.005)
-	self.bus.write_byte_data(self.mag_addr,0x02,0x18)
+
+        # gain = 5
+	self.bus.write_byte_data(self.mag_addr,0x01,0xA0)
 	time.sleep(0.005)
+
+        # 8 average, 15Hz, normal measurement
+        self.bus.write_byte_data(self.mag_addr,0x00,0x70)
+        time.sleep(0.005)
+
 
     def mag_read(self):
 	while True:
@@ -111,8 +120,8 @@ class I2CSensors:
                 rospy.logwarn( "Lost Connection while reading mag" )
 
 	x = int16((buff[0] << 8) | buff[1])
-	y = -1 * int16((buff[4] << 8) | buff[5])
-	z = -1 * int16((buff[2] << 8) | buff[3])
+	y = int16((buff[4] << 8) | buff[5])
+	z = int16((buff[2] << 8) | buff[3])
 	return [x, y, z]
 
     def init_baro(self):
