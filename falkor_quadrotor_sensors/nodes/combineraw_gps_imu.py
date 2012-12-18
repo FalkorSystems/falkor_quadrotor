@@ -62,15 +62,14 @@ class FalkorCombineGpsImu:
         my_twist_covariance_w_angular[:3,:3] = gps_twist_covariance
 
         self.twist.twist.covariance = list( my_twist_covariance_w_angular.reshape( 36 ) )
-        self.gps_publish( data.header.stamp )
 
     def imu_cb( self, data ):
         # wait for transform
         try:
-            self.listener.waitForTransform( data.header.frame_id,
-                                            self.world_frame,
-                                            data.header.stamp,
-                                            rospy.Duration( 1.0 ) )
+#            self.listener.waitForTransform( data.header.frame_id,
+#                                            self.world_frame,
+#                                            data.header.stamp,
+#                                            rospy.Duration( 1.0 ) )
             quaternion_imu = QuaternionStamped( data.header, data.orientation )
             angular_velocity_imu = Vector3Stamped( data.header, data.angular_velocity )
             accel_imu = Vector3Stamped( data.header, data.linear_acceleration )
@@ -103,7 +102,9 @@ class FalkorCombineGpsImu:
         self.state_pub.publish( self.state )
 
     def run( self ):
-        rospy.spin()
+        while not rospy.is_shutdown():
+            self.gps_publish( rospy.Time.now() )
+            self.rate.sleep()
 
 def main():
     rospy.init_node('combineraw_gps_imu')

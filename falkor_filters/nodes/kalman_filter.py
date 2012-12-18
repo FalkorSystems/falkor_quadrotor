@@ -95,6 +95,19 @@ class KalmanFilter:
         res = self.update( imu, imu_cov, self.H_imu() )
         return res
 
+class EmaFilter:
+    def __init__(self,alpha):
+        self.alpha = alpha
+        self.value = None
+
+    def update(self,new_value):
+        if self.value == None:
+            self.value = new_value
+            return self.value
+        else:
+            self.value = self.alpha*new_value + (1-self.alpha)*self.value
+            return self.value
+
 class Filter:
     def __init__(self):
         self.gps_topic = rospy.get_param( "~gps_topic", "raw/state" )
@@ -117,20 +130,23 @@ class Filter:
         self.last_sonar = None
         self.last_baro = None
 
+        self.sonar_filter = EmaFilter(0.9)
+        self.baro_filter = EmaFilter(0.1)
+
         self.filter = KalmanFilter()
         self.listener = tf.TransformListener()
+
+        # TODO: Configure proper covariances
+        self.sonar_zdot_cov = np.matrix( 0.1 )
+        self.baro_zdot_cov = np.matrix( 5 )
+        self.imu_cov = np.asmatrix( np.identity( 3 ) ) * 0.1
+        self.gps_data = None
 
         # TODO: wrap these four callbacks into a mutex
         self.gps_sub = rospy.Subscriber( self.gps_topic, Odometry, self.gps_cb, queue_size=1 )
         self.imu_sub = rospy.Subscriber( self.imu_topic, Vector3Stamped, self.imu_cb, queue_size=1 )
         self.sonar_sub = rospy.Subscriber( self.sonar_topic, Range, self.sonar_cb, queue_size=1 )
         self.baro_sub = rospy.Subscriber( self.baro_topic, Altimeter, self.baro_cb, queue_size=1 )
-        self.gps_data = None
-
-        # TODO: Configure proper covariances
-        self.sonar_zdot_cov = np.matrix( 0.1 )
-        self.baro_zdot_cov = np.matrix( 5 )
-        self.imu_cov = np.asmatrix( np.identity( 3 ) ) * 0.1
 
     def get_dt( self, now ):
         # ignore the stamp
@@ -186,7 +202,7 @@ class Filter:
     def baro_cb( self, data ):
 #        print "baro stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
 
-        baro_alt = data.altitude
+        baro_alt = self.baro_filter.update( data.altitude )
 
         if self.last_baro == None:
             self.last_baro = baro_alt
@@ -224,6 +240,7 @@ class Filter:
             orientation_covariance = np.array( self.gps_data.pose.covariance ).reshape( 6, 6 )[3:6,3:6]
             angular_covariance = np.array( self.gps_data.twist.covariance ).reshape( 6, 6 )[3:6,3:6]
         else:
+            state.pose.pose.orientation = Quaternion(0,0,0,1)
             orientation_covariance = zeros_33
             angular_covariance = zeros_33
 
@@ -252,22 +269,24 @@ class Filter:
     def sonar_cb( self, data ):
 #        print "sonar stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
         # we don't have valid data, 
-        if data.range > data.max_range or data.range < data.min_range:
+#        if data.range > data.max_range or data.range < data.min_range:
+        if data.range > data.max_range:
             self.last_sonar = None
         else:
-            point_msg = PointStamped( data.header, Point( data.range, 0, 0 ) )
+            if data.range < data.min_range:
+                data.range = data.min_range
+
             try:
-                self.listener.waitForTransform( "/robot/base_stabilized",
-                                                point_msg.header.frame_id,
-                                                point_msg.header.stamp,
-                                                rospy.Duration( 4.0 ) )
-                point_transformed = self.listener.transformPoint( "/robot/base_stabilized", point_msg )
+                transform = self.listener.lookupTransform( '/map', '/robot/imu', rospy.Time(0) )
+                transform_matrix = tf.transformations.quaternion_matrix( transform[1] )
+                point = transform_matrix[:3,:3].dot( np.array( [ 0, 0, -data.range ] ) )
+
             except (tf.LookupException, tf.Exception,
                     tf.ConnectivityException, tf.ExtrapolationException) as e:
                 rospy.logwarn( "kalman_filter: transform exception: %s", str( e ) )
                 self.last_sonar = None
             else:
-                sonar_range = -point_transformed.point.z
+                sonar_range = self.sonar_filter.update( -point[2] )
 
                 # we don't have a last recording (maybe it was beyond the range, or there was a transform error)
                 # so don't compute a zdot or run an update

@@ -4,7 +4,19 @@
     <remap to="raw_imu" from="imu/data_raw" />
     <remap to="magnetic" from="imu/mag" />
   </node>
-  <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters" />
+  <node type="gps_to_meters.py" pkg="falkor_quadrotor_sensors" name="gps_to_meters" >
+    <!-- RCSMP -->
+    <!--
+    <param name="reference_latitude" value="40.589681" />
+    <param name="reference_longitude" value="-73.918520" />
+    <param name="reference_altitide" value="0" />
+    -->
+    <!-- 129 Lafayette St -->
+    <param name="reference_latitude" value="40.7190115" />
+    <param name="reference_longitude" value="-73.9998038333" />
+    <param name="reference_altitide" value="25" />
+  </node>
+
   <node type="combineraw_gps_imu.py" pkg="falkor_quadrotor_sensors" name="combine_raw_gps_imu" />
   <node type="kalman_filter.py" pkg="falkor_filters" name="kalman_filter" />
 </launch>

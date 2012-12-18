@@ -40,7 +40,7 @@ class Mb1200Driver:
         msg.header.stamp = rospy.Time.now()
         msg.header.frame_id = self.sonar_frame
         msg.radiation_type = Range.ULTRASOUND
-        msg.min_range = 0.2
+        msg.min_range = 0.20
         msg.max_range = 6
         msg.range = m
         self.range_pub.publish( msg )
