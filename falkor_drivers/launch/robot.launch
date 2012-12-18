@@ -7,7 +7,9 @@
   </node>
 
   <!-- I2C -->
-  <node name="i2c_driver" type="i2c_driver.py" pkg="falkor_drivers" />
+  <node name="i2c_driver" type="i2c_driver.py" pkg="falkor_drivers" >
+    <param name="tf_prefix" value="robot" />
+  </node>
 
   <!-- PWM -->
   <node name="pwm_io" type="pwm_io_node" pkg="falkor_drivers" />
