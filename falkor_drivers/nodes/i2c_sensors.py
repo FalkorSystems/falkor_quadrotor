@@ -28,17 +28,20 @@ class I2CSensors:
         self.init_accel()
 	self.init_mag()
 	self.baro_data = self.init_baro()
-	self.gyro_avg = self.calib_gyro(1000)
+	self.gyro_avg = self.calib_gyro(60)
 
     def calib_gyro(self,n):
+	# gyro runs at 125Hz
+	rate = 125
+	samples = 125*n
 	gyro_avg = [0,0,0]
-	for i in range(n):
+	for i in range(n*rate):
             gyro_vals = self.gyro_read() 
 	    for i in range(3):
-                gyro_avg[i] += float(gyro_vals[i])/n
+                gyro_avg[i] += float(gyro_vals[i])/samples
 
-            # Gyro runs at 125Hz
-            time.sleep(1/125)
+            time.sleep(1.0/rate)
+	print gyro_avg
 
 	return gyro_avg
 
