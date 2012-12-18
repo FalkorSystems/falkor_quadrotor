@@ -14,10 +14,13 @@
   </node>
 
   <!-- take kalman filtered estimate to tf -->
+<!-- We'll turn this off because we will let the various pieces that 
+     compute the bits of the transform publish it when needed
+
   <node name="kf_pose_to_tf" pkg="message_to_tf" type="message_to_tf" output="screen">
     <param name="odometry_topic" value="state" />
     <param name="frame_id" value="/map" />
     <param name="tf_prefix" value="$(arg model_name)" />
   </node>
-
+-->
 </launch>

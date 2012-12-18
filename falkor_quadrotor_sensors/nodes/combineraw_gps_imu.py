@@ -23,6 +23,7 @@ class FalkorCombineGpsImu:
         self.accel_pub = rospy.Publisher( "raw/accel", Vector3Stamped )
 
         self.listener = tf.TransformListener()
+        self.broadcaster = tf.TransformBroadcaster()
 
         self.gps_sub = rospy.Subscriber( self.gps_topic, Odometry, self.gps_cb )
         self.imu_sub = rospy.Subscriber( self.imu_topic, Imu, self.imu_cb )
@@ -66,10 +67,6 @@ class FalkorCombineGpsImu:
     def imu_cb( self, data ):
         # wait for transform
         try:
-#            self.listener.waitForTransform( data.header.frame_id,
-#                                            self.world_frame,
-#                                            data.header.stamp,
-#                                            rospy.Duration( 1.0 ) )
             quaternion_imu = QuaternionStamped( data.header, data.orientation )
             angular_velocity_imu = Vector3Stamped( data.header, data.angular_velocity )
             accel_imu = Vector3Stamped( data.header, data.linear_acceleration )
@@ -78,6 +75,25 @@ class FalkorCombineGpsImu:
             self.pose.pose.pose.orientation = self.listener.transformQuaternion( self.world_frame, quaternion_imu ).quaternion
             self.twist.twist.twist.angular = self.listener.transformVector3( self.world_frame, angular_velocity_imu ).vector
             self.accel.vector = self.listener.transformVector3( self.world_frame, accel_imu ).vector
+
+            # broadcast transform from base_stabilized to base_link
+            (roll,pitch,yaw) = tf.transformations.euler_from_quaternion((self.pose.pose.pose.orientation.x,
+                                                                         self.pose.pose.pose.orientation.y,
+                                                                         self.pose.pose.pose.orientation.z,
+                                                                         self.pose.pose.pose.orientation.w
+                                                                         ))
+            self.broadcaster.sendTransform((0,0,0),
+                                           tf.transformations.quaternion_from_euler(roll,pitch,0),
+                                           data.header.stamp,
+                                           "/robot/base_link",
+                                           "/robot/base_stabilized" )
+
+            # broadcast transform from base_position to base_stabilized
+            self.broadcaster.sendTransform((0,0,0),
+                                           tf.transformations.quaternion_from_euler(0,0,yaw),
+                                           data.header.stamp,
+                                           "/robot/base_stabilized",
+                                           "/robot/base_position" )
 
             # we should throw in a covariance for the orientation and angular twist here but I don't know how
 

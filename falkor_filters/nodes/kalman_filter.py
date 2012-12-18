@@ -277,9 +277,9 @@ class Filter:
                 data.range = data.min_range
 
             try:
-                transform = self.listener.lookupTransform( '/map', '/robot/imu', rospy.Time(0) )
+                transform = self.listener.lookupTransform( '/robot/base_stabilized', '/robot/sonar_link', rospy.Time(0) )
                 transform_matrix = tf.transformations.quaternion_matrix( transform[1] )
-                point = transform_matrix[:3,:3].dot( np.array( [ 0, 0, -data.range ] ) )
+                point = transform_matrix[:3,:3].dot( np.array( [ data.range, 0, 0 ] ) )
 
             except (tf.LookupException, tf.Exception,
                     tf.ConnectivityException, tf.ExtrapolationException) as e:
