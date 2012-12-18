@@ -36,18 +36,22 @@ class TakeoffLand:
         self.off = True
 
     def sonar_cb( self, data ):
-        point_msg = PointStamped( data.header, Point( data.range, 0, 0 ) )
-        try:
-            self.listener.waitForTransform( '/robot/base_stabilized',
-                                            point_msg.header.frame_id,
-                                            point_msg.header.stamp,
-                                            rospy.Duration( 4.0 ) )
-            point_transformed = self.listener.transformPoint( '/robot/base_stabilized', point_msg )
-        except (tf.LookupException, tf.Exception,
-                tf.ConnectivityException, tf.ExtrapolationException) as e:
-            rospy.logwarn( "takeoffland: transform exception: %s", str( e ) )
-            return
-        self.height = -point_transformed.point.z
+        if data.range > data.max_range:
+            self.height = data.max_range
+        else:
+            if data.range < data.min_range:
+                data.range = data.min_range
+
+            try:
+                transform = self.listener.lookupTransform( '/robot/base_stabilized', '/robot/sonar_link', rospy.Time(0) )
+                transform_matrix = tf.transformations.quaternion_matrix( transform[1] )
+                point = transform_matrix[:3,:3].dot( np.array( [ data.range, 0, 0 ] ) )
+            except (tf.LookupException, tf.Exception,
+                    tf.ConnectivityException, tf.ExtrapolationException) as e:
+                rospy.logwarn( "takeoffland: transform exception: %s", str( e ) )
+                self.height = data.range
+            else:
+                self.height = -point[2]
 
     def control( self, target_height, height_tol, pid_params ):
         my_pid = pid.PidController( *pid_params )

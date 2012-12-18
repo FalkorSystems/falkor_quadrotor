@@ -289,9 +289,6 @@ class Filter:
 
 
     def sonar_cb( self, data ):
-#        print "sonar stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
-        # we don't have valid data, 
-#        if data.range > data.max_range or data.range < data.min_range:
         if data.range > data.max_range:
             self.last_sonar = None
         else:
