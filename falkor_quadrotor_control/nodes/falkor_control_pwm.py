@@ -10,6 +10,7 @@ from std_srvs.srv import *
 from falkor_msgs.msg import *
 from nav_msgs.msg import *
 from sensor_msgs.msg import *
+import numpy as np
 
 class FalkorControlPwm:
     def __init__( self ):
@@ -18,7 +19,7 @@ class FalkorControlPwm:
         self.angular_z_pid = pid.PidController( 1, 0, 0 )
         self.linear_x_pid = pid.PidController( 1, 0, 0 )
         self.linear_y_pid = pid.PidController( 1, 0, 0 )
-        self.linear_z_pid = pid.PidController( 1, 0, 0 )
+        self.linear_z_pid = pid.PidController( 5, 0, 0 )
 
 	self.listener = tf.TransformListener()
 
@@ -136,6 +137,32 @@ class FalkorControlPwm:
     def wait_for_on( self ):
         self.last_time = rospy.Time.now()
 
+    def transformOdometry( self, frame_id, state ):
+        pose = PoseStamped( state.header, state.pose.pose )
+        linear_twist = PointStamped( state.header, Point( state.twist.twist.linear.x,
+                                                          state.twist.twist.linear.y,
+                                                          state.twist.twist.linear.z ) )
+
+        angular_twist = PointStamped( state.header, Point( state.twist.twist.angular.x,
+                                                           state.twist.twist.angular.y,
+                                                           state.twist.twist.angular.z ) )
+
+        pose_transformed = self.listener.transformPose( frame_id, pose )
+        linear_twist_transformed = self.listener.transformPoint( frame_id, linear_twist )
+        angular_twist_transformed = self.listener.transformPoint( frame_id, angular_twist )
+
+        return_state = Odometry()
+        return_state.header = pose_transformed.header
+        return_state.pose.pose = pose_transformed.pose
+        return_state.twist.twist.linear = Vector3( linear_twist_transformed.point.x,
+                                                   linear_twist_transformed.point.y,
+                                                   linear_twist_transformed.point.z )
+        return_state.twist.twist.angular = Vector3( angular_twist_transformed.point.x,
+                                                    angular_twist_transformed.point.y,
+                                                    angular_twist_transformed.point.z )
+
+        return return_state
+
     def control( self ):
         now = rospy.Time.now()
         dt = ( self.last_time - now ).to_sec()
@@ -148,13 +175,13 @@ class FalkorControlPwm:
 
         # transform data into my own frame
         try:
-            self.listener.waitForTransform( self.full_frame_id,
-                                            self.state.header.frame_id,
-                                            rospy.Time(0),
-                                            rospy.Duration( 4.0 ) )
-
-            my_frame_state = tf.transformOdometry( self.full_frame_id,
-                                                   self.state )
+            state_save = self.state
+            res = self.listener.waitForTransform( self.full_frame_id,
+                                            state_save.header.frame_id,
+                                            state_save.header.stamp,
+                                            rospy.Duration( 1.0 ) )
+            my_frame_state = self.transformOdometry( self.full_frame_id,
+                                                     state_save )
 
         except (tf.LookupException, tf.Exception,
                 tf.ConnectivityException, tf.ExtrapolationException) as e:
@@ -174,13 +201,13 @@ class FalkorControlPwm:
                 my_frame_state.twist.twist.linear.x,
                 dt ) )
         self.pwm_msg.pwm[self.roll_channel-1] = self.to_pwm(
-            self.linear_y.pid.get_output(
+            self.linear_y_pid.get_output(
                 my_frame_state.twist.twist.linear.y,
                 dt ) )
 
         self.pwm_msg.pwm[self.gimbal_roll_channel-1] = self.to_pwm(
             self.cmd_gimbal.roll, -np.pi/2, np.pi/2 )
-        self.pwm_msg.pwn[self.gimbal_pitch_channel-1] = self.to_pwm(
+        self.pwm_msg.pwm[self.gimbal_pitch_channel-1] = self.to_pwm(
             self.cmd_gimbal.pitch, -np.pi/2, np.pi/2 )
 
         joint_state = JointState()

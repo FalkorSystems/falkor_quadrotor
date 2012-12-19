@@ -16,8 +16,9 @@
 
 
   <!-- PWM Controller -->
-  <node name="falkor_control_pwm" type="falkor_control_pwm.py" pkg="falkor_quadrotor_control" />
-
+  <node name="falkor_control_pwm" type="falkor_control_pwm.py" pkg="falkor_quadrotor_control" >
+    <param name="tf_prefix" value="robot" />
+  </node>
 
   <!-- NMEA Gps (not rtklib) -->
   <node name="nmea_gps_driver" type="nmea_gps_driver.py" pkg="nmea_gps_driver" >

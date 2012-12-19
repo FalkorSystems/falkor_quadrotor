@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="model_name" default="NO_MODEL" />
-  <arg name="model" default="NO_MODEL" />
+  <arg name="model_name" default="robot" />
+  <arg name="model" default="$(find falkor_quadrotor_urdf)/urdf/quadrotor_with_cam.urdf.xacro" />
 
   <!-- push the robot description to the parameter server -->
   <param name="robot_description" command="$(find xacro)/xacro.py '$(arg model)'" />
 
   <!-- start robot state publisher -->
   <node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher" output="screen" >
-    <param name="publish_frequency" type="double" value="10" />
+    <param name="publish_frequency" type="double" value="40" />
     <param name="tf_prefix" type="string" value="$(arg model_name)" />
   </node>
 

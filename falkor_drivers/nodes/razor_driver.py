@@ -20,8 +20,8 @@ class RazorDriver:
         self.imu_topic = rospy.get_param( "~imu_topic", "raw_imu" )
 
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
-        self.mag_frame = rospy.get_param( "~mag_frame", "magnetometer" )
-        self.imu_frame = rospy.get_param( "~imu_frame", "imu" )
+        self.mag_frame = self.tf_prefix + "/" + rospy.get_param( "~mag_frame", "magnetometer" )
+        self.imu_frame = self.tf_prefix + "/" + rospy.get_param( "~imu_frame", "imu" )
 
         self.mag_pub = rospy.Publisher( self.mag_topic, Vector3Stamped )
         self.imu_pub = rospy.Publisher( self.imu_topic, Imu )

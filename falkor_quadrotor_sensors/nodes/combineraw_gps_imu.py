@@ -72,6 +72,8 @@ class FalkorCombineGpsImu:
             accel_imu = Vector3Stamped( data.header, data.linear_acceleration )
 
             # convert from the imu frame to the world frame
+            self.listener.waitForTransform( self.world_frame, data.header.frame_id, data.header.stamp, rospy.Duration(1.0) )
+
             self.pose.pose.pose.orientation = self.listener.transformQuaternion( self.world_frame, quaternion_imu ).quaternion
             self.twist.twist.twist.angular = self.listener.transformVector3( self.world_frame, angular_velocity_imu ).vector
             self.accel.vector = self.listener.transformVector3( self.world_frame, accel_imu ).vector

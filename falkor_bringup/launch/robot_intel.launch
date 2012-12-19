@@ -7,8 +7,8 @@
      <arg name="model_name" value="robot" />
   </include>
 
-  <node pkg="falkor_quadrotor_sensors" name="mag_to_tf" type="mag_to_tf.py">
-    <param name="declination" value="-13.083" />
-    <param name="world_frame" value="/map" />
-  </node>
+  <!-- static transform, use radians. -13.083 degrees = -0.228341426 radians, change the sign
+  to make the transform from /map to /map/magnet -->
+  <node pkg="tf" type="static_transform_publisher" name="mag_to_tf"
+	args="0 0 0 0.228341426 0 0 /map /map/magnet 25" />
 </launch>
