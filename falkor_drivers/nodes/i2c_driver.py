@@ -46,7 +46,6 @@ class I2CDriver:
 
     def mag_cb( self, event ):
         mag_data = self.i2c.mag_read()
-        mag_data = np.array( mag_data ) / np.linalg.norm( mag_data )
         msg = Vector3Stamped()
         msg.header.frame_id = self.mag_frame
 	msg.header.stamp = rospy.Time.now()
