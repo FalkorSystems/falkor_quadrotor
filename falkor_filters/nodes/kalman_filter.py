@@ -135,6 +135,7 @@ class Filter:
 
         self.filter = KalmanFilter()
         self.listener = tf.TransformListener()
+        self.broadcaster = tf.TransformBroadcaster()
 
         # TODO: Configure proper covariances
         self.sonar_zdot_cov = np.matrix( 0.1 )
@@ -265,11 +266,29 @@ class Filter:
         accel = Vector3Stamped( state.header, Vector3( *res[0][6:9] ) )
         self.accel_pub.publish( accel )
 
+        # publish transforms from /map to /base_footprint
+        # and from /map to /base_position
+
+        self.broadcaster.sendTransform((state.pose.pose.position.x,
+                                        state.pose.pose.position.y,
+                                        0),
+                                       (state.pose.pose.orientation.x,
+                                        state.pose.pose.orientation.y,
+                                        state.pose.pose.orientation.z,
+                                        state.pose.pose.orientation.w),
+                                       state.header.stamp,
+                                       '/robot/base_footprint',
+                                       '/map', )
+
+        self.broadcaster.sendTransform((state.pose.pose.position.x, state.pose.pose.position.y, state.pose.pose.position.z ),
+                                       (0,0,0,1),
+                                       state.header.stamp,
+                                       '/robot/base_position',
+                                       '/map')
+
+
 
     def sonar_cb( self, data ):
-#        print "sonar stamp: %10.4f/%10.4f" % ( data.header.stamp.to_sec(), rospy.Time.now().to_sec() )
-        # we don't have valid data, 
-#        if data.range > data.max_range or data.range < data.min_range:
         if data.range > data.max_range:
             self.last_sonar = None
         else:
@@ -277,10 +296,9 @@ class Filter:
                 data.range = data.min_range
 
             try:
-                transform = self.listener.lookupTransform( '/map', '/robot/imu', rospy.Time(0) )
+                transform = self.listener.lookupTransform( '/robot/base_stabilized', '/robot/sonar_link', rospy.Time(0) )
                 transform_matrix = tf.transformations.quaternion_matrix( transform[1] )
-                point = transform_matrix[:3,:3].dot( np.array( [ 0, 0, -data.range ] ) )
-
+                point = transform_matrix[:3,:3].dot( np.array( [ data.range, 0, 0 ] ) )
             except (tf.LookupException, tf.Exception,
                     tf.ConnectivityException, tf.ExtrapolationException) as e:
                 rospy.logwarn( "kalman_filter: transform exception: %s", str( e ) )
