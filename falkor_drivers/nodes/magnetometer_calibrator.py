@@ -98,8 +98,8 @@ class MagnetometerCalibrator:
             rospy.sleep(6)
 
         rospy.loginfo( "Done collecting data. Calibrating" )
-        self.mag_sub = None
-        self.imu_sub = None
+        self.mag_sub.unregister()
+        self.imu_sub.unregister()
 
         ellipse = self.fit_ellipse(self.points)
         center = self.ellipse_center(ellipse)
