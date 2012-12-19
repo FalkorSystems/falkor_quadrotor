@@ -36,7 +36,7 @@ class I2CSensors:
 	samples = 125*n
 	gyro_avg = [0,0,0]
 	for i in range(n*rate):
-            gyro_vals = self.gyro_read() 
+            gyro_vals = self.gyro_raw() 
 	    for i in range(3):
                 gyro_avg[i] += float(gyro_vals[i])/samples
 
@@ -45,11 +45,12 @@ class I2CSensors:
 
 	return gyro_avg
 
-    def gyro_data(self):
-	raw = self.gyro_read()
+    def gyro_read(self):
+	raw = self.gyro_raw()
 	calibrated = [0,0,0]
 	for i in range(3):
-		calibrated[i] = raw[i]-self.gyro_avg[i]
+		calibrated[i] = ( raw[i]-self.gyro_avg[i] ) / 14.375 / 180 * np.pi
+
 	return calibrated
 
     def init_gyro(self):
@@ -70,7 +71,7 @@ class I2CSensors:
 	self.bus.write_byte_data(self.gyro_addr,0x3E,0x00)
 	time.sleep(0.005)
 
-    def gyro_read(self):
+    def gyro_raw(self):
 	while True:
 	    try:
                 buff = self.bus.read_i2c_block_data(self.gyro_addr,0x1d)
@@ -100,9 +101,10 @@ class I2CSensors:
 	    except IOError:
                 rospy.logwarn( "Lost Connection while reading accel" )
 
-	x = int16((buff[3] << 8) | buff[2])
-	y = int16((buff[1] << 8) | buff[0])
-	z = int16((buff[5] << 8) | buff[4])
+	x = int16((buff[3] << 8) | buff[2]) / 256.0 * 9.82
+	y = int16((buff[1] << 8) | buff[0]) / 256.0 * 9.82
+	z = int16((buff[5] << 8) | buff[4]) / 256.0 * 9.82
+
 	return [x, y, z]
 
     def init_mag(self):
@@ -110,14 +112,13 @@ class I2CSensors:
 	self.bus.write_byte_data(self.mag_addr,0x02,0x00)
 	time.sleep(0.005)
 
-        # gain = 5
-	self.bus.write_byte_data(self.mag_addr,0x01,0xA0)
+        # gain = 1090 (0.92 mG/LSB)
+	self.bus.write_byte_data(self.mag_addr,0x02,0xA0)
 	time.sleep(0.005)
 
         # 8 average, 15Hz, normal measurement
         self.bus.write_byte_data(self.mag_addr,0x00,0x70)
         time.sleep(0.005)
-
 
     def mag_read(self):
 	while True:
@@ -130,6 +131,11 @@ class I2CSensors:
 	x = int16((buff[0] << 8) | buff[1])
 	y = int16((buff[4] << 8) | buff[5])
 	z = int16((buff[2] << 8) | buff[3])
+
+        # Resolution for gain = 1 is 0.92 mG/LSB
+        x *= 0.92e-3
+        y *= 0.92e-3
+        z *= 0.92e-3
 	return [x, y, z]
 
     def init_baro(self):
