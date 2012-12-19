@@ -5,7 +5,9 @@ import rospy
 import numpy as np
 from tf.transformations import *
 from sensor_msgs.msg import *
+from geometry_msgs.msg import *
 from pylab import *
+import progressbar
 
 class MagnetometerCalibrator:
     def imu_cb(self, data):
@@ -21,7 +23,7 @@ class MagnetometerCalibrator:
                                                     self.imu_msg.orientation.y,
                                                     self.imu_msg.orientation.z,
                                                     self.imu_msg.orientation.w ) )
-        rotation_matrix = euler_matrix( -roll, -pitch, 0 )
+        rotation_matrix = euler_matrix( -roll, -pitch, 0 )[:3,:3]
         vector = np.array( ( self.mag_msg.vector.x,
                              self.mag_msg.vector.y,
                              self.mag_msg.vector.z ) )
@@ -29,8 +31,9 @@ class MagnetometerCalibrator:
 
     def mag_cb(self,data):
         self.mag_msg = data
-
-        if ( vector = self.tilt_compensation() ) == None
+        
+        vector = self.tilt_compensation()
+        if vector == None:
             return
 
         if self.points == None:
@@ -38,7 +41,7 @@ class MagnetometerCalibrator:
         else:
             self.points = np.vstack((self.points,vector[:2]))
 
-        self.point_count++
+        self.point_count += 1
 
     def __init__(self):
         self.mag_msg = None
@@ -46,13 +49,13 @@ class MagnetometerCalibrator:
         self.points = None
         self.point_count = 0
 
-        mag_sub = rospy.Subscriber( "/magnetic", Vector3Stamped, self.mag_cb )
-        imu_sub = rospy.Subscriber( "/imu/data", Imu, self.imu_cb )
+        self.mag_sub = rospy.Subscriber( "/magnetic", Vector3Stamped, self.mag_cb )
+        self.imu_sub = rospy.Subscriber( "/imu/data", Imu, self.imu_cb )
 
     def fit_ellipse(self,points):
         # http://nicky.vanforeest.com/misc/fitEllipse/fitEllipse.html
-        x = points[:,0]
-        y = points[:,1]
+        x = points[:,0][:,np.newaxis]
+        y = points[:,1][:,np.newaxis]
         D = np.hstack((x*x, x*y, y*y, x, y, np.ones_like(x)))
         S = np.dot(D.T,D)
         C = np.zeros([6,6])
@@ -83,33 +86,49 @@ class MagnetometerCalibrator:
         return np.array([res1, res2])
 
     def run(self):
-        rospy.loginfo( "Starting magnetometer calibration for hard iron. Rotate craft now." )
+        rospy.loginfo( "Starting magnetometer calibration. Rotate craft now." )
 
-        # Wait until we get a couple thousand points
-        while self.point_count < 2000:
+        # Wait until we start to get at least one point
+        while self.point_count < 1:
             rospy.sleep(1)
 
+        # now wait two minutes
+        progress=progressbar.ProgressBar()
+        for i in progress(range(20)):
+            rospy.sleep(6)
+
         rospy.loginfo( "Done collecting data. Calibrating" )
-        mag_sub = None
-        imu_sub = None
+        self.mag_sub = None
+        self.imu_sub = None
 
         ellipse = self.fit_ellipse(self.points)
         center = self.ellipse_center(ellipse)
         angle = self.ellipse_angle_of_rotation(ellipse)
         axes = self.ellipse_axis_length(ellipse)
 
-        rospy.loginfo( "center = %s" & str( center ) )
+        rospy.loginfo( "center = %s" % str( center ) )
         rospy.loginfo( "angle = %s" % str( angle ) )
-        rospy.loginfo( "axes = %s" % str( 1, axes[1]/axes[0] ) )
+        rospy.loginfo( "axes = %s" % str( ( 1, axes[1]/axes[0] ) ) )
 
         # plot
         a, b = axes
-        xx = center[0] + a*np.cos(R)*np.cos(phi) - b*np.sin(R)*np.sin(phi)
-        yy = center[1] + a*np.cos(R)*np.sin(phi) + b*np.sin(R)*np.cos(phi)
+        R = np.arange(0,2*np.pi,0.01)
+        xx = center[0] + a*np.cos(R)*np.cos(angle) - b*np.sin(R)*np.sin(angle)
+        yy = center[1] + a*np.cos(R)*np.sin(angle) + b*np.sin(R)*np.cos(angle)
 
-        plot(x,y)
+        plot(self.points[:,0],self.points[:,1],'ro')
         plot(xx,yy, color = 'red')
         show()
         
+def main():
+    rospy.init_node('magnetometer_calibrator')
+    calibrator = MagnetometerCalibrator()
+    try:
+        calibrator.run()
+    except KeyboardInterrupt:
+        print "Shutting down"
+
+if __name__  == '__main__':
+    main()
 
         

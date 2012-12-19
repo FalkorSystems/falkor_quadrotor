@@ -16,17 +16,15 @@ class RazorDriver:
 
         self.port = Serial(self.port_name, self.baud, timeout=self.timeout * 0.5)
     
-        self.mag_topic = rospy.get_param( "~mag_topic", "imu/mag" )
-        self.imu_topic = rospy.get_param( "~imu_topic", "imu/data_raw" )
+        self.mag_topic = rospy.get_param( "~mag_topic", "magnetic" )
+        self.imu_topic = rospy.get_param( "~imu_topic", "raw_imu" )
 
         self.tf_prefix = rospy.get_param( "~tf_prefix", "" )
-        self.mag_frame = self.tf_prefix + "/" + rospy.get_param( "~mag_frame", "magnetometer" )
-        self.imu_frame = self.tf_prefix + "/" + rospy.get_param( "~imu_frame", "imu" )
+        self.mag_frame = rospy.get_param( "~mag_frame", "magnetometer" )
+        self.imu_frame = rospy.get_param( "~imu_frame", "imu" )
 
         self.mag_pub = rospy.Publisher( self.mag_topic, Vector3Stamped )
         self.imu_pub = rospy.Publisher( self.imu_topic, Imu )
-        self.mag_seq = 0
-        self.imu_seq = 0
 
     def run(self):
         while not rospy.is_shutdown():
@@ -42,9 +40,8 @@ class RazorDriver:
             accel = split_line_ints[0:3]
             gyro = split_line_ints[3:6]
 
-            self.imu_seq += 1
             imu_msg = Imu()
-            imu_msg.header = Header( self.imu_seq,
+            imu_msg.header = Header( 0,
                                      now, self.imu_frame )
             imu_msg.orientation = Quaternion( 0, 0, 0, 1.0 )
             imu_msg.orientation_covariance = [0] * 9
@@ -59,11 +56,12 @@ class RazorDriver:
             self.imu_pub.publish( imu_msg )
 
             if len( split_line_ints ) > 6:
-                self.mag_seq += 1
 
-                header = Header( self.mag_seq, now, self.mag_frame )
+                header = Header( 0, now, self.mag_frame )
                 mag = split_line_ints[6:9]
-                mag = np.array( mag ) / np.linalg.norm( mag )
+                # Convert mag to Gaussians (gain = 1 is 0.92 mG/LSB)
+                mag = [i * 0.92e-3 for i in mag]
+
                 mag_msg = Vector3Stamped( header, Vector3( *mag ) )
                 self.mag_pub.publish( mag_msg )
 
