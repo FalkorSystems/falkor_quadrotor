@@ -207,9 +207,6 @@ class I2CSensors:
         time.sleep(0.005)
 
     def mag_read_raw(self):
-        if self.mag_working == False:
-            return None
-
 	while True:
             try:
 	        buff = self.bus.read_i2c_block_data(self.mag_addr,0x03)
@@ -223,6 +220,9 @@ class I2CSensors:
         return [ x, y, z ]
 
     def mag_read(self):
+        if self.mag_working == False:
+            return None
+
         [x, y, z] = self.mag_read_raw()
 
         # Resolution for gain = 1 is 0.92 mG/LSB
@@ -279,7 +279,6 @@ class I2CSensors:
         # Only get the temperature once per second
         now = time.time()
         if self.last_temp_read == None or ( now - self.last_temp_read > 1 ):
-            print "updating temperature"
             self.last_temp_read = now
             self.load_temp()
             while True:
