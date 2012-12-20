@@ -34,7 +34,7 @@ class I2CDriver:
         self.mag_cos_angle = np.cos( - self.mag_angle )
         self.mag_sin_angle = np.sin( - self.mag_angle )
 
-        self.baro_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~baro_rate", 100) ) ),
+        self.baro_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~baro_rate", 25) ) ),
                                        self.baro_cb )
         self.imu_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~imu_rate", 100 ) )),
                                       self.imu_cb )
@@ -42,7 +42,8 @@ class I2CDriver:
                                       self.mag_cb )
 
     def baro_cb( self, event ):
-        baro_data = self.i2c.baro_read()
+        # baro_read w/ oss=3 should give us 0.25m RMS accuracy
+        baro_data = self.i2c.baro_read(3)
         msg = Altimeter()
         msg.header.frame_id = self.baro_frame
 	msg.header.stamp = rospy.Time.now()
