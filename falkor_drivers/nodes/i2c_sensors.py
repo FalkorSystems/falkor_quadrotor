@@ -107,7 +107,58 @@ class I2CSensors:
 
 	return [x, y, z]
 
+    def self_test_mag(self):
+        test_limits = { 5: [ 243, 575 ],
+                        6: [ 206, 487 ],
+                        7: [ 143, 339 ] }
+
+        # Configure self-test
+        # 8-average, 15Hz, positive self-test
+        self.bus.write_byte_data(self.mag_addr,0x00,0x71)
+        time.sleep(0.005)
+
+        # continuous measurement mode
+        self.bus.write_byte_data(self.mag_addr,0x02,0x00)
+        time.sleep(0.005)
+
+        self.mag_test_success = False
+        for gain in [5, 6, 7]:
+            gain = 5
+
+            # Set gain 
+            self.bus.write_byte_data(self.mag_addr,0x01,gain << 5)
+            time.sleep(0.005)
+
+            # Read test-data
+            # Read once and discard
+            [x,y,z] = self.mag_read_raw()
+            time.sleep(0.070)
+
+            [x,y,z] = self.mag_read_raw()
+
+            # Check limits
+            if ( x > test_limits[gain][0] and x < test_limits[gain][1] and
+                 y > test_limits[gain][0] and y < test_limits[gain][1] and
+                 z > test_limits[gain][0] and z < test_limits[gain][1] ):
+                self.mag_test_success = True
+                break
+
+            time.sleep(0.070)
+
+        if not self.mag_test_success:
+            rospy.logerror( "magnetometer self test failed" )
+        else:
+            rospy.loginfo( "magnetometer STP: (%d,%d,%d), gain = %d" %
+                           ( x, y, z, gain )
+            # if we have stored STP values from calibration
+            #self.x_tempcomp = X_STP / x
+            #self.y_tempcomp = Y_STP / y
+            #self.z_tempcomp = Z_STP / z
+            self.x_tempcomp = self.y_tempcomp = self.z_tempcomp = 1
+
     def init_mag(self):
+        self.self_test_mag()
+
         # Continuous measurement mode
 	self.bus.write_byte_data(self.mag_addr,0x02,0x00)
 	time.sleep(0.005)
@@ -120,7 +171,10 @@ class I2CSensors:
         self.bus.write_byte_data(self.mag_addr,0x00,0x70)
         time.sleep(0.005)
 
-    def mag_read(self):
+    def mag_read_raw(self):
+        if not self.mag_test_success:
+            return None
+
 	while True:
             try:
 	        buff = self.bus.read_i2c_block_data(self.mag_addr,0x03)
@@ -131,11 +185,15 @@ class I2CSensors:
 	x = int16((buff[0] << 8) | buff[1])
 	y = int16((buff[4] << 8) | buff[5])
 	z = int16((buff[2] << 8) | buff[3])
+        return [ x, y, z ]
+
+    def mag_read(self):
+        [x, y, z] = self.mag_read_raw()
 
         # Resolution for gain = 1 is 0.92 mG/LSB
-        x *= 0.92e-3
-        y *= 0.92e-3
-        z *= 0.92e-3
+        x *= 0.92e-3 * self.x_tempcomp
+        y *= 0.92e-3 * self.y_tempcomp
+        z *= 0.92e-3 * self.z_tempcomp
 	return [x, y, z]
 
     def init_baro(self):
