@@ -24,11 +24,38 @@ class I2CSensors:
         self.baro_addr = 0x77
         self.bus = smbus.SMBus(bus_number)
 
-        self.init_gyro()
-        self.init_accel()
-	self.init_mag()
-	self.baro_data = self.init_baro()
-	self.gyro_avg = self.calib_gyro(60)
+        try:
+            self.init_gyro()
+        except Exception as e:
+            rospy.logerr( "Gyro init failed: %s" % str(e) )
+            self.gyro_working = False
+        else:
+            self.gyro_working = True
+            self.gyro_avg = self.calib_gyro(60)
+
+        try:
+            self.init_accel()
+        except Exception as e:
+            rospy.logerr( "Accelerometer init failed: %s" % str(e) )
+            self.accel_working = False
+        else:
+            self.accel_working = True
+    
+        try:
+            self.init_mag()
+        except Exception as e:
+            rospy.logerr( "Magnetometer init failed: %s" % str(e) )
+            self.mag_working = False
+        else:
+            self.mag_working = True
+
+        try:
+            self.init_baro()
+        except Exception as e:
+            rospy.logerr( "Barometer init failed: %s" % str(e) )
+            self.baro_working = False
+        else:
+            self.baro_working = True
 
     def calib_gyro(self,n):
 	# gyro runs at 125Hz
@@ -40,12 +67,15 @@ class I2CSensors:
 	    for i in range(3):
                 gyro_avg[i] += float(gyro_vals[i])/samples
 
-            rospy.sleep(1.0/rate)
+            time.sleep(1.0/rate)
 	print gyro_avg
 
 	return gyro_avg
 
     def gyro_read(self):
+        if self.gyro_working == False:
+            return None
+
 	raw = self.gyro_raw()
 	calibrated = [0,0,0]
 	for i in range(3):
@@ -56,20 +86,20 @@ class I2CSensors:
     def init_gyro(self):
 	# Power up reset defaults
 	self.bus.write_byte_data(self.gyro_addr,0x3E,0x80)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	# Select full-scale range of the gyro sensors
 	# Set LP filter bandwidth to 256Hz
         # DLPF_CFG = 0, FS_SEL = 3
 	self.bus.write_byte_data(self.gyro_addr,0x16,0x18)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	# Set sample rato to 125Hz
         # 8kHz / 64 = 125Hz
         # SMPLRT_DIV = 63
 	self.bus.write_byte_data(self.gyro_addr,0x15,0x3F)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	# Set clock to PLL with z gyro reference
 	self.bus.write_byte_data(self.gyro_addr,0x3E,0x00)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 
     def gyro_raw(self):
 	while True:
@@ -87,13 +117,16 @@ class I2CSensors:
 
     def init_accel(self):
 	self.bus.write_byte_data(self.accel_addr,0x2D,0x08) # Power register to Measurement Mode
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	self.bus.write_byte_data(self.accel_addr,0x31,0x08) # Data format register set to full resolution
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	self.bus.write_byte_data(self.accel_addr,0x2C,0x0A) # Set data rate 100 hz
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 
     def accel_read(self):
+        if self.accel_working == False:
+            return None
+
         while True:
             try:
                 buff = self.bus.read_i2c_block_data(self.accel_addr,0x32)
@@ -115,24 +148,24 @@ class I2CSensors:
         # Configure self-test
         # 8-average, 15Hz, positive self-test
         self.bus.write_byte_data(self.mag_addr,0x00,0x71)
-        rospy.sleep(0.005)
+        time.sleep(0.005)
 
         # continuous measurement mode
         self.bus.write_byte_data(self.mag_addr,0x02,0x00)
-        rospy.sleep(0.005)
+        time.sleep(0.005)
 
-        self.mag_test_success = False
+        mag_test_success = False
         for gain in [5, 6, 7]:
             gain = 5
 
             # Set gain 
             self.bus.write_byte_data(self.mag_addr,0x01,gain << 5)
-            rospy.sleep(0.005)
+            time.sleep(0.005)
 
             # Read test-data
             # Read once and discard
             [x,y,z] = self.mag_read_raw()
-            rospy.sleep(0.070)
+            time.sleep(0.070)
 
             [x,y,z] = self.mag_read_raw()
 
@@ -140,13 +173,15 @@ class I2CSensors:
             if ( x > test_limits[gain][0] and x < test_limits[gain][1] and
                  y > test_limits[gain][0] and y < test_limits[gain][1] and
                  z > test_limits[gain][0] and z < test_limits[gain][1] ):
-                self.mag_test_success = True
+                mag_test_success = True
                 break
+            else:
+                rospy.logwarn( "Magnetometer self test out of limits for gain: %d" % gain )
 
-            rospy.sleep(0.070)
+            time.sleep(0.070)
 
-        if not self.mag_test_success:
-            rospy.logerror( "magnetometer self test failed" )
+        if not mag_test_success:
+            raise Exception( "Magnetometer self test failed" )
         else:
             rospy.loginfo( "magnetometer STP: (%d,%d,%d), gain = %d" %
                            ( x, y, z, gain ) )
@@ -161,18 +196,18 @@ class I2CSensors:
 
         # Continuous measurement mode
 	self.bus.write_byte_data(self.mag_addr,0x02,0x00)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 
         # gain = 1090 (0.92 mG/LSB)
 	self.bus.write_byte_data(self.mag_addr,0x02,0xA0)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 
         # 8 average, 15Hz, normal measurement
         self.bus.write_byte_data(self.mag_addr,0x00,0x70)
-        rospy.sleep(0.005)
+        time.sleep(0.005)
 
     def mag_read_raw(self):
-        if not self.mag_test_success:
+        if self.mag_working == False:
             return None
 
 	while True:
@@ -210,21 +245,25 @@ class I2CSensors:
 	data.append(int16((buff[16] << 8) | buff[17]))
 	data.append(int16((buff[18] << 8) | buff[19]))
 	data.append(int16((buff[20] << 8) | buff[21]))
+        self.baro_data = data
         self.last_temp_read = None
         
         return data
 
     def load_temp(self):
 	self.bus.write_byte_data(self.baro_addr,0xF4,0x2E)
-	rospy.sleep(0.005)
+	time.sleep(0.005)
 	
     def load_pres(self,oss):
 	timing = [0.005,0.008,0.014,0.026]
 	cmd = 0x34 + (oss<<6)
 	self.bus.write_byte_data(self.baro_addr,0xF4,cmd)
-	rospy.sleep(timing[oss])
+	time.sleep(timing[oss])
 	
     def baro_read(self,oss=0):
+        if self.baro_working == False:
+            return None
+
 	ac1 = self.baro_data[0]
 	ac2 = self.baro_data[1]
 	ac3 = self.baro_data[2]
@@ -238,8 +277,8 @@ class I2CSensors:
 	md = self.baro_data[10]
 	
         # Only get the temperature once per second
-        now = rospy.Time.now()
-        if self.last_temp_read == None or ( now - self.last_temp_read > rospy.Duration(1) ):
+        now = time.time()
+        if self.last_temp_read == None or ( now - self.last_temp_read > 1 ):
             self.last_temp_read = now
             self.load_temp()
             while True:
@@ -254,8 +293,8 @@ class I2CSensors:
             # Calculating temperature
             x1 = ((ut - ac6) * ac5) >> 15
             x2 = (mc << 11) / (x1 + md)
-            b5 = x1 + x2
-            self.temperature = (b5 + 8) >> 4
+            self.b5 = x1 + x2
+            self.temperature = (self.b5 + 8) >> 4
 
 	self.load_pres(oss)
 
@@ -269,7 +308,7 @@ class I2CSensors:
 	up = ((buff[0] << 16) + (buff[1] << 8) + buff[2]) >> (8-oss)
 	
 	# Calculating pressure
-	b6 = b5 - 4000
+	b6 = self.b5 - 4000
 	x1 = (b2 * ((b6 * b6) >> 12)) >> 11
 	x2 = (ac2 * b6)>> 11
 	x3 = x1 + x2
@@ -287,6 +326,6 @@ class I2CSensors:
 	pressure = p + (x1 + x2 + 3791) >> 4
 	
 	altitude = 44330*(1-(p/101325.0)**(1/5.255))
-	return [temperature/10.0, pressure/1000.0, altitude]
+	return [self.temperature/10.0, pressure/1000.0, altitude]
 
 

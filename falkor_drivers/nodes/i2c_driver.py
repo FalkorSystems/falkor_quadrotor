@@ -44,6 +44,9 @@ class I2CDriver:
     def baro_cb( self, event ):
         # baro_read w/ oss=3 should give us 0.25m RMS accuracy
         baro_data = self.i2c.baro_read(3)
+        if baro_data == None:
+            return
+
         msg = Altimeter()
         msg.header.frame_id = self.baro_frame
 	msg.header.stamp = rospy.Time.now()
@@ -53,6 +56,8 @@ class I2CDriver:
 
     def mag_cb( self, event ):
         mag_data = self.i2c.mag_read()
+        if mag_data == None:
+            return
 
         # transform for calibration
 
@@ -78,6 +83,9 @@ class I2CDriver:
     def imu_cb( self, event ):
         accel_data = self.i2c.accel_read()
         gyro_data = self.i2c.gyro_read()
+        if accel_data == None and gyro_data == None:
+            return
+
         msg = Imu()
 
         msg.header.frame_id = self.imu_frame
@@ -85,14 +93,16 @@ class I2CDriver:
         msg.orientation = Quaternion( 0, 0, 0, 1.0 )
         msg.orientation_covariance = [0]*9
 
-        msg.angular_velocity = Vector3( *gyro_data )
-	msg.angular_velocity.y = -msg.angular_velocity.y
-	msg.angular_velocity.z = -msg.angular_velocity.z
+        if gyro_data != None:
+            msg.angular_velocity = Vector3( *gyro_data )
+            msg.angular_velocity.y = -msg.angular_velocity.y
+            msg.angular_velocity.z = -msg.angular_velocity.z
         
         # We need to figure this out
         msg.angular_velocity_covariance = [0] * 9
 
-        msg.linear_acceleration = Vector3( *accel_data )
+        if accel_data != None:
+            msg.linear_acceleration = Vector3( *accel_data )
 
         # Figure this out too
         msg.linear_acceleration_covariance = [0]*9
