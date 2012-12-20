@@ -279,6 +279,7 @@ class I2CSensors:
         # Only get the temperature once per second
         now = time.time()
         if self.last_temp_read == None or ( now - self.last_temp_read > 1 ):
+            print "updating temperature"
             self.last_temp_read = now
             self.load_temp()
             while True:
@@ -291,10 +292,10 @@ class I2CSensors:
             ut = ((buff[0] << 8) | buff[1])
 
             # Calculating temperature
-            x1 = ((ut - ac6) * ac5) >> 15
-            x2 = (mc << 11) / (x1 + md)
+            x1 = (ut - ac6) * ac5 / 2**15
+            x2 = (mc * 2**11) / (x1 + md)
             self.b5 = x1 + x2
-            self.temperature = (self.b5 + 8) >> 4
+            self.temperature = (self.b5 + 8) / 2**4
 
 	self.load_pres(oss)
 
@@ -309,23 +310,23 @@ class I2CSensors:
 	
 	# Calculating pressure
 	b6 = self.b5 - 4000
-	x1 = (b2 * ((b6 * b6) >> 12)) >> 11
-	x2 = (ac2 * b6)>> 11
+	x1 = (b2 * (b6 * b6 / 2**12)) / 2**11 
+	x2 = ac2 * b6 / 2**11
 	x3 = x1 + x2
-	b3 = (((ac1 * 4 + x3) << oss) + 2) >> 2
-	x1 = ac3 * b6 >> 13
-	x2 = (b1 * ((b6 * b6) >>12)) >> 16
-	x3 = ((x1 + x2) + 2) >> 2
-	b4 = (ac4 * (x3 + 32768)) >> 15
+	b3 = (((ac1 * 4 + x3) << oss) + 2) / 4
+	x1 = ac3 * b6 / 2**13
+	x2 = (b1 * (b6 * b6 / 2**12)) / 2**16
+	x3 = ((x1 + x2) + 2) / 2**2
+	b4 = (ac4 * (x3 + 32768)) / 2**15
 	b7 = (up - b3) * (50000 >> oss)
-	p = (b7 << 1) / b4
+	p = (b7 * 2) / b4
 	
-	x1 = (p >> 8) * (p >> 8)
-	x1 = (x1 * 3038) >> 16
-	x2 = int32(-7357 * p) >> 16
-	pressure = p + (x1 + x2 + 3791) >> 4
+	x1 = int((p / 2.0**8)**2)
+	x1 = (x1 * 3038) / 2**16
+	x2 = int32(-7357 * p) / 2**16
+	pressure = p + (x1 + x2 + 3791) / 2**4
 	
-	altitude = 44330*(1-(p/101325.0)**(1/5.255))
+	altitude = round(44330*(1-(p/101325.0)**(1/5.255)),1)
 	return [self.temperature/10.0, pressure/1000.0, altitude]
 
 
