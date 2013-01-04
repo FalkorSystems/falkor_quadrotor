@@ -62,14 +62,16 @@ class I2CSensors:
     def calib_gyro(self,n):
 	# gyro runs at 125Hz
 	rate = 125
-	samples = 125*n
+	timer = rospy.Rate( rate )
+
+	samples = rate*n
 	gyro_avg = [0,0,0]
 	for i in range(n*rate):
             gyro_vals = self.gyro_raw() 
 	    for i in range(3):
                 gyro_avg[i] += float(gyro_vals[i])/samples
 
-            time.sleep(1.0/rate)
+            timer.sleep()
 	rospy.loginfo( "Gyro calibration: (%6.4f, %6.4f, %6.4f)" % tuple( gyro_avg  ) )
 
 	return gyro_avg
