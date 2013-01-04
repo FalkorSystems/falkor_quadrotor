@@ -174,8 +174,6 @@ class I2CSensors:
 
         mag_test_success = False
         for gain in [5, 6, 7]:
-            gain = 5
-
             # Set gain 
             self.bus.write_byte_data(self.mag_addr,0x01,gain << 5)
             time.sleep(0.005)
