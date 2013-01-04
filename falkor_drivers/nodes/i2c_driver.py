@@ -28,9 +28,12 @@ class I2CDriver:
         self.imu_pub = rospy.Publisher( self.imu_topic, Imu )
         self.baro_pub = rospy.Publisher( self.baro_topic, Altimeter )
 
-        self.mag_center = rospy.get_param( "mag_calib/center", [ 0, 0 ] )
-        self.mag_axes = rospy.get_param( "mag_calib/axes", [ 1, 1 ] )
+        self.mag_center = rospy.get_param( "mag_calib/center", { 'x': 0, 'y': 0 } )
+        self.mag_axes = rospy.get_param( "mag_calib/axes", { 'x': 1, 'y': 1 } )
         self.mag_angle = rospy.get_param( "mag_calib/angle", 0 )
+
+	print self.mag_center, self.mag_axes, self.mag_angle 
+
         self.mag_cos_angle = np.cos( - self.mag_angle )
         self.mag_sin_angle = np.sin( - self.mag_angle )
 
@@ -62,16 +65,16 @@ class I2CDriver:
         # transform for calibration
 
         # translate
-        mag_data[0] -= self.mag_center[0]
-        mag_data[1] -= self.mag_center[1]
+        mag_data[0] -= self.mag_center['x']
+        mag_data[1] -= self.mag_center['y']
 
         # rotate
         mag_data[0] = mag_data[0] * self.mag_cos_angle + mag_data[1] * self.mag_sin_angle
-        mag_data[1] = - mag_data[1] * self.mag.sin_angle + mag_data[1] * self.mag_cos_angle
+        mag_data[1] = - mag_data[1] * self.mag_sin_angle + mag_data[1] * self.mag_cos_angle
 
         # scale
-        mag_data[0] *= self.mag_axes[0]
-        mag_data[1] *= self.mag_axes[1]
+        mag_data[0] *= self.mag_axes['x']
+        mag_data[1] *= self.mag_axes['y']
 
         msg = Vector3Stamped()
         msg.header.frame_id = self.mag_frame
