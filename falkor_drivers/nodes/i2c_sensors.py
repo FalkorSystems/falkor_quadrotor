@@ -218,7 +218,7 @@ class I2CSensors:
 	time.sleep(0.005)
 
         # gain = 1090 (0.92 mG/LSB)
-	self.bus.write_byte_data(self.mag_addr,0x02,0xA0)
+	self.bus.write_byte_data(self.mag_addr,0x02,0x20)
 	time.sleep(0.005)
 
         # 8 average, 15Hz, normal measurement
