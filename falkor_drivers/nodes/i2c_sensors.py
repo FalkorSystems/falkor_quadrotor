@@ -1,5 +1,6 @@
 import smbus,time
 import rospy
+import numpy as np
 
 def int16(b):
     thres = 1 << 15
@@ -22,6 +23,7 @@ class I2CSensors:
         self.mag_addr = 0x1E
         self.accel_addr = 0x53
         self.baro_addr = 0x77
+        self.sonar_addr = 0x70
         self.bus = smbus.SMBus(bus_number)
 
         try:
@@ -68,9 +70,20 @@ class I2CSensors:
                 gyro_avg[i] += float(gyro_vals[i])/samples
 
             time.sleep(1.0/rate)
-	print gyro_avg
+	rospy.loginfo( "Gyro calibration: (%6.4f, %6.4f, %6.4f)" % tuple( gyro_avg  ) )
 
 	return gyro_avg
+
+    def sonar_read(self):
+        # Start ranging
+        self.bus.write_byte(self.sonar_addr,0x51)
+
+        # Wait 60ms
+        time.sleep(0.060)
+        buff = self.bus.read_byte(self.sonar_addr)
+        value = ( buff[0] << 8 ) | buff[1]
+        return value
+        
 
     def gyro_read(self):
         if self.gyro_working == False:
@@ -144,6 +157,9 @@ class I2CSensors:
         test_limits = { 5: [ 243, 575 ],
                         6: [ 206, 487 ],
                         7: [ 143, 339 ] }
+	X_STP = 466.0
+	Y_STP = 433.0
+	Z_STP = 453.0
 
         # Configure self-test
         # 8-average, 15Hz, positive self-test
@@ -186,10 +202,11 @@ class I2CSensors:
             rospy.loginfo( "magnetometer STP: (%d,%d,%d), gain = %d" %
                            ( x, y, z, gain ) )
             # if we have stored STP values from calibration
-            #self.x_tempcomp = X_STP / x
-            #self.y_tempcomp = Y_STP / y
-            #self.z_tempcomp = Z_STP / z
-            self.x_tempcomp = self.y_tempcomp = self.z_tempcomp = 1
+            self.x_tempcomp = X_STP / x
+            self.y_tempcomp = Y_STP / y
+            self.z_tempcomp = Z_STP / z
+	    # If not
+            #self.x_tempcomp = self.y_tempcomp = self.z_tempcomp = 1
 
     def init_mag(self):
         self.self_test_mag()
