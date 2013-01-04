@@ -218,12 +218,15 @@ class I2CSensors:
 	time.sleep(0.005)
 
         # gain = 1090 (0.92 mG/LSB)
-	self.bus.write_byte_data(self.mag_addr,0x02,0x20)
+	self.bus.write_byte_data(self.mag_addr,0x01,0x20)
 	time.sleep(0.005)
 
         # 8 average, 15Hz, normal measurement
         self.bus.write_byte_data(self.mag_addr,0x00,0x70)
         time.sleep(0.005)
+
+        # take a reading and ignore it, in case the gain has changed
+        self.mag_read_raw()
 
     def mag_read_raw(self):
 	while True:
