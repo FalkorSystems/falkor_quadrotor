@@ -9,11 +9,11 @@
   <!-- I2C -->
   <node output="screen" name="i2c_driver" type="i2c_driver.py" pkg="falkor_drivers" >
     <param name="tf_prefix" value="robot" />
-    <param name="mag_calib/center/x" value="0.13213062" />
-    <param name="mag_calib/center/y" value="-0.10308636" />
-    <param name="mag_calib/axes/x" value="1" />
-    <param name="mag_calib/axes/y" value="1.143700" />
-    <param name="mag_calib/angle" value="0.14061404" />
+    <rosparam param="mag_calib">
+      center: { x: 0.13213062, y: -0.10308636" }
+      axes: { x: 1, y: 1.143700 }
+      angle: 0.14061404
+    </rosparam>
   </node>
 
   <!-- PWM -->
