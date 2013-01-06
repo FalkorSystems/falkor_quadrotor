@@ -59,9 +59,6 @@ class FalkorQuadrotorControl:
 
         twist_cmd = Twist()
 
-        # The gimbal pitch is the pitch of this euler plus the pitch between link
-        # and stabilized
-
         euler = tf.transformations.euler_from_quaternion( [ data.pose.orientation.x,
                                                             data.pose.orientation.y,
                                                             data.pose.orientation.z,
@@ -76,30 +73,14 @@ class FalkorQuadrotorControl:
 
         self.cmd_vel_pub.publish( twist_cmd )
 
-        try:
-            # Get the transform from base_stabilized to base_link
-            # so we know what angle to roll the gimbal at
-            #self.listener.waitForTransform( '/robot/base_stabilized',
-            #                                '/robot/base_link',
-            #                                data.header.stamp,
-            #                                rospy.Duration( 0.1 ) )
+        # The gimbal is auto-stabilized by the controller so we just need to pitch 
+        # up / down to point at the beacon
+        gimbal_pitch = euler[1]
+        gimbal_roll = 0
 
-            (trans, rot) = self.listener.lookupTransform( '/robot/base_stabilized',
-                                                          '/robot/base_link',
-                                                          rospy.Time(0) )
+        gimbal_cmd = Gimbal( gimbal_roll, gimbal_pitch, 0 )
 
-            stabilize_euler = tf.transformations.euler_from_quaternion( rot )
-
-            gimbal_pitch = euler[1] - stabilize_euler[1]
-            gimbal_roll = stabilize_euler[0]
-
-            gimbal_cmd = Gimbal( gimbal_roll, gimbal_pitch, 0 )
-
-            self.cmd_gimbal_pub.publish( gimbal_cmd )
-        except (tf.LookupException, tf.Exception,
-                tf.ConnectivityException, tf.ExtrapolationException) as e:
-            rospy.logwarn( "control: transform exception: %s", str( e ) )
-            return
+        self.cmd_gimbal_pub.publish( gimbal_cmd )
  
     def run( self ):
         print "controlling"

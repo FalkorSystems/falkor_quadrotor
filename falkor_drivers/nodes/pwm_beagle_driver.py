@@ -10,6 +10,9 @@ from mmap import mmap
 # PWM control code comes from
 # https://github.com/aquaticus/BeagleBone-tools.git
 #
+# Nanosecond control info is from
+# http://makingaquadrotor.wordpress.com/2012/09/06/explanation-of-the-pwm-modules-on-the-beaglebone
+#
 
 class Pwm:
     MMAP_OFFSET = 0x44c00000                # base address of registers
@@ -116,18 +119,18 @@ class Pwm:
         with open(device,"w") as f:
             f.write("%d" % int(value))
 
-    def setDutyPercent(self, device, dutyPercent):
-        """ Set duty cycle in percents. """
-        self.writeDevice("%s/duty_percent" % device, dutyPercent)
+    def setDutyNS(self, device, nanoSeconds):
+        """ Set duty cycle in nanoseconds. """
+        self.writeDevice("%s/duty_ns" % device, nanoSeconds)
 
-    def setDutyPercentByChannel(self, channel, dutyPercent):
+    def setDutyNSByChannel(self, channel, nanoSeconds):
         dev = Pwm.pwm_map[channel]['fs']
-	print "setting channel %d to %d" % ( channel, dutyPercent )
-        self.setDutyPercent(dev, dutyPercent)
+	print "setting channel %d to %d" % ( channel, nanoSeconds )
+        self.setDutyNS(dev, nanoSeconds)
 
-    def getDutyPercent(self, device):
-        """ Reads current duty cycle in percent. """
-        with open("%s/duty_percent" % device,"r") as f:
+    def getDutyNS(self, device):
+        """ Reads current duty cycle in nanoseconds. """
+        with open("%s/duty_ns" % device,"r") as f:
             s = f.read()
         return int(s)
 
@@ -136,7 +139,7 @@ class Pwm:
         self.writeDevice("%s/period_freq" % device, frequencyHz)
 
     def getFrequency(self, device):
-        """ Reads current duty cycle in percent. """
+        """ Reads current frequency. """
         with open("%s/period_freq" % device,"r") as f:
             s = f.read()
         return int(s)
@@ -182,18 +185,17 @@ class Pwm:
             self.setMuxMode(pwm['pin'], pwm['mode'])
 
             # set frequency etc
-            duty_percent = self.getDutyPercent(dev)
+            duty_ns = self.getDutyNS(dev)
             self.run(dev, 0) #to change frequency pwm must be stopped
-            self.setDutyPercent(dev, 0) #set to 0 before setting frequency
+            self.setDutyNS(dev, 0) #set to 0 before setting frequency
             self.setFrequency(dev, frequency) #set frequency
-            self.setDutyPercent(dev, duty_percent) #back to previous duty cycle
+            self.setDutyNS(dev, duty_ns) #back to previous nanoseconds
             self.run(dev,1) #start PWM
 
 class PwmDriver:
     def __init__( self ):
         self.channels = range(1,7)
         self.frequency = rospy.get_param( "~pwm_frequency", 50 )
-        self.period = 1.0/self.frequency * 1000000 # period in microseconds
         self.pwm = Pwm( self.channels, self.frequency )
         self.pwm_topic = rospy.get_param( "~pwm_topic", "pwm" )
         self.pwm_sub = rospy.Subscriber( self.pwm_topic, falkor_msgs.msg.Pwm, self.pwm_cb )
@@ -204,9 +206,8 @@ class PwmDriver:
             raise Exception( "Length of pwm data doesn't match the number of channels" )
 
         for i in zip( self.channels, data.pwm ):
-            # convert us to duty percent
-            duty_percent = int( i[1] / self.period * 100 )
-            self.pwm.setDutyPercentByChannel( i[0], duty_percent )
+            nano_seconds = i[1] * 1e3
+            self.pwm.setDutyNSByChannel( i[0], nano_seconds )
         
 
     def run(self):
