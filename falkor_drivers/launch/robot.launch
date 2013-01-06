@@ -7,8 +7,13 @@
   </node>
 
   <!-- I2C -->
-  <node name="i2c_driver" type="i2c_driver.py" pkg="falkor_drivers" >
+  <node output="screen" name="i2c_driver" type="i2c_driver.py" pkg="falkor_drivers" >
     <param name="tf_prefix" value="robot" />
+    <rosparam param="mag_calib">
+      center: { x: 0.17139923, y: -0.41664096 }
+      axes: { x: 1, y: 0.8968906 }
+      angle: -0.2000096
+    </rosparam>
   </node>
 
   <!-- PWM -->

@@ -86,11 +86,12 @@ class MagnetometerCalibrator:
         return np.array([res1, res2])
 
     def run(self):
-        rospy.loginfo( "Starting magnetometer calibration. Rotate craft now." )
 
         # Wait until we start to get at least one point
         while self.point_count < 1:
             rospy.sleep(1)
+
+        rospy.loginfo( "Starting magnetometer calibration. Rotate craft now." )
 
         # now wait two minutes
         progress=progressbar.ProgressBar()
