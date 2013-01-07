@@ -1,3 +1,6 @@
+#ifndef FALKOR_DRIVERS_I2C_H
+#define FALKOR_DRIVERS_I2C_H
+
 // This is modeled after python-smbus code
 #include <stdint.h>
 #include <stdlib.h>
@@ -32,3 +35,5 @@ public:
     void writeWordData( uint8_t address, uint8_t cmd, uint16_t val );
     std::vector<uint8_t> readI2CBlockData( uint8_t address, uint8_t cmd, int len );
 };
+
+#endif /* FALKOR_DRIVERS_I2C_H */

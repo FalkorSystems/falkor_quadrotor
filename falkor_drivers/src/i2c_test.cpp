@@ -1,13 +1,45 @@
 #include <stdlib.h>
 #include <falkor_drivers/i2c.h>
-    
+#include <falkor_drivers/sensor.h>
+#include <iostream>
+ 
+void print_vector( const std::vector<double> &vec )
+{
+  for( std::vector<double>::const_iterator iter = vec.begin(); iter < vec.end(); iter++ )
+    {
+      std::cout << *iter << " ";
+    }
+  std::cout << std::endl;
+}
+
+void init_and_print( I2CSensor *i2c_sensor )
+{
+  try {
+    i2c_sensor->init();
+    print_vector( i2c_sensor->read() );
+  }
+  catch( std::exception( e ) ) {
+      std::cerr << e.what() << std::endl;
+  }
+}
+
 int main(void)
 {
   I2CDriver i2c(3);
-  std::vector<uint8_t> result = i2c.readI2CBlockData( 0x68, 0x1d, 32 );
+  Barometer barometer( 0x77, &i2c);
+  Accelerometer accelerometer( 0x53, &i2c );
+  Magnetometer magnetometer( 0x1E, &i2c, 0.0, 0.0, 0.0, 0.0, 0, 466, 433, 453 );
+  Gyrometer gyrometer( 0x68, &i2c );
+  
+  std::cout << "baro" << std::endl;
+  init_and_print( &barometer );
 
-  for( int i = 0; i < result.size(); i++ )
-    printf( "%X ", result[i] );
+  std::cout << "accel" << std::endl;
+  init_and_print( &accelerometer );
 
-  printf( "\n" );
+  std::cout << "magnet" << std::endl;
+  init_and_print( &magnetometer );
+
+  std::cout << "gyrometer" << std::endl;
+  init_and_print( &gyrometer );
 }

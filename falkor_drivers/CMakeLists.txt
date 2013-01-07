@@ -35,6 +35,14 @@ rosbuild_add_executable(pwm_io_node src/pwm_io_node.cpp)
 target_link_libraries(pwm_io_node pwm_io)
 
 rosbuild_add_library(i2c src/i2c.cpp)
+rosbuild_add_library(i2c src/sensor.cpp)
 
 rosbuild_add_executable(i2c_test src/i2c_test.cpp)
 target_link_libraries(i2c_test i2c)
+
+#rosbuild_add_executable(i2c_driver src/i2c_driver.cpp)
+#target_link_libraries(i2c_driver i2c)
+#target_link_libraries(i2c_driver rt)
+
+
+
