@@ -76,12 +76,12 @@ class I2CDriver:
         mag_data[1] -= self.mag_center['y']
 
         # rotate
-        mag_data[0] = mag_data[0] * self.mag_cos_angle + mag_data[1] * self.mag_sin_angle
-        mag_data[1] = - mag_data[1] * self.mag_sin_angle + mag_data[1] * self.mag_cos_angle
+        x = mag_data[0] * self.mag_cos_angle + mag_data[1] * self.mag_sin_angle
+        y = - mag_data[0] * self.mag_sin_angle + mag_data[1] * self.mag_cos_angle
 
         # scale
-        mag_data[0] /= self.mag_axes['x']
-        mag_data[1] /= self.mag_axes['y']
+        mag_data[0] = x/self.mag_axes['x']
+        mag_data[1] = y/self.mag_axes['y']
 
         msg = Vector3Stamped()
         msg.header.frame_id = self.mag_frame
