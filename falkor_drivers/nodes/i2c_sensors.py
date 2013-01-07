@@ -1,6 +1,7 @@
 import smbus,time
 import rospy
 import numpy as np
+import math
 
 def int16(b):
     thres = 1 << 15
@@ -24,7 +25,16 @@ class I2CSensors:
         self.accel_addr = 0x53
         self.baro_addr = 0x77
         self.sonar_addr = 0x70
+        self.pwm_addr = 0x5e
         self.bus = smbus.SMBus(bus_number)
+
+        try:
+            self.init_pwm(50)
+        except Exception as e:
+            rospy.logerr( "PWM init failed: %s" % str(e) )
+            self.pwm_working = False
+        else:
+            self.pwm_working = True
 
         try:
             self.init_gyro()
@@ -58,6 +68,46 @@ class I2CSensors:
             self.baro_working = False
         else:
             self.baro_working = True
+
+    def init_pwm(self, freq):
+        # From
+        # https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/blob/master/Adafruit_PWM_Servo_Driver/Adafruit_PWM_Servo_Driver.py
+        # reset PCA9685
+        self.bus.write_byte_data(self.pwm_addr,0x00,0x00)
+
+        prescaleval = 25e6
+        prescaleval /= (4096.0*float(freq))
+        prescaleval -= 1.0
+        prescale = int(math.floor(prescaleval + 0.5 ))
+        print "prescale: ", prescale
+        self.us_per_val = 1.0/freq * 1e6 / 4096.0
+        print "us_perl_val: ", self.us_per_val
+        
+        old_mode = self.bus.read_byte_data(self.pwm_addr,0x00)
+
+        # sleep
+        self.bus.write_byte_data(self.pwm_addr,0x00,( old_mode & 0x7F ) | 0x10 )
+
+        # prescale
+        self.bus.write_byte_data(self.pwm_addr,0xFE,prescale)
+
+        # restore mode
+        self.bus.write_byte_data(self.pwm_addr,0x00, old_mode )
+        time.sleep(0.005)
+        self.bus.write_byte_data(self.pwm_addr,0x00, old_mode | 0x80 )
+
+    def write_pwm(self,channel,microseconds):
+        off_address = 0x08 + channel*4
+        on_address = 0x06 + channel*4
+
+        val = int( microseconds / self.us_per_val )
+
+        # No phase shift
+        self.bus.write_byte_data(self.pwm_addr,on_address,0x00)
+        self.bus.write_byte_data(self.pwm_addr,on_address+1,0x00)
+
+        self.bus.write_byte_data(self.pwm_addr,off_address, val & 0xFF )
+        self.bus.write_byte_data(self.pwm_addr,off_address+1, val >> 8 )
 
     def calib_gyro(self,n):
 	# gyro runs at 125Hz

@@ -44,6 +44,13 @@ class I2CDriver:
         self.mag_timer = rospy.Timer( rospy.Duration( 1/float(rospy.get_param( "~mag_rate", 15 )) ),
                                       self.mag_cb )
 
+        self.pwm_sub = rospy.Subscribe( "pwm_out", Pwm, self.pwm_cb )
+
+    def pwm_cb( self, data ):
+        for i in range(0,len(data.pwm)):
+            rospy.logdebug( "sending %d to %d" % (data.pwm[i],i) )
+            self.i2c.write_pwm(i,data.pwm[i])
+
     def baro_cb( self, event ):
         # baro_read w/ oss=3 should give us 0.25m RMS accuracy
         baro_data = self.i2c.baro_read(3)
