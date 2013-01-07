@@ -248,9 +248,9 @@ void Gyrometer::initBase(void) {
   calibrate(60);
 }
 
-std::vector<uint16_t> Gyrometer::readRaw(void) {
+std::vector<int16_t> Gyrometer::readRaw(void) {
   std::vector<uint8_t> data = busPtr->readI2CBlockData(address, 0x1d, 6);
-  std::vector<uint16_t> raw(3);
+  std::vector<int16_t> raw(3);
 
   raw[0] = -1 * int16_t(( data[2] << 8 ) | data[3] );
   raw[1] = -1 * int16_t(( data[0] << 8 ) | data[1] );
@@ -267,17 +267,19 @@ void Gyrometer::calibrate(int n) {
   gyroCalibration[0] = gyroCalibration[1] = gyroCalibration[2] = 0;
   for(int i = 0; i < samples; i++)
     {
-      std::vector<uint16_t> gyro_vals = readRaw();
+      std::vector<int16_t> gyro_vals = readRaw();
       for(int j = 0; j < 3; j++)
 	  gyroCalibration[j] += double(gyro_vals[j])/samples;
 
       if( usleep( sleep_time ) == -1 )
 	throw std::runtime_error( strerror( errno ) );
     }
+
+  ROS_INFO( "Gyrometer calibration: (%g, %g, %g)", gyroCalibration[0], gyroCalibration[1], gyroCalibration[2] );
 }
 
 std::vector<double> Gyrometer::readBase(void) {
-  std::vector<uint16_t> raw = readRaw();
+  std::vector<int16_t> raw = readRaw();
   std::vector<double> result(3);
   for(int i = 0; i < 3; i++)
     result[i] = ( raw[i] - gyroCalibration[i] ) / 14.375 / 180 * M_PI;

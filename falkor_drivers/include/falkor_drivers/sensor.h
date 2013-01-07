@@ -53,7 +53,7 @@ class Gyrometer : public I2CSensor {
  private:
   double gyroCalibration[3];
   void calibrate(int n);
-  std::vector<uint16_t> readRaw(void);
+  std::vector<int16_t> readRaw(void);
 
  public:
   Gyrometer( uint8_t address_, I2CDriver *busPtr_ );
