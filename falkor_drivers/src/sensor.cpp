@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <stdexcept>
+#include <iostream>
 
 
 std::vector<double> I2CSensor::read(void)
@@ -43,12 +44,18 @@ Accelerometer::Accelerometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor
 void Accelerometer::initBase(void) {
   // Power register to measurement mode
   busPtr->writeByteData(address, 0x2D, 0x08);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Data format register set to full resolution
   busPtr->writeByteData(address, 0x31, 0x08);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Set data rate 100Hz
   busPtr->writeByteData(address, 0x2C, 0x0A);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 }
 
 std::vector<double> Accelerometer::readBase(void) {
@@ -108,7 +115,12 @@ void Magnetometer::selfTest(void)
     
   // Configure self_test
   busPtr->writeByteData( address, 0x00, 0x71 );
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
+
   busPtr->writeByteData( address, 0x02, 0x00 );
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   int magTestSuccess = true;
   std::vector<int16_t> rawData;
@@ -117,12 +129,15 @@ void Magnetometer::selfTest(void)
     {
       uint8_t gain = test_gains[i];
       busPtr->writeByteData( address, 0x01, gain << 5 );
+      if( usleep( 5000 ) == -1 )
+	throw std::runtime_error( strerror( errno ) );
 
       // Read and discard
       readRaw();
-      
-      rawData = readRaw();
+      if( usleep( 5000 ) == -1 )
+	throw std::runtime_error( strerror( errno ) );
 
+      rawData = readRaw();
       
       magTestSuccess = true;
       for( int j = 0; j < 3; j++ )
@@ -160,9 +175,9 @@ std::vector<double> Magnetometer::readBase(void)
 {
   std::vector<int16_t> rawResult = readRaw();
   std::vector<double> resultTemp = tempCompensate( rawResult );
-  //      std::vector<double> resultCalibrated = correct( resultTemp );
+  std::vector<double> resultCalibrated = correct( resultTemp );
 
-  return resultTemp;
+  return resultCalibrated;
 }
       
 void Magnetometer::initBase(void)
@@ -171,12 +186,18 @@ void Magnetometer::initBase(void)
 
   // Continuous measurement mode
   busPtr->writeByteData( address, 0x02, 0x00 );
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Gain = 1090 (0.92 mG/LSB)
   busPtr->writeByteData( address, 0x01, 0x20 );
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // 8 average, 15Hz, normal measurement
   busPtr->writeByteData( address, 0x00, 0x70 );
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Take a reading and ignore it
   readRaw();
@@ -189,19 +210,27 @@ Gyrometer::Gyrometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( addres
 void Gyrometer::initBase(void) {
   // Power up reset defaults
   busPtr->writeByteData(address, 0x3E, 0x80);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Select full-scale ralte of Gyro sensors
   // set LP filter bandwidth to 256Hz
   // DLPF_CFG = 0, FS_SEL = 3
   busPtr->writeByteData(address, 0x16, 0x18);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Set sample reatio to 125Hz
   // 8 kHz/64 = 125Hz
   // SMPLRT_DIV = 63
   busPtr->writeByteData(address, 0x15, 0x3F);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   // Set clock to PLL with z gyro reference
   busPtr->writeByteData(address, 0x3E, 0x00);
+  if( usleep( 5000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 
   calibrate(60);
 }
@@ -270,14 +299,16 @@ void Barometer::loadCalibration(void) {
 
 void Barometer::loadTemperature(void) {
   busPtr->writeByteData(address, 0xF4, 0x2E);
+  if( usleep( 4500 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 }
 
 void Barometer::loadPressure(uint8_t oss) {
   if( oss > 3 )
     throw std::runtime_error( "oss exceeds 3" );
 
-  useconds_t timing[] = { 5000, 8000, 14000, 26000 };
-  uint8_t cmd = 0x34 + (oss<<6);
+  useconds_t timing[] = { 4500, 7500, 13500, 25500 };
+  uint8_t cmd = 0x34 | (oss<<6);
 
   busPtr->writeByteData(address, 0xF4, cmd);
   if( usleep( timing[oss] ) == -1 )
@@ -299,20 +330,43 @@ std::vector<double> Barometer::readBase(void) {
       loadTemperature();
       std::vector<uint8_t> data = busPtr->readI2CBlockData(address, 0xF6, 2);
       uint16_t ut = ((data[0] << 8) | data[1] );
+      //      std::cout << "ut: " << ut << std::endl;
 
       double x1 = ( ut - ac6 ) * ac5 / 32768.0;
+      //      std::cout << "x1: " << x1 << std::endl;
+
       double x2 = ( mc * 2048.0 ) / ( x1 + md );
+      //      std::cout << "x2: " << x2 << std::endl;
+
       double b5 = x1 + x2;
+      //      std::cout << "b5: " << b5 << std::endl;
 
       double b6 = b5 - 4000;
+      //      std::cout << "b6: " << b6 << std::endl;
+
       x1 = (b2 * ( b6 * b6 / 4096.0 ) ) / 2048.0;
+      //      std::cout << "x1: " << x1 << std::endl;
+
       x2 = ac2 * b6 / 2048.0;
+      //      std::cout << "x2: " << x2 << std::endl;
+
       double x3 = x1 + x2;
+      //      std::cout << "x3: " << x3 << std::endl;
+
       b3 = (((ac1 * 4 + x3) * pow(2,oss) ) + 2) / 4.0;
+      //      std::cout << "b3: " << b3 << std::endl;
+
       x1 = ac3 * b6 / 8192.0;
+      //      std::cout << "x1: " << x1 << std::endl;
+
       x2 = (b1 * ( b6 * b6 / 4096.0 )) / 65536.0;
+      //      std::cout << "x2: " << x2 << std::endl;
+
       x3 = ((x1 + x2) + 2) / 4.0;
-      b4 = (ac4 * (x3 * 32768.0))/32768.0;
+      //      std::cout << "x3: " << x3 << std::endl;
+
+      b4 = (ac4 * (x3 + 32768.0))/32768.0;
+      //      std::cout << "b4: " << b4 << std::endl;
 
       temperature = ( b5 + 8 ) / 16.0;
       lastTemperatureTime = now;
@@ -322,12 +376,23 @@ std::vector<double> Barometer::readBase(void) {
 
   std::vector<uint8_t> data = busPtr->readI2CBlockData(address, 0xF6, 3 );
   uint32_t up = ((data[0] << 16) | (data[1]<<8) | data[2] ) >> (8-oss);
+  //  std::cout << "up: " << up << std::endl;
 
   double b7 = (up - b3) * (50000>>oss);
+  //  std::cout << "b7: " << b7 << std::endl;
+
   double p = (b7 * 2) / b4;
+  //  std::cout << "p: " << p << std::endl;
+
   double x1 = floor((p/256.0) * (p/256.0));
+  //  std::cout << "x1: " << x1 << std::endl;
+
   x1 = (x1 * 3038) / 65536.0;
+  //  std::cout << "x1: " << x1 << std::endl;
+
   double x2 = int32_t(-7537*p) / 65536.0;
+  //  std::cout << "x2: " << x2 << std::endl;
+
   double pressure = p + (x1 + x2 + 3791) / 16.0;
   double altitude = 44330 * ( 1-pow((pressure/101325.0),1/5.255));
 
