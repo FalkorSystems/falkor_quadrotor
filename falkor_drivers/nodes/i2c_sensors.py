@@ -395,7 +395,7 @@ class I2CSensors:
 	x2 = int32(-7357 * p) / 2**16
 	pressure = p + (x1 + x2 + 3791) / 2**4
 	
-	altitude = round(44330*(1-(p/101325.0)**(1/5.255)),1)
+	altitude = round(44330*(1-(pressure/101325.0)**(1/5.255)),1)
 	return [self.temperature/10.0, pressure/1000.0, altitude]
 
 
