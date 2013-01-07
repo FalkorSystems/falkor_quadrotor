@@ -177,7 +177,7 @@ class I2CSensors:
         x = -1 * int16((buff[2] << 8) | buff[3])
         y = -1 * int16((buff[0] << 8) | buff[1])
         z = -1 * int16((buff[4] << 8) | buff[5])
-     
+        
         return [x, y, z]
 
     def init_accel(self):
@@ -275,6 +275,7 @@ class I2CSensors:
 
         # take a reading and ignore it, in case the gain has changed
         self.mag_read_raw()
+        time.sleep(0.070)
 
     def mag_read_raw(self):
 	while True:
@@ -327,6 +328,7 @@ class I2CSensors:
     def load_pres(self,oss):
 	timing = [0.005,0.008,0.014,0.026]
 	cmd = 0x34 + (oss<<6)
+
 	self.bus.write_byte_data(self.baro_addr,0xF4,cmd)
 	time.sleep(timing[oss])
 	
@@ -354,16 +356,24 @@ class I2CSensors:
             while True:
                 try:
                     buff = self.bus.read_i2c_block_data(self.baro_addr,0xF6)
+
                     break
                 except IOError:
                     rospy.logwarn( "Lost connection while reading barometer" )
             
             ut = ((buff[0] << 8) | buff[1])
+#            print "ut: ", ut
 
             # Calculating temperature
             x1 = (ut - ac6) * ac5 / 2**15
+#            print "x1: ", x1
+
             x2 = (mc * 2**11) / (x1 + md)
+#            print "x2: ", x2
+
             self.b5 = x1 + x2
+#            print "b5: ", self.b5
+
             self.temperature = (self.b5 + 8) / 2**4
 
 	self.load_pres(oss)
@@ -371,30 +381,46 @@ class I2CSensors:
 	while True:
             try:
 	        buff = self.bus.read_i2c_block_data(self.baro_addr,0xF6)
+                print "baro read: ", buff
 		break
 	    except IOError:
                 rospy.logwarn( "Lost connection while reading barometer" )
 
 	up = ((buff[0] << 16) + (buff[1] << 8) + buff[2]) >> (8-oss)
+#        print "up: ", up
 	
 	# Calculating pressure
 	b6 = self.b5 - 4000
+#        print "b6: ", b6
 	x1 = (b2 * (b6 * b6 / 2**12)) / 2**11 
+#        print "x1: ", x1
 	x2 = ac2 * b6 / 2**11
+#        print "x2: ", x2
 	x3 = x1 + x2
+#        print "x3: ", x3
 	b3 = (((ac1 * 4 + x3) << oss) + 2) / 4
+#        print "b3: ", b3
 	x1 = ac3 * b6 / 2**13
+#        print "x1: ", x1
 	x2 = (b1 * (b6 * b6 / 2**12)) / 2**16
+#        print "x2: ", x2
 	x3 = ((x1 + x2) + 2) / 2**2
+#        print "x3: ", x3
 	b4 = (ac4 * (x3 + 32768)) / 2**15
+#        print "b4: ", b4
 	b7 = (up - b3) * (50000 >> oss)
+#        print "b7: ", b7
 	p = (b7 * 2) / b4
+#        print "p: ", p
 	
 	x1 = int((p / 2.0**8)**2)
+#        print "x1: ", x1
 	x1 = (x1 * 3038) / 2**16
+#        print "x1: ", x1
 	x2 = int32(-7357 * p) / 2**16
+#        print "x2: ", x2
 	pressure = p + (x1 + x2 + 3791) / 2**4
-	
+
 	altitude = round(44330*(1-(pressure/101325.0)**(1/5.255)),1)
 	return [self.temperature/10.0, pressure/1000.0, altitude]
 
