@@ -234,7 +234,7 @@ class I2CSensors:
             time.sleep(0.070)
 
             [x,y,z] = self.mag_read_raw()
-
+            
             # Check limits
             if ( x > test_limits[gain][0] and x < test_limits[gain][1] and
                  y > test_limits[gain][0] and y < test_limits[gain][1] and
