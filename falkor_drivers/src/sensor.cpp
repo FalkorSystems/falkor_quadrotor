@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdexcept>
 #include <iostream>
+#include "ros/ros.h"
 
 
 std::vector<double> I2CSensor::read(void)
@@ -134,7 +135,7 @@ void Magnetometer::selfTest(void)
 
       // Read and discard
       readRaw();
-      if( usleep( 5000 ) == -1 )
+      if( usleep( 70000 ) == -1 )
 	throw std::runtime_error( strerror( errno ) );
 
       rawData = readRaw();
@@ -143,12 +144,22 @@ void Magnetometer::selfTest(void)
       for( int j = 0; j < 3; j++ )
 	{
 	  if( ( rawData[j] < test_limits[i][0] ) || ( rawData[j] > test_limits[i][1] ) )
-	    magTestSuccess = false;
+	    {
+	      magTestSuccess = false;
+	      ROS_WARN( "Magnetometer self test out of limits for gain: %d", gain );
+	    }
 	}
 
       if( magTestSuccess )
-	break;
+	{
+	  ROS_INFO( "Magnetometer STP: (%d, %d, %d), gain = %d", rawData[0], rawData[1], rawData[2], gain );
+	  break;
+	}
+
+      if( usleep( 70000 ) == -1 )
+	throw std::runtime_error( strerror( errno ) );
     }
+
   if( !magTestSuccess )
     throw std::runtime_error( "Mag self test failure" );
 
@@ -201,6 +212,8 @@ void Magnetometer::initBase(void)
 
   // Take a reading and ignore it
   readRaw();
+  if( usleep( 70000 ) == -1 )
+    throw std::runtime_error( strerror( errno ) );
 }
 
 Gyrometer::Gyrometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
