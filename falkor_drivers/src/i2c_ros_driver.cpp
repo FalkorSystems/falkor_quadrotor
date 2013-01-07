@@ -63,13 +63,13 @@ I2CRosDriver::I2CRosDriver(ros::NodeHandle nh_,
     magFrame = "magnetometer";
 
   if(!nhPrivate.getParam( "imu_frame", imuFrame ))
-    magFrame = "imu";
+    imuFrame = "imu";
 
   if(!nhPrivate.getParam( "baro_frame", baroFrame ))
     baroFrame = "altimeter";
 
   imuPub = nh.advertise<sensor_msgs::Imu>(imuTopic, 1);
-  magPub = nh.advertise<geometry_msgs::Vector3Stamped>(imuTopic, 1);
+  magPub = nh.advertise<geometry_msgs::Vector3Stamped>(magTopic, 1);
   baroPub = nh.advertise<falkor_msgs::Altimeter>(baroTopic, 1);
 }
 
