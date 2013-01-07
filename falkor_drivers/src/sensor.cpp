@@ -38,10 +38,6 @@ I2CSensor::~I2CSensor()
 {
 }
 
-Accelerometer::Accelerometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
-{
-}
-
 void Accelerometer::initBase(void) {
   // Power register to measurement mode
   busPtr->writeByteData(address, 0x2D, 0x08);
@@ -71,9 +67,9 @@ std::vector<double> Accelerometer::readBase(void) {
   return result;
 }
 
-Magnetometer::Magnetometer( uint8_t address_, I2CDriver *busPtr_, double center_x_, double center_y_,
-			    double axes_x_, double axes_y_, double angle_, double X_STP_, double Y_STP_,
-			    double Z_STP_ ) : I2CSensor( address_, busPtr_ )
+void Magnetometer::setCalibration( double center_x_, double center_y_,
+				   double axes_x_, double axes_y_, double angle_, int X_STP_, int Y_STP_,
+				   int Z_STP_ ) 
 {
   center[0] = center_x_;
   center[1] = center_y_;
@@ -216,10 +212,6 @@ void Magnetometer::initBase(void)
     throw std::runtime_error( strerror( errno ) );
 }
 
-Gyrometer::Gyrometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
-{
-}
-
 void Gyrometer::initBase(void) {
   // Power up reset defaults
   busPtr->writeByteData(address, 0x3E, 0x80);
@@ -287,7 +279,19 @@ std::vector<double> Gyrometer::readBase(void) {
   return result;
 }
 
+Accelerometer::Accelerometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
+{
+}
+
 Barometer::Barometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
+{
+}
+
+Gyrometer::Gyrometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
+{
+}
+
+Magnetometer::Magnetometer( uint8_t address_, I2CDriver *busPtr_ ) : I2CSensor( address_, busPtr_ )
 {
 }
 

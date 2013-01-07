@@ -42,9 +42,10 @@ class Magnetometer : public I2CSensor {
   std::vector<double> correct( const std::vector<double> &uncorrected );
 
  public:
-  Magnetometer( uint8_t address_, I2CDriver *busPtr_, double center_x_, double center_y_,
-		double axes_x_, double axes_y_, double angle_, double X_STP_, double Y_STP_,
-		double Z_STP_ );
+  Magnetometer( uint8_t address_, I2CDriver *busPtr_ );
+  void setCalibration( double center_x_, double center_y_,
+		       double axes_x_, double axes_y_, double angle_, int X_STP_, int Y_STP_,
+		       int Z_STP_ );
   std::vector<double> readBase(void);
   void initBase(void);
 };

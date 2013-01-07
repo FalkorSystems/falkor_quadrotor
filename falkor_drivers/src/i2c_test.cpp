@@ -31,7 +31,8 @@ int main(void)
   I2CDriver i2c(3);
   Barometer barometer( 0x77, &i2c);
   Accelerometer accelerometer( 0x53, &i2c );
-  Magnetometer magnetometer( 0x1E, &i2c, 0.0, 0.0, 1.0, 1.0, 0.0, 466, 433, 453 );
+  Magnetometer magnetometer( 0x1E, &i2c );
+  magnetometer.setCalibration( 0.0, 0.0, 1.0, 1.0, 0.0, 466, 433, 453 );
   Gyrometer gyrometer( 0x68, &i2c );
 
   i2c.writeByteData( 0x1E, 0x01, 0x70 );

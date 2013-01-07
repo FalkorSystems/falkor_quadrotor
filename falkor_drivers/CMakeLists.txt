@@ -40,6 +40,9 @@ rosbuild_add_library(i2c src/sensor.cpp)
 rosbuild_add_executable(i2c_test src/i2c_test.cpp)
 target_link_libraries(i2c_test i2c)
 
+rosbuild_add_executable(i2c_ros_driver src/i2c_ros_driver.cpp)
+target_link_libraries(i2c_ros_driver i2c)
+
 #rosbuild_add_executable(i2c_driver src/i2c_driver.cpp)
 #target_link_libraries(i2c_driver i2c)
 #target_link_libraries(i2c_driver rt)
